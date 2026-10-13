@@ -110,19 +110,19 @@ export const Footer = () => {
             <ul className="space-y-2.5 text-xs text-cream-200/80">
               <li className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-mustard flex-shrink-0 mt-0.5" />
-                <span>Singodhia Bhawan, Heritage Lane, Jaipur, Rajasthan 302001</span>
+                <span>Prem Niwas, Bagreche Bass, Sujangarh, Rajasthan 331507</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-mustard flex-shrink-0" />
-                <span>+91 98765 43210</span>
+                <a href="tel:+919782983909" className="hover:text-mustard transition-colors">+91 97829 83909</a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-mustard flex-shrink-0" />
-                <span>care@singodhiafoods.com</span>
+                <a href="mailto:premsingodiya861@gmail.com" className="hover:text-mustard transition-colors">premsingodiya861@gmail.com</a>
               </li>
               <li className="pt-1">
                 <a
-                  href="https://wa.me/919876543210"
+                  href="https://wa.me/919782983909?text=Namaste%20Singodhia%20Foods!%20Mujhe%20order%20%2F%20products%20ke%20sambandh%20me%20query%20%2F%20issue%20ke%20liye%20help%20chahiye."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366] text-white font-bold text-xs hover:bg-[#20ba5a] transition-colors"

@@ -508,10 +508,10 @@ export const sampleSettings = [
   { key: 'codEnabled', value: true, description: 'Enable Cash on Delivery' },
   { key: 'codFee', value: 0, description: 'Extra fee for COD in INR' },
   { key: 'announcementText', value: '🌶️ Traditional Rajasthani Handcrafted Pickles • FREE Delivery on orders above ₹499! • Use Code: DESI10 for 10% OFF', description: 'Header announcement marquee' },
-  { key: 'whatsappNumber', value: '919876543210', description: 'Business WhatsApp phone number for customer queries' },
-  { key: 'storeAddress', value: 'Singodhia Bhawan, Heritage Lane, Jaipur, Rajasthan 302001', description: 'Physical store address' },
-  { key: 'supportPhone', value: '+91 98765 43210', description: 'Support helpline phone' },
-  { key: 'supportEmail', value: 'care@singodhiafoods.com', description: 'Customer support email' },
+  { key: 'whatsappNumber', value: '919782983909', description: 'Business WhatsApp phone number for customer queries' },
+  { key: 'storeAddress', value: 'Prem Niwas, Bagreche Bass, Sujangarh, Rajasthan 331507', description: 'Physical store address' },
+  { key: 'supportPhone', value: '+91 97829 83909', description: 'Support helpline phone' },
+  { key: 'supportEmail', value: 'premsingodiya861@gmail.com', description: 'Customer support email' },
   { key: 'heroBannerImage', value: '/hero-banner.png', description: 'Hero banner image displayed on homepage' }
 ];
 

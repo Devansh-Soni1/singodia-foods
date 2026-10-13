@@ -11,9 +11,9 @@ export const AdminSettings = () => {
     standardShippingFee: 60,
     codEnabled: true,
     announcementText: '🌶️ Traditional Rajasthani Handcrafted Pickles • FREE Delivery on orders above ₹499! • Use Code: DESI10 for 10% OFF',
-    whatsappNumber: '919876543210',
-    supportPhone: '+91 98765 43210',
-    supportEmail: 'care@singodhiafoods.com',
+    whatsappNumber: '919782983909',
+    supportPhone: '+91 97829 83909',
+    supportEmail: 'premsingodiya861@gmail.com',
     heroBannerImage: '/hero-banner.png'
   });
   const [saved, setSaved] = useState(false);

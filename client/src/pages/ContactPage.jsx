@@ -43,7 +43,7 @@ export const ContactPage = () => {
                   <div>
                     <h4 className="font-bold">Our Kitchen & Heritage Store</h4>
                     <p className="text-earth-brown mt-0.5">
-                      Singodhia Bhawan, Heritage Lane, Jaipur, Rajasthan 302001, India
+                      Prem Niwas, Bagreche Bass, Sujangarh, Rajasthan 331507, India
                     </p>
                   </div>
                 </div>
@@ -54,7 +54,9 @@ export const ContactPage = () => {
                   </div>
                   <div>
                     <h4 className="font-bold">Helpline (10 AM - 7 PM IST)</h4>
-                    <p className="text-earth-brown mt-0.5">+91 98765 43210</p>
+                    <p className="text-earth-brown mt-0.5">
+                      <a href="tel:+919782983909" className="hover:text-brand-green font-semibold">+91 97829 83909</a>
+                    </p>
                   </div>
                 </div>
 
@@ -64,7 +66,9 @@ export const ContactPage = () => {
                   </div>
                   <div>
                     <h4 className="font-bold">Email Support</h4>
-                    <p className="text-earth-brown mt-0.5">care@singodhiafoods.com</p>
+                    <p className="text-earth-brown mt-0.5">
+                      <a href="mailto:premsingodiya861@gmail.com" className="hover:text-brand-green font-semibold">premsingodiya861@gmail.com</a>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -72,7 +76,7 @@ export const ContactPage = () => {
               {/* Direct WhatsApp CTA */}
               <div className="pt-4 border-t border-cream-100">
                 <a
-                  href="https://wa.me/919876543210"
+                  href="https://wa.me/919782983909?text=Namaste%20Singodhia%20Foods!%20Mujhe%20order%20%2F%20products%20ke%20sambandh%20me%20query%20%2F%20issue%20ke%20liye%20help%20chahiye."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full py-3.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"

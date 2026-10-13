@@ -351,7 +351,7 @@ export const adminAPI = {
           standardShippingFee: 60,
           codEnabled: true,
           announcementText: '🌶️ Traditional Rajasthani Handcrafted Pickles • FREE Delivery on orders above ₹499! • Use Code: DESI10 for 10% OFF',
-          whatsappNumber: '919876543210',
+          whatsappNumber: '919782983909',
           heroBannerImage: '/hero-banner.png'
         }
       };
