@@ -4,7 +4,7 @@ export const SAMPLE_CATEGORIES = [
     hindiName: 'आम का अचार',
     slug: 'mango-pickles',
     description: 'Sun-cured raw green mangoes infused with cold-pressed mustard oil & roasted whole spices.',
-    image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=600&q=80',
+    image: '🥭',
     displayOrder: 1
   },
   {
@@ -12,7 +12,7 @@ export const SAMPLE_CATEGORIES = [
     hindiName: 'लाल मिर्च का अचार',
     slug: 'red-chilli-pickles',
     description: 'Banarasi sun-dried red peppers hand-stuffed with tangy amchur, saunf, and mustard.',
-    image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=600&q=80',
+    image: '🌶️',
     displayOrder: 2
   },
   {
@@ -20,7 +20,7 @@ export const SAMPLE_CATEGORIES = [
     hindiName: 'हरी मिर्च का अचार',
     slug: 'green-chilli-pickles',
     description: 'Crisp hand-cut green chillies cured with lemon, turmeric, and cracked rai.',
-    image: 'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=600&q=80',
+    image: '🫑',
     displayOrder: 3
   },
   {
@@ -28,7 +28,7 @@ export const SAMPLE_CATEGORIES = [
     hindiName: 'नीम्बू का अचार',
     slug: 'lemon-pickles',
     description: 'Khatta-meetha and oil-free lemon pickles aged in earthen martabans under sunlight.',
-    image: 'https://images.unsplash.com/photo-1590502593747-42a996133562?auto=format&fit=crop&w=600&q=80',
+    image: '🍋',
     displayOrder: 4
   },
   {
@@ -36,7 +36,7 @@ export const SAMPLE_CATEGORIES = [
     hindiName: 'राजस्थानी स्पेशल',
     slug: 'rajasthani-specials',
     description: 'Authentic royal Marwadi heritage creations: Kair Sangri, Lesua (Gunda), and Hing Aam.',
-    image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80',
+    image: '🏺',
     displayOrder: 5
   },
   {
@@ -44,7 +44,7 @@ export const SAMPLE_CATEGORIES = [
     hindiName: 'लहसुन का अचार',
     slug: 'garlic-pickles',
     description: 'Whole juicy garlic cloves steeped in spiced cold-pressed mustard oil.',
-    image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=600&q=80',
+    image: '🧄',
     displayOrder: 6
   },
   {
@@ -52,7 +52,7 @@ export const SAMPLE_CATEGORIES = [
     hindiName: 'पचरंगा मिक्स अचार',
     slug: 'mixed-pickles',
     description: 'Festive crunch of farm-fresh winter vegetables and raw fruits in mustard oil.',
-    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
+    image: '🥗',
     displayOrder: 7
   },
   {
@@ -60,7 +60,7 @@ export const SAMPLE_CATEGORIES = [
     hindiName: 'कॉम्बो और गिफ़्ट पैक',
     slug: 'combo-packs',
     description: 'Handpicked tasting sets, Dadi trial boxes, and ceramic martaban gift hampers.',
-    image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=600&q=80',
+    image: '🎁',
     displayOrder: 8
   },
   {
@@ -68,7 +68,7 @@ export const SAMPLE_CATEGORIES = [
     hindiName: 'बीकानेरी पापड़',
     slug: 'papad',
     description: 'Crispy sun-dried handmade Moong & Chana dal papads with authentic Hing & Kali Mirch.',
-    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&q=80',
+    image: '🫓',
     displayOrder: 9
   },
   {
@@ -76,7 +76,7 @@ export const SAMPLE_CATEGORIES = [
     hindiName: 'A2 गिर गाय बिलोना घी',
     slug: 'a2-ghee',
     description: 'Traditional wood-churned Bilona golden ghee prepared from grass-fed Gir cows.',
-    image: 'https://images.unsplash.com/photo-1631451095765-2c91616fc9e6?auto=format&fit=crop&w=600&q=80',
+    image: '🍯',
     displayOrder: 10
   },
   {
@@ -84,7 +84,7 @@ export const SAMPLE_CATEGORIES = [
     hindiName: 'देसी पिसे मसाले',
     slug: 'masalas',
     description: 'Stone-ground heritage spice blends: Royal Achar Masala, Chai Masala, and Shahi Garam Masala.',
-    image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=600&q=80',
+    image: '🌶️',
     displayOrder: 11
   }
 ];
