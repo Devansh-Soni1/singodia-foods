@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
@@ -31,19 +31,51 @@ import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminReviews from './pages/admin/AdminReviews';
 import AdminSettings from './pages/admin/AdminSettings';
 
-// Protected Admin Route Guard
+// Protected Admin Route Guard (Strict Authentication & Authorization)
 const ProtectedAdminRoute = ({ children }) => {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, loading, isAuthenticated, isAdmin } = useAuth();
   
   if (loading) {
     return (
-      <div className="py-24 text-center min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-brand-green border-t-transparent rounded-full animate-spin" />
+      <div className="py-24 text-center min-h-screen flex items-center justify-center bg-[#FAF6EF]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-brand-green border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-bold text-gray-600">Verifying Admin Credentials...</span>
+        </div>
       </div>
     );
   }
 
-  // Allow admin access if user is admin, or allow preview for demo testing if explicitly accessed
+  // Not logged in -> Redirect to login with redirect query
+  if (!isAuthenticated) {
+    return <Navigate to={`/login?redirect=${encodeURIComponent(window.location.pathname)}`} replace />;
+  }
+
+  // Logged in but not an admin -> Strict Access Denied screen
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-[#FAF6EF] flex items-center justify-center p-4">
+        <div className="bg-white rounded-3xl p-8 max-w-md w-full border border-red-200 shadow-xl text-center space-y-4">
+          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-2xl font-black">
+            🔒
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 font-serif">Admin Access Restricted</h2>
+          <p className="text-xs text-gray-600">
+            Yeh section keval authorized administrators ke liye surakshit hai. Admin panel access karne ke liye admin credentials se log in karein.
+          </p>
+          <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
+            <Link to="/login?redirect=/admin" className="px-5 py-2.5 bg-brand-green text-white text-xs font-bold rounded-xl shadow-xs">
+              Log in as Admin
+            </Link>
+            <Link to="/" className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl">
+              Return to Store
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return children;
 };
 

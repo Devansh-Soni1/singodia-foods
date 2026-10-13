@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, ShoppingCart, User, Menu, X, ChevronDown, Sparkles, MessageCircle } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { categoryAPI } from '../../services/api';
 
 export const Navbar = ({ onOpenSearch }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -38,7 +39,23 @@ export const Navbar = ({ onOpenSearch }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const ingredientsList = [
+  const [dynamicCategories, setDynamicCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchNavbarCategories = async () => {
+      try {
+        const res = await categoryAPI.getCategories();
+        if (Array.isArray(res.categories) && res.categories.length > 0) {
+          setDynamicCategories(res.categories);
+        }
+      } catch (err) {
+        // Fallback to static list
+      }
+    };
+    fetchNavbarCategories();
+  }, []);
+
+  const defaultIngredientsList = [
     { name: 'Mango (Aam / आम का अचार)', slug: 'mango-pickles', icon: '🥭' },
     { name: 'Red Chilli (Banarasi Lal Mirch / भरवां लाल मिर्च)', slug: 'red-chilli-pickles', icon: '🌶️' },
     { name: 'Green Chilli (Hari Mirch Tipore / हरी मिर्च)', slug: 'green-chilli-pickles', icon: '🫑' },
@@ -48,6 +65,14 @@ export const Navbar = ({ onOpenSearch }) => {
     { name: 'Mixed Vegetables (Pachranga Mix / पचरंगा)', slug: 'mixed-pickles', icon: '🥕' },
     { name: 'Combo Packs & Hampers (कॉम्बो पैक)', slug: 'combo-packs', icon: '🎁' },
   ];
+
+  const ingredientsList = dynamicCategories.length > 0
+    ? dynamicCategories.map(c => ({
+        name: c.hindiName ? `${c.name} (${c.hindiName})` : c.name,
+        slug: c.slug,
+        icon: c.slug.includes('mango') ? '🥭' : c.slug.includes('chilli') || c.slug.includes('mirch') ? '🌶️' : c.slug.includes('lemon') || c.slug.includes('nimbu') ? '🍋' : c.slug.includes('garlic') || c.slug.includes('lahsun') ? '🧄' : c.slug.includes('combo') ? '🎁' : '👑'
+      }))
+    : defaultIngredientsList;
 
   const tasteList = [
     { name: 'Spicy (तीखा अचार)', filter: 'spice=Spicy', icon: '🔥' },

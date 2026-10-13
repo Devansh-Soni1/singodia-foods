@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { categoryAPI } from '../../services/api';
 import { SAMPLE_CATEGORIES } from '../../utils/sampleData';
 
 export const CategorySection = () => {
+  const [categories, setCategories] = useState(SAMPLE_CATEGORIES);
+
+  useEffect(() => {
+    const fetchDynamicCategories = async () => {
+      try {
+        const res = await categoryAPI.getCategories();
+        if (Array.isArray(res.categories) && res.categories.length > 0) {
+          setCategories(res.categories);
+        }
+      } catch (e) {
+        // Fallback to SAMPLE_CATEGORIES
+      }
+    };
+    fetchDynamicCategories();
+  }, []);
+
   return (
     <section className="py-14 sm:py-20 bg-white border-y border-cream-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -23,7 +40,7 @@ export const CategorySection = () => {
 
         {/* Categories Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          {SAMPLE_CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <Link
               key={cat.slug}
               to={`/shop?category=${cat.slug}`}

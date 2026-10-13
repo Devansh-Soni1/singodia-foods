@@ -3,12 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import { Filter, SlidersHorizontal, X, Sparkles, ChevronDown } from 'lucide-react';
 import { ProductCard } from '../components/product/ProductCard';
 import { QuickViewModal } from '../components/product/QuickViewModal';
-import { productAPI } from '../services/api';
+import { productAPI, categoryAPI } from '../services/api';
 import { SAMPLE_CATEGORIES, SAMPLE_PRODUCTS } from '../utils/sampleData';
 
 export const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(SAMPLE_CATEGORIES);
   const [loading, setLoading] = useState(false);
   const [selectedProductForQuickView, setSelectedProductForQuickView] = useState(null);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -21,6 +22,18 @@ export const ShopPage = () => {
   const bestsellersParam = searchParams.get('bestsellers') === 'true';
   const jainParam = searchParams.get('jain') === 'true';
   const tasteParam = searchParams.get('taste') || '';
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await categoryAPI.getCategories();
+        if (Array.isArray(res.categories) && res.categories.length > 0) {
+          setCategories(res.categories);
+        }
+      } catch (e) {}
+    };
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     const fetchFiltered = async () => {
@@ -204,7 +217,7 @@ export const ShopPage = () => {
                   <span>All Categories</span>
                   <span>{SAMPLE_PRODUCTS.length}</span>
                 </button>
-                {SAMPLE_CATEGORIES.map((cat) => (
+                {categories.map((cat) => (
                   <button
                     key={cat.slug}
                     onClick={() => updateFilter('category', cat.slug)}

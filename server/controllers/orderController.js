@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import Razorpay from 'razorpay';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
+import User from '../models/User.js';
 
 // In-memory fallback for orders when Mongo is not connected
 let memoryOrders = [];
@@ -86,8 +87,8 @@ export const createOrder = async (req, res, next) => {
       items: items.map(item => ({
         product: item.product || null,
         name: item.name,
-        image: item.image,
-        weight: item.weight,
+        image: item.image || '/hero-banner.png',
+        weight: item.weight || '500g',
         price: item.price,
         quantity: item.quantity,
         itemTotal: item.price * item.quantity
@@ -104,6 +105,39 @@ export const createOrder = async (req, res, next) => {
       customerNotes,
       createdAt: new Date()
     };
+
+    // Auto-save customer details into MongoDB database if not already existing
+    if (mongoose.connection.readyState === 1 && customer?.email) {
+      try {
+        let existingUser = await User.findOne({ email: customer.email.toLowerCase().trim() });
+        if (!existingUser) {
+          const tempPassword = 'User@' + Math.random().toString(36).slice(-8);
+          existingUser = await User.create({
+            name: customer.name,
+            email: customer.email.toLowerCase().trim(),
+            password: tempPassword,
+            phone: customer.phone || '',
+            role: 'customer',
+            addresses: [{
+              fullName: customer.name,
+              phone: customer.phone,
+              addressLine1: shippingAddress.addressLine1,
+              addressLine2: shippingAddress.addressLine2 || '',
+              landmark: shippingAddress.landmark || '',
+              city: shippingAddress.city,
+              state: shippingAddress.state,
+              pincode: shippingAddress.pincode,
+              isDefault: true
+            }]
+          });
+        }
+        if (existingUser && !orderData.user) {
+          orderData.user = existingUser._id;
+        }
+      } catch (custErr) {
+        console.warn('Customer auto-save in database notice:', custErr.message);
+      }
+    }
 
     let order = null;
     if (mongoose.connection.readyState === 1) {

@@ -1,8 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { categoryAPI } from '../../services/api';
 
 export const SubHeaderCategoryBar = () => {
   const location = useLocation();
+  const [dbCategories, setDbCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCats = async () => {
+      try {
+        const res = await categoryAPI.getCategories();
+        if (Array.isArray(res.categories) && res.categories.length > 0) {
+          setDbCategories(res.categories);
+        }
+      } catch (err) {
+        // Fallback to static items
+      }
+    };
+    fetchCats();
+  }, []);
 
   // Hide on checkout, login, register, and admin routes
   if (
@@ -15,7 +31,7 @@ export const SubHeaderCategoryBar = () => {
     return null;
   }
 
-  const categoryItems = [
+  const defaultCategoryItems = [
     {
       id: 'mango-pickles',
       titleLine1: 'Mango',
@@ -166,13 +182,28 @@ export const SubHeaderCategoryBar = () => {
     },
   ];
 
+  const displayItems = dbCategories.length > 0
+    ? dbCategories.map(cat => {
+        const matched = defaultCategoryItems.find(d => d.id === cat.slug);
+        const nameParts = cat.name.split(' ');
+        return {
+          id: cat.slug || cat._id,
+          titleLine1: nameParts[0] || cat.name,
+          titleLine2: nameParts.slice(1).join(' ') || (cat.hindiName ? `(${cat.hindiName})` : ''),
+          link: `/shop?category=${cat.slug}`,
+          image: cat.image,
+          icon: matched?.icon
+        };
+      })
+    : defaultCategoryItems;
+
   return (
     <section className="bg-white border-t border-b border-amber-200/80 shadow-[0_2px_8px_rgba(243,162,34,0.08)] select-none">
       
       {/* 1. Category Icon Strip */}
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pt-3 pb-3">
         <div className="flex items-start justify-start md:justify-center gap-4 sm:gap-7 lg:gap-11 overflow-x-auto scrollbar-none pb-1 pt-2 px-1">
-          {categoryItems.map((item) => (
+          {displayItems.map((item) => (
             <Link
               key={item.id}
               to={item.link}
@@ -187,10 +218,19 @@ export const SubHeaderCategoryBar = () => {
                   </span>
                 )}
                 
-                {/* Line art Icon */}
-                <div className="text-gray-800 group-hover:text-[#b35400] transition-colors duration-200">
-                  {item.icon}
-                </div>
+                {/* Category Image or Line Art Icon */}
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt={item.titleLine1}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-amber-300 group-hover:border-brand-green shadow-xs mx-auto"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                ) : (
+                  <div className="text-gray-800 group-hover:text-[#b35400] transition-colors duration-200">
+                    {item.icon}
+                  </div>
+                )}
               </div>
 
               {/* Title below icon */}
