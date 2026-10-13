@@ -22,19 +22,26 @@ export const HomePage = () => {
   useEffect(() => {
     const loadHomeData = async () => {
       try {
-        const res = await productAPI.getFeatured();
-        if (res.bestsellers?.length > 0) {
-          setBestsellers(res.bestsellers);
+        const [featuredRes, allRes] = await Promise.all([
+          productAPI.getFeatured(),
+          productAPI.getProducts({ limit: 100 })
+        ]);
+        
+        if (featuredRes.bestsellers && featuredRes.bestsellers.length > 0) {
+          setBestsellers(featuredRes.bestsellers);
+        } else if (allRes.products && allRes.products.length > 0) {
+          setBestsellers(allRes.products.slice(0, 8));
+        }
+
+        if (allRes.products && allRes.products.length > 0) {
+          const comboList = allRes.products.filter(p => p.category === 'combo-packs');
+          setCombos(comboList);
         }
       } catch (err) {
-        console.warn('Fallback sample bestsellers loaded');
+        console.warn('Fallback sample data loaded:', err);
       }
     };
     loadHomeData();
-
-    // Combos
-    const comboList = SAMPLE_PRODUCTS.filter(p => p.category === 'combo-packs');
-    setCombos(comboList);
   }, []);
 
   return (

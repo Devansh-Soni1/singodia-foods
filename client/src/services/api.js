@@ -342,10 +342,10 @@ export const adminAPI = {
       return {
         success: true,
         stats: {
-          totalRevenue: 34500,
-          totalOrders: 42,
-          totalProducts: SAMPLE_PRODUCTS.length,
-          totalCustomers: 26,
+          totalRevenue: 0,
+          totalOrders: 0,
+          totalProducts: 0,
+          totalCustomers: 0,
           recentOrders: [],
           lowStockProducts: []
         }

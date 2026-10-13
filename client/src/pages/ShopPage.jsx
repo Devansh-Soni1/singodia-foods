@@ -8,7 +8,7 @@ import { SAMPLE_CATEGORIES, SAMPLE_PRODUCTS } from '../utils/sampleData';
 
 export const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [products, setProducts] = useState(SAMPLE_PRODUCTS);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedProductForQuickView, setSelectedProductForQuickView] = useState(null);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -33,7 +33,7 @@ export const ShopPage = () => {
           search: searchParam,
           isBestSeller: bestsellersParam ? 'true' : undefined
         });
-        let list = res.products || SAMPLE_PRODUCTS;
+        let list = Array.isArray(res.products) ? res.products : [];
         
         // Jain friendly filter
         if (jainParam) {

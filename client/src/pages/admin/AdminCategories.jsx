@@ -4,7 +4,7 @@ import { categoryAPI } from '../../services/api';
 import { SAMPLE_CATEGORIES } from '../../utils/sampleData';
 
 export const AdminCategories = () => {
-  const [categories, setCategories] = useState(SAMPLE_CATEGORIES);
+  const [categories, setCategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingCat, setEditingCat] = useState(null);
   const [formData, setFormData] = useState({
@@ -12,7 +12,7 @@ export const AdminCategories = () => {
     hindiName: '',
     slug: '',
     description: '',
-    image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=600&q=80',
+    image: '',
     displayOrder: 1
   });
 
@@ -20,7 +20,7 @@ export const AdminCategories = () => {
     const fetchCats = async () => {
       try {
         const res = await categoryAPI.getCategories();
-        if (res.categories?.length > 0) setCategories(res.categories);
+        if (Array.isArray(res.categories)) setCategories(res.categories);
       } catch (err) {
         console.warn(err);
       }
@@ -35,7 +35,7 @@ export const AdminCategories = () => {
       hindiName: '',
       slug: '',
       description: '',
-      image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=600&q=80',
+      image: '',
       displayOrder: categories.length + 1
     });
     setShowModal(true);

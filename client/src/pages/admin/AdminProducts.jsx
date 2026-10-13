@@ -12,8 +12,8 @@ import { SAMPLE_PRODUCTS, SAMPLE_CATEGORIES } from '../../utils/sampleData';
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80';
 
 export const AdminProducts = () => {
-  const [products, setProducts] = useState(SAMPLE_PRODUCTS);
-  const [categories, setCategories] = useState(SAMPLE_CATEGORIES);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -32,23 +32,22 @@ export const AdminProducts = () => {
   const defaultFormData = {
     name: '',
     hindiName: '',
-    category: 'mango-pickles',
+    category: '',
     shortDescription: '',
     fullDescription: '',
     images: [],
     spiceLevel: 'Medium',
-    ingredients: 'Cold-Pressed Kachi Ghani Mustard Oil, Whole Roasted Spices, Rock Salt, Hing',
-    shelfLife: '12 Months from packaging date',
-    oilType: 'Pure Kachi Ghani Mustard Oil (सरसों का तेल)',
-    pairWith: 'Dal Khichdi, Ghee Paratha, Puri, Mathri',
-    tags: 'Handmade, Sun-Cured, Zero Preservatives',
+    ingredients: '',
+    shelfLife: '',
+    oilType: '',
+    pairWith: '',
+    tags: '',
     isBestSeller: false,
-    isFeatured: true,
+    isFeatured: false,
     isNewArrival: false,
     isActive: true,
     variants: [
-      { weight: '250g', price: 249, originalPrice: 299, inStock: true, stockCount: 50 },
-      { weight: '500g', price: 449, originalPrice: 520, inStock: true, stockCount: 30 }
+      { weight: '', price: '', originalPrice: '', inStock: true, stockCount: '' }
     ]
   };
 
@@ -58,9 +57,9 @@ export const AdminProducts = () => {
     setLoading(true);
     try {
       const pRes = await productAPI.getProducts({ limit: 100 });
-      if (pRes.products?.length > 0) setProducts(pRes.products);
+      if (Array.isArray(pRes.products)) setProducts(pRes.products);
       const cRes = await categoryAPI.getCategories();
-      if (cRes.categories?.length > 0) setCategories(cRes.categories);
+      if (Array.isArray(cRes.categories)) setCategories(cRes.categories);
     } catch (err) {
       console.warn('Using existing products:', err);
     } finally {
@@ -77,7 +76,7 @@ export const AdminProducts = () => {
     setFormData({
       ...defaultFormData,
       category: categories[0]?.slug || 'mango-pickles',
-      images: [DEFAULT_IMAGE]
+      images: []
     });
     setUploadError('');
     setShowUrlInput(false);
@@ -227,13 +226,13 @@ export const AdminProducts = () => {
       return;
     }
 
-    if (!formData.images || formData.images.length === 0) {
-      alert('Please upload at least one product photo.');
-      return;
-    }
+    const finalImages = formData.images && formData.images.length > 0
+      ? formData.images
+      : [DEFAULT_IMAGE];
 
     const payload = {
       ...formData,
+      images: finalImages,
       ingredients: typeof formData.ingredients === 'string'
         ? formData.ingredients.split(',').map(s => s.trim()).filter(Boolean)
         : formData.ingredients,

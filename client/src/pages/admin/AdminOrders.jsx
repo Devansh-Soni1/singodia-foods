@@ -22,46 +22,14 @@ export const AdminOrders = () => {
     setLoading(true);
     try {
       const res = await orderAPI.getAllOrders();
-      if (res.orders?.length > 0) {
+      if (Array.isArray(res.orders)) {
         setOrders(res.orders);
       } else {
-        // Sample order fallback for demo
-        setOrders([
-          {
-            _id: 'ord-101',
-            orderNumber: 'SGF-261009-8421',
-            customer: { name: 'Pooja Agarwal', email: 'pooja@example.com', phone: '+91 98765 43210' },
-            shippingAddress: { addressLine1: 'B-12, Malviya Nagar', city: 'Jaipur', state: 'Rajasthan', pincode: '302017' },
-            items: [
-              { name: 'Banarasi Lal Mirch Ka Bharwa Achar', weight: '500g', price: 449, quantity: 1 },
-              { name: 'Kachi Keri Desi Aam Ka Achar', weight: '500g', price: 369, quantity: 1 }
-            ],
-            totalAmount: 898,
-            paymentMethod: 'razorpay',
-            paymentStatus: 'completed',
-            orderStatus: 'Processing',
-            createdAt: new Date()
-          },
-          {
-            _id: 'ord-102',
-            orderNumber: 'SGF-261008-1192',
-            customer: { name: 'Rajesh Singhal', email: 'rajesh@example.com', phone: '+91 98223 34455' },
-            shippingAddress: { addressLine1: '402, Sunshine Heights', city: 'Mumbai', state: 'Maharashtra', pincode: '400050' },
-            items: [
-              { name: 'Rajasthani Shahi Martaban Hamper', weight: '2 x 500g Barnis', price: 1199, quantity: 1 }
-            ],
-            totalAmount: 1199,
-            paymentMethod: 'cod',
-            paymentStatus: 'pending',
-            orderStatus: 'Shipped',
-            trackingNumber: 'DEL-99214488',
-            courierPartner: 'Delhivery',
-            createdAt: new Date(Date.now() - 86400000)
-          }
-        ]);
+        setOrders([]);
       }
     } catch (err) {
-      console.warn('Orders fallback:', err);
+      console.warn('Orders fetch error:', err);
+      setOrders([]);
     } finally {
       setLoading(false);
     }

@@ -9,10 +9,10 @@ import { formatPrice } from '../../utils/formatCurrency';
 
 export const AdminDashboard = () => {
   const [stats, setStats] = useState({
-    totalRevenue: 28450,
-    totalOrders: 34,
-    totalProducts: 10,
-    totalCustomers: 18,
+    totalRevenue: 0,
+    totalOrders: 0,
+    totalProducts: 0,
+    totalCustomers: 0,
     recentOrders: [],
     lowStockProducts: []
   });

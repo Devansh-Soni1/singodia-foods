@@ -4,13 +4,13 @@ import { reviewAPI } from '../../services/api';
 import { SAMPLE_REVIEWS } from '../../utils/sampleData';
 
 export const AdminReviews = () => {
-  const [reviews, setReviews] = useState(SAMPLE_REVIEWS);
+  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
         const res = await reviewAPI.getAllReviews();
-        if (res.reviews?.length > 0) setReviews(res.reviews);
+        if (Array.isArray(res.reviews)) setReviews(res.reviews);
       } catch (err) {
         console.warn(err);
       }

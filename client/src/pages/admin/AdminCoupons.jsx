@@ -4,19 +4,15 @@ import { couponAPI } from '../../services/api';
 import { formatPrice } from '../../utils/formatCurrency';
 
 export const AdminCoupons = () => {
-  const [coupons, setCoupons] = useState([
-    { _id: 'c1', code: 'DESI10', discountType: 'percentage', discountValue: 10, minOrderValue: 399, maxDiscountAmount: 150, description: '10% OFF on ₹399+' },
-    { _id: 'c2', code: 'SWAD15', discountType: 'percentage', discountValue: 15, minOrderValue: 699, maxDiscountAmount: 300, description: '15% OFF on ₹699+' },
-    { _id: 'c3', code: 'FREESHIP', discountType: 'fixed', discountValue: 60, minOrderValue: 0, maxDiscountAmount: 60, description: 'Free Delivery' },
-  ]);
+  const [coupons, setCoupons] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
   const [newCoupon, setNewCoupon] = useState({
     code: '',
     discountType: 'percentage',
-    discountValue: 10,
-    minOrderValue: 399,
-    maxDiscountAmount: 200,
+    discountValue: '',
+    minOrderValue: '',
+    maxDiscountAmount: '',
     description: ''
   });
 
@@ -24,7 +20,7 @@ export const AdminCoupons = () => {
     const fetchCoupons = async () => {
       try {
         const res = await couponAPI.getCoupons();
-        if (res.coupons?.length > 0) setCoupons(res.coupons);
+        if (Array.isArray(res.coupons)) setCoupons(res.coupons);
       } catch (err) {
         console.warn(err);
       }
