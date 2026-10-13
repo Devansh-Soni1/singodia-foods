@@ -4,26 +4,26 @@ import { MapPin, Phone, Mail, MessageCircle, ShieldCheck, Heart, Sparkles } from
 
 export const Footer = () => {
   return (
-    <footer className="bg-[#143025] text-[#FAF6EF] pt-14 pb-8 border-t-4 border-mustard">
+    <footer className="bg-[#143025] text-[#FAF6EF] pt-8 sm:pt-12 pb-6 sm:pb-8 border-t-4 border-mustard">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 pb-12 border-b border-white/10">
+        {/* Main Grid: On desktop 5 cols, on mobile links sit side-by-side in 2 cols */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8 pb-6 sm:pb-8 border-b border-white/10">
           
           {/* Brand Col */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-2.5 sm:space-y-4">
             <Link to="/" className="inline-block transition-all group">
               <img 
                 src="/logo.png" 
                 alt="Singodia Foods" 
-                className="h-28 sm:h-36 md:h-40 w-auto object-contain drop-shadow-md transition-transform group-hover:scale-105" 
+                className="h-16 sm:h-24 md:h-32 w-auto object-contain drop-shadow-md transition-transform group-hover:scale-105" 
               />
             </Link>
             <p className="text-xs sm:text-sm text-cream-200/90 leading-relaxed max-w-sm">
               Authentic Rajasthani homemade pickles prepared using time-honoured family recipes. 
               Sun-cured naturally in glazed ceramic martabans with pure cold-pressed Kachi Ghani mustard oil and zero artificial preservatives.
             </p>
-            <div className="pt-2 flex items-center gap-3 text-xs text-mustard font-semibold">
+            <div className="pt-1 flex flex-wrap items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-mustard font-semibold">
               <span className="flex items-center gap-1">
                 <Sparkles className="w-3.5 h-3.5" /> 100% Traditional
               </span>
@@ -34,91 +34,96 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-mustard font-sans">
-              Explore Pickles
-            </h4>
-            <ul className="space-y-2 text-xs text-cream-200/80">
-              <li>
-                <Link to="/shop" className="hover:text-mustard transition-colors">
-                  All Pickles (सभी आचार)
-                </Link>
-              </li>
-              <li>
-                <Link to="/shop?bestsellers=true" className="hover:text-mustard transition-colors">
-                  Bestsellers
-                </Link>
-              </li>
-              <li>
-                <Link to="/build-combo" className="hover:text-mustard transition-colors text-mustard font-semibold">
-                  Build Your Own Combo
-                </Link>
-              </li>
-              <li>
-                <Link to="/shop?category=combo-packs" className="hover:text-mustard transition-colors">
-                  Festive Gift Hampers
-                </Link>
-              </li>
-              <li>
-                <Link to="/shop?category=rajasthani-specials" className="hover:text-mustard transition-colors">
-                  Rajasthani Specials (कैर सांगरी)
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* Links Section: 2-column grid on mobile to keep vertical height minimal */}
+          <div className="lg:col-span-2 grid grid-cols-2 gap-4 sm:gap-6">
+            
+            {/* Quick Links */}
+            <div className="space-y-2 sm:space-y-3">
+              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-mustard font-sans">
+                Explore Pickles
+              </h4>
+              <ul className="space-y-1.5 sm:space-y-2 text-[11px] sm:text-xs text-cream-200/80">
+                <li>
+                  <Link to="/shop" className="hover:text-mustard transition-colors">
+                    All Pickles (सभी आचार)
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/shop?bestsellers=true" className="hover:text-mustard transition-colors">
+                    Bestsellers
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/build-combo" className="hover:text-mustard transition-colors text-mustard font-semibold">
+                    Build Combo
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/shop?category=combo-packs" className="hover:text-mustard transition-colors">
+                    Gift Hampers
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/shop?category=rajasthani-specials" className="hover:text-mustard transition-colors">
+                    Rajasthani Specials
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-          {/* Categories */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-mustard font-sans">
-              Pickle Categories
-            </h4>
-            <ul className="space-y-2 text-xs text-cream-200/80">
-              <li>
-                <Link to="/shop?category=mango-pickles" className="hover:text-mustard transition-colors">
-                  Mango Pickle (Aam Ka Achar)
-                </Link>
-              </li>
-              <li>
-                <Link to="/shop?category=red-chilli-pickles" className="hover:text-mustard transition-colors">
-                  Red Chilli (Banarasi Bharwa)
-                </Link>
-              </li>
-              <li>
-                <Link to="/shop?category=green-chilli-pickles" className="hover:text-mustard transition-colors">
-                  Green Chilli (Hari Mirch)
-                </Link>
-              </li>
-              <li>
-                <Link to="/shop?category=lemon-pickles" className="hover:text-mustard transition-colors">
-                  Lemon Pickle (Oil-Free Nimbu)
-                </Link>
-              </li>
-              <li>
-                <Link to="/shop?category=garlic-pickles" className="hover:text-mustard transition-colors">
-                  Garlic Pickle (Lahsun Ka Achar)
-                </Link>
-              </li>
-            </ul>
+            {/* Categories */}
+            <div className="space-y-2 sm:space-y-3">
+              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-mustard font-sans">
+                Pickle Categories
+              </h4>
+              <ul className="space-y-1.5 sm:space-y-2 text-[11px] sm:text-xs text-cream-200/80">
+                <li>
+                  <Link to="/shop?category=mango-pickles" className="hover:text-mustard transition-colors">
+                    Mango (Aam Ka Achar)
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/shop?category=red-chilli-pickles" className="hover:text-mustard transition-colors">
+                    Red Chilli (Banarasi)
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/shop?category=green-chilli-pickles" className="hover:text-mustard transition-colors">
+                    Green Chilli (Hari Mirch)
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/shop?category=lemon-pickles" className="hover:text-mustard transition-colors">
+                    Lemon (Oil-Free Nimbu)
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/shop?category=garlic-pickles" className="hover:text-mustard transition-colors">
+                    Garlic (Lahsun)
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
           </div>
 
           {/* Contact Details */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider text-mustard font-sans">
+          <div className="lg:col-span-1 space-y-2 sm:space-y-3">
+            <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-mustard font-sans">
               Contact & Support
             </h4>
-            <ul className="space-y-2.5 text-xs text-cream-200/80">
+            <ul className="space-y-2 text-[11px] sm:text-xs text-cream-200/80">
               <li className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-mustard flex-shrink-0 mt-0.5" />
+                <MapPin className="w-3.5 h-3.5 text-mustard flex-shrink-0 mt-0.5" />
                 <span>Prem Niwas, Bagreche Bass, Sujangarh, Rajasthan 331507</span>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-mustard flex-shrink-0" />
+                <Phone className="w-3.5 h-3.5 text-mustard flex-shrink-0" />
                 <a href="tel:+919782983909" className="hover:text-mustard transition-colors">+91 97829 83909</a>
               </li>
               <li className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-mustard flex-shrink-0" />
-                <a href="mailto:premsingodiya861@gmail.com" className="hover:text-mustard transition-colors">premsingodiya861@gmail.com</a>
+                <Mail className="w-3.5 h-3.5 text-mustard flex-shrink-0" />
+                <a href="mailto:premsingodiya861@gmail.com" className="hover:text-mustard transition-colors truncate">premsingodiya861@gmail.com</a>
               </li>
               <li className="pt-1">
                 <a
@@ -137,23 +142,23 @@ export const Footer = () => {
         </div>
 
         {/* Bottom bar with payment badges and policies */}
-        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-cream-200/70">
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+        <div className="pt-4 sm:pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] sm:text-xs text-cream-200/70">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-4 text-center md:text-left">
             <span>© {new Date().getFullYear()} Singodhia Foods. All Rights Reserved.</span>
-            <span>•</span>
+            <span className="hidden sm:inline">•</span>
             <span className="flex items-center gap-1">
               Handcrafted with <Heart className="w-3 h-3 text-chilli fill-current" /> in Rajasthan
             </span>
           </div>
 
           {/* Payment Methods */}
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-[11px] text-cream-200/60 uppercase mr-1">Accepted:</span>
-            <span className="px-2 py-1 bg-white/10 rounded font-semibold text-[10px]">UPI</span>
-            <span className="px-2 py-1 bg-white/10 rounded font-semibold text-[10px]">Google Pay</span>
-            <span className="px-2 py-1 bg-white/10 rounded font-semibold text-[10px]">PhonePe</span>
-            <span className="px-2 py-1 bg-white/10 rounded font-semibold text-[10px]">Cards</span>
-            <span className="px-2 py-1 bg-white/10 rounded font-semibold text-[10px]">Cash on Delivery</span>
+          <div className="flex flex-wrap items-center justify-center gap-1.5 text-[10px]">
+            <span className="text-cream-200/60 uppercase mr-1">Accepted:</span>
+            <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">UPI</span>
+            <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">GPay</span>
+            <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">PhonePe</span>
+            <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">Cards</span>
+            <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">Cash on Delivery</span>
           </div>
         </div>
 
@@ -163,4 +168,3 @@ export const Footer = () => {
 };
 
 export default Footer;
-
