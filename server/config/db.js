@@ -6,7 +6,7 @@ export const connectDB = async () => {
     console.log(`Connecting to MongoDB at: ${connUri.includes('@') ? connUri.split('@')[1] : connUri}...`);
     
     const conn = await mongoose.connect(connUri, {
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 15000,
     });
     
     console.log(`MongoDB Connected: ${conn.connection.host}`);
