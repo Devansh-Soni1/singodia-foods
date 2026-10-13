@@ -90,22 +90,10 @@ export const productAPI = {
       const res = await api.get('/products', { params });
       return res.data;
     } catch (err) {
-      // Offline fallback
-      let filtered = [...SAMPLE_PRODUCTS];
-      if (params.category && params.category !== 'all') {
-        filtered = filtered.filter(p => p.category === params.category);
-      }
-      if (params.spiceLevel && params.spiceLevel !== 'all') {
-        filtered = filtered.filter(p => p.spiceLevel === params.spiceLevel);
-      }
-      if (params.search) {
-        const s = params.search.toLowerCase();
-        filtered = filtered.filter(p => p.name.toLowerCase().includes(s) || p.shortDescription.toLowerCase().includes(s));
-      }
       return {
         success: true,
-        products: filtered,
-        total: filtered.length,
+        products: [],
+        total: 0,
         totalPages: 1
       };
     }
@@ -115,11 +103,6 @@ export const productAPI = {
       const res = await api.get(`/products/${slug}`);
       return res.data;
     } catch (err) {
-      const found = SAMPLE_PRODUCTS.find(p => p.slug === slug || p._id === slug);
-      if (found) {
-        const related = SAMPLE_PRODUCTS.filter(p => p.category === found.category && p.slug !== found.slug).slice(0, 4);
-        return { success: true, product: found, relatedProducts: related };
-      }
       throw err.response?.data || err;
     }
   },
@@ -130,9 +113,9 @@ export const productAPI = {
     } catch (err) {
       return {
         success: true,
-        bestsellers: SAMPLE_PRODUCTS.filter(p => p.isBestSeller),
-        featured: SAMPLE_PRODUCTS.filter(p => p.isFeatured),
-        newArrivals: SAMPLE_PRODUCTS.filter(p => p.isNewArrival)
+        bestsellers: [],
+        featured: [],
+        newArrivals: []
       };
     }
   },
@@ -170,7 +153,7 @@ export const categoryAPI = {
       const res = await api.get('/categories');
       return res.data;
     } catch (err) {
-      return { success: true, categories: SAMPLE_CATEGORIES };
+      return { success: true, categories: [] };
     }
   },
   createCategory: async (data) => {

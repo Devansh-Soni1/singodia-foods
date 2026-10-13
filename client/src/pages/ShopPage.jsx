@@ -9,7 +9,7 @@ import { SAMPLE_CATEGORIES, SAMPLE_PRODUCTS } from '../utils/sampleData';
 export const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState(SAMPLE_CATEGORIES);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedProductForQuickView, setSelectedProductForQuickView] = useState(null);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -215,7 +215,7 @@ export const ShopPage = () => {
                   }`}
                 >
                   <span>All Categories</span>
-                  <span>{SAMPLE_PRODUCTS.length}</span>
+                  <span>{products.length}</span>
                 </button>
                 {categories.map((cat) => (
                   <button

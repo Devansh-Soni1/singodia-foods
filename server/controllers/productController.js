@@ -214,19 +214,22 @@ export const getFeaturedAndBestsellers = async (req, res, next) => {
         bestsellers = await Product.find({ isBestSeller: true, isActive: true }).limit(8);
         featured = await Product.find({ isFeatured: true, isActive: true }).limit(8);
         newArrivals = await Product.find({ isNewArrival: true, isActive: true }).limit(8);
-      } catch (e) {}
+
+        return res.json({
+          success: true,
+          bestsellers,
+          featured,
+          newArrivals
+        });
+      } catch (e) {
+        console.warn('Mongo getFeaturedAndBestsellers failed:', e.message);
+      }
     }
 
     const local = getLocalProducts();
-    if (bestsellers.length === 0) {
-      bestsellers = local.filter(p => p.isBestSeller).slice(0, 8);
-    }
-    if (featured.length === 0) {
-      featured = local.filter(p => p.isFeatured).slice(0, 8);
-    }
-    if (newArrivals.length === 0) {
-      newArrivals = local.filter(p => p.isNewArrival).slice(0, 8);
-    }
+    bestsellers = local.filter(p => p.isBestSeller).slice(0, 8);
+    featured = local.filter(p => p.isFeatured).slice(0, 8);
+    newArrivals = local.filter(p => p.isNewArrival).slice(0, 8);
 
     res.json({
       success: true,
