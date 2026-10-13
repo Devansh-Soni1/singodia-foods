@@ -18,8 +18,13 @@ const app = express();
 
 // Middlewares
 app.use(cors({
-  origin: '*', // Allow frontend development
-  credentials: true
+  origin: (origin, callback) => {
+    // Dynamically allow requesting origin for credentials support
+    callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -30,6 +35,26 @@ if (process.env.NODE_ENV !== 'test') {
 
 // Serve uploaded static files
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
+// Root & API status endpoint (prevents 404 on browser navigation)
+app.get(['/', '/api'], (req, res) => {
+  res.json({
+    success: true,
+    message: '🥒 Singodhia Foods API Server is Live & Running!',
+    endpoints: {
+      health: '/api/health',
+      products: '/api/products',
+      categories: '/api/categories',
+      coupons: '/api/coupons',
+      reviews: '/api/reviews',
+      adminSettings: '/api/admin/settings/public',
+      shipping: '/api/shipping/status'
+    },
+    service: 'Singodhia Foods E-commerce API',
+    brand: 'Singodhia Foods — Desi Homemade Pickles',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
