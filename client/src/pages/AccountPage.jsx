@@ -119,14 +119,6 @@ export const AccountPage = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            {user?.role === 'admin' && (
-              <Link
-                to="/admin"
-                className="bg-brand-green text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs hover:bg-brand-green-light transition-all"
-              >
-                Go to Admin Dashboard
-              </Link>
-            )}
             <button
               onClick={() => { logout(); navigate('/'); }}
               className="px-4 py-2.5 rounded-xl border border-cream-300 text-charcoal hover:bg-cream-100 text-xs font-bold flex items-center gap-1.5 transition-colors"

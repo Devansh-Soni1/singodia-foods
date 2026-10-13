@@ -227,19 +227,9 @@ export const Navbar = ({ onOpenSearch }) => {
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Admin shortcut button */}
-            <Link
-              to="/admin"
-              className="hidden md:flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-[11px] font-extrabold px-3 py-1.5 rounded-full shadow-xs transition-all hover:scale-105"
-              title="Singodia Foods Admin Panel (Products, Orders, Settings)"
-            >
-              <span>⚙️</span>
-              <span>Admin Panel</span>
-            </Link>
-
             {/* Customer Account Icon (Golden/Amber outline from image) */}
             <Link
-              to={isAuthenticated ? (isAdmin ? '/admin' : '/account') : '/login'}
+              to={isAuthenticated ? '/account' : '/login'}
               className="p-1.5 text-[#e68819] hover:text-[#c46809] transition-colors flex items-center relative group"
               aria-label="My Account"
               title={isAuthenticated ? `Logged in as ${user?.name}` : 'Login to your account'}
@@ -408,15 +398,6 @@ export const Navbar = ({ onOpenSearch }) => {
                   >
                     My Account & Orders
                   </Link>
-                  {isAdmin && (
-                    <Link 
-                      to="/admin" 
-                      className="block text-center text-xs font-bold py-2.5 bg-[#1E4334] text-white rounded-xl"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Admin Dashboard
-                    </Link>
-                  )}
                 </div>
               ) : (
                 <div className="flex gap-2">
@@ -436,16 +417,6 @@ export const Navbar = ({ onOpenSearch }) => {
                   </Link>
                 </div>
               )}
-
-              {/* Mobile Admin Portal Shortcut */}
-              <Link
-                to="/admin"
-                className="flex items-center justify-center gap-2 py-2.5 text-xs font-bold bg-[#143025] text-amber-300 hover:text-white rounded-xl shadow-xs transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <span>⚙️</span>
-                <span>Admin Control Panel (एडमिन पैनल)</span>
-              </Link>
 
               <a
                 href="https://wa.me/919876543210"
