@@ -2,6 +2,92 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { categoryAPI } from '../../services/api';
 
+const CATEGORY_VISUALS = {
+  'mango-pickles': {
+    emoji: '🥭',
+    title1: 'Mango',
+    title2: 'Pickles',
+    hindi: 'आम का अचार'
+  },
+  'red-chilli-pickles': {
+    emoji: '🌶️',
+    title1: 'Red Chilli',
+    title2: 'Banarasi',
+    hindi: 'भरवां लाल मिर्च'
+  },
+  'green-chilli-pickles': {
+    emoji: '🫑',
+    title1: 'Green Chilli',
+    title2: 'Pickles',
+    hindi: 'हरी मिर्च'
+  },
+  'lemon-pickles': {
+    emoji: '🍋',
+    title1: 'Lemon',
+    title2: 'Oil-Free',
+    hindi: 'नीम्बू का अचार'
+  },
+  'rajasthani-specials': {
+    emoji: '🏺',
+    title1: 'Rajasthani',
+    title2: 'Specials',
+    hindi: 'कैर सांगरी'
+  },
+  'garlic-pickles': {
+    emoji: '🧄',
+    title1: 'Garlic',
+    title2: 'Pickles',
+    hindi: 'लहसुन का अचार'
+  },
+  'sweet-pickles': {
+    emoji: '🍯',
+    title1: 'Sweet',
+    title2: 'Murabba',
+    hindi: 'मीठा छुंदा'
+  },
+  'combo-packs': {
+    emoji: '🎁',
+    title1: 'Gift Boxes',
+    title2: 'Combos',
+    hindi: 'कॉम्बो पैक'
+  },
+  'papad': {
+    emoji: '🫓',
+    title1: 'Marwadi',
+    title2: 'Papad',
+    hindi: 'पापड़'
+  },
+  'all-products': {
+    emoji: '⭐',
+    title1: 'All',
+    title2: 'Pickles',
+    hindi: 'सभी अचार'
+  }
+};
+
+const resolveVisual = (slug = '', name = '') => {
+  const s = slug.toLowerCase();
+  const n = name.toLowerCase();
+  if (CATEGORY_VISUALS[s]) return CATEGORY_VISUALS[s];
+  if (s.includes('mango') || n.includes('mango') || n.includes('aam')) return CATEGORY_VISUALS['mango-pickles'];
+  if (s.includes('red') || n.includes('lal mirch') || n.includes('red chilli')) return CATEGORY_VISUALS['red-chilli-pickles'];
+  if (s.includes('green') || n.includes('hari mirch') || n.includes('green chilli')) return CATEGORY_VISUALS['green-chilli-pickles'];
+  if (s.includes('lemon') || n.includes('nimbu') || n.includes('lemon')) return CATEGORY_VISUALS['lemon-pickles'];
+  if (s.includes('rajasthan') || n.includes('kair') || n.includes('sangri')) return CATEGORY_VISUALS['rajasthani-specials'];
+  if (s.includes('garlic') || n.includes('lahsun') || n.includes('garlic')) return CATEGORY_VISUALS['garlic-pickles'];
+  if (s.includes('sweet') || n.includes('meetha') || n.includes('murabba')) return CATEGORY_VISUALS['sweet-pickles'];
+  if (s.includes('combo') || s.includes('hamp') || s.includes('box') || n.includes('combo')) return CATEGORY_VISUALS['combo-packs'];
+  if (s.includes('papad') || n.includes('papad')) return CATEGORY_VISUALS['papad'];
+  
+  const words = name.trim().split(' ');
+  return {
+    emoji: '🏺',
+    title1: words[0] || name,
+    title2: words.slice(1).join(' ') || '',
+    hindi: ''
+  };
+};
+
 export const SubHeaderCategoryBar = () => {
   const location = useLocation();
   const [dbCategories, setDbCategories] = useState([]);
@@ -14,7 +100,7 @@ export const SubHeaderCategoryBar = () => {
           setDbCategories(res.categories);
         }
       } catch (err) {
-        // Fallback to static items
+        // Fallback
       }
     };
     fetchCats();
@@ -31,215 +117,56 @@ export const SubHeaderCategoryBar = () => {
     return null;
   }
 
-  const defaultCategoryItems = [
-    {
-      id: 'mango-pickles',
-      titleLine1: 'Mango',
-      titleLine2: 'Pickles',
-      link: '/shop?category=mango-pickles',
-      icon: (
-        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9 sm:w-10 sm:h-10 mx-auto">
-          {/* Mango outline with stem and leaf */}
-          <path d="M 23 10 C 13 14 11 26 14 34 C 18 42 27 42 32 38 C 38 33 39 22 34 14 C 30 9 26 9 23 10 Z" />
-          <path d="M 24 10 C 24 6 27 4 28 3" />
-          <path d="M 27 4 C 33 4 35 9 32 11" />
-          <path d="M 22 17 C 20 22 21 28 24 33" strokeDasharray="1.5 3" strokeWidth="1.2" opacity="0.6" />
-        </svg>
-      ),
-    },
-    {
-      id: 'sweet-pickles',
-      titleLine1: 'Sweet',
-      titleLine2: 'Pickles',
-      link: '/shop?taste=sweet',
-      icon: (
-        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9 sm:w-10 sm:h-10 mx-auto">
-          {/* Sugar cube / sweet candy character with smiling face */}
-          <path d="M 14 16 L 34 16 C 37 16 39 18 38 21 L 36 37 C 35 40 33 41 30 41 L 18 41 C 15 41 13 40 12 37 L 10 21 C 9 18 11 16 14 16 Z" />
-          {/* Smiling eyes */}
-          <path d="M 18 26 Q 20 23 22 26" strokeWidth="2" />
-          <path d="M 26 26 Q 28 23 30 26" strokeWidth="2" />
-          {/* Sweet smile */}
-          <path d="M 21 31 Q 24 35 27 31" strokeWidth="2" />
-          {/* Cheerful sparkles */}
-          <path d="M 6 22 L 8 24" strokeWidth="1.5" />
-          <path d="M 7 28 L 9 27" strokeWidth="1.5" />
-          <path d="M 42 22 L 40 24" strokeWidth="1.5" />
-          <path d="M 41 28 L 39 27" strokeWidth="1.5" />
-        </svg>
-      ),
-    },
-    {
-      id: 'trial-packs',
-      titleLine1: 'Trial',
-      titleLine2: 'Packs',
-      link: '/shop?category=combo-packs',
-      icon: (
-        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9 sm:w-10 sm:h-10 mx-auto">
-          {/* 4 mini jars 2x2 grid */}
-          <rect x="11" y="9" width="10" height="3" rx="1" />
-          <rect x="12" y="12" width="8" height="10" rx="1.5" />
-          <line x1="14" y1="17" x2="18" y2="17" strokeWidth="1" />
-          <rect x="27" y="9" width="10" height="3" rx="1" />
-          <rect x="28" y="12" width="8" height="10" rx="1.5" />
-          <line x1="30" y1="17" x2="34" y2="17" strokeWidth="1" />
-          <rect x="11" y="27" width="10" height="3" rx="1" />
-          <rect x="12" y="30" width="8" height="10" rx="1.5" />
-          <line x1="14" y1="35" x2="18" y2="35" strokeWidth="1" />
-          <rect x="27" y="27" width="10" height="3" rx="1" />
-          <rect x="28" y="30" width="8" height="10" rx="1.5" />
-          <line x1="30" y1="35" x2="34" y2="35" strokeWidth="1" />
-        </svg>
-      ),
-    },
-    {
-      id: 'papad',
-      titleLine1: 'Papad',
-      titleLine2: '',
-      link: '/shop?category=papad',
-      icon: (
-        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9 sm:w-10 sm:h-10 mx-auto">
-          {/* Front round roasted papad */}
-          <circle cx="21" cy="26" r="14" />
-          {/* Spice dots */}
-          <circle cx="16" cy="22" r="0.8" fill="currentColor" />
-          <circle cx="22" cy="18" r="0.8" fill="currentColor" />
-          <circle cx="25" cy="25" r="0.8" fill="currentColor" />
-          <circle cx="18" cy="30" r="0.8" fill="currentColor" />
-          <circle cx="26" cy="32" r="0.8" fill="currentColor" />
-          <circle cx="14" cy="27" r="0.8" fill="currentColor" />
-          {/* Stack behind */}
-          <path d="M 28 14 C 36 17 38 31 32 38" />
-          <path d="M 33 17 C 41 21 42 32 37 38" />
-        </svg>
-      ),
-    },
-    {
-      id: 'spicy-pickles',
-      titleLine1: 'Spicy',
-      titleLine2: 'Pickles',
-      link: '/shop?spice=Spicy',
-      icon: (
-        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9 sm:w-10 sm:h-10 mx-auto">
-          {/* Hot Chilli */}
-          <path d="M 12 33 C 18 36 30 34 38 23 C 35 24 28 26 22 24 C 15 22 13 28 12 33 Z" />
-          <path d="M 38 23 Q 41 20 43 14" strokeWidth="1.5" />
-          {/* Flames rising */}
-          <path d="M 15 28 C 14 23 16 19 19 16 C 18 19 21 21 21 17 C 22 13 25 11 26 8 C 26 12 28 15 32 15 C 30 18 32 20 33 22" />
-        </svg>
-      ),
-    },
-    {
-      id: 'mixed-pickles',
-      titleLine1: 'Mixed',
-      titleLine2: 'Pickles',
-      link: '/shop?category=mixed-pickles',
-      icon: (
-        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9 sm:w-10 sm:h-10 mx-auto">
-          {/* Mango slice */}
-          <path d="M 24 10 C 18 12 17 21 22 28 C 28 32 33 28 35 22 C 37 14 30 9 24 10 Z" />
-          {/* Lemon wedge */}
-          <path d="M 12 36 C 18 39 27 38 32 34 L 16 28 Z" />
-          <path d="M 21 31 L 20 36" strokeWidth="1.2" />
-          <path d="M 25 30 L 26 35" strokeWidth="1.2" />
-          {/* Chilli stem */}
-          <path d="M 10 32 Q 14 30 16 26" strokeWidth="2" />
-          <path d="M 35 15 Q 38 12 40 8" strokeWidth="1.5" />
-        </svg>
-      ),
-    },
-    {
-      id: 'masalas',
-      titleLine1: 'Masalas',
-      titleLine2: '',
-      link: '/shop?category=masalas',
-      icon: (
-        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9 sm:w-10 sm:h-10 mx-auto">
-          {/* Spice bowl with spices */}
-          <path d="M 14 25 Q 24 12 34 25" />
-          <path d="M 11 25 Q 24 37 37 25 Z" />
-          <line x1="28" y1="36" x2="40" y2="34" strokeWidth="2.5" />
-          <line x1="29" y1="39" x2="39" y2="37" strokeWidth="2" />
-          <path d="M 22 36 L 25 33 L 27 36 L 25 38 Z" fill="currentColor" fillOpacity="0.15" />
-        </svg>
-      ),
-    },
-    {
-      id: 'all-products',
-      titleLine1: 'All',
-      titleLine2: 'Products',
-      link: '/shop',
-      icon: (
-        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-9 h-9 sm:w-10 sm:h-10 mx-auto">
-          {/* Barni / Pickle Martaban */}
-          <path d="M 17 12 C 17 8 31 8 31 12 L 34 16 L 14 16 Z" />
-          <line x1="13" y1="16" x2="35" y2="16" strokeWidth="2.2" />
-          <path d="M 33 16 Q 37 19 36 23" strokeWidth="1.5" />
-          <path d="M 16 16 L 13 22 Q 10 27 10 35 Q 10 42 16 43 L 32 43 Q 38 42 38 35 Q 38 27 35 22 L 32 16 Z" />
-          <path d="M 12 25 Q 24 28 36 25" strokeWidth="1.2" />
-        </svg>
-      ),
-    },
+  // Pre-configured list if database list is empty or complementary
+  const defaultList = [
+    { slug: 'mango-pickles', name: 'Mango Pickles', hindiName: 'आम का अचार' },
+    { slug: 'red-chilli-pickles', name: 'Red Chilli', hindiName: 'भरवां लाल मिर्च' },
+    { slug: 'green-chilli-pickles', name: 'Green Chilli', hindiName: 'तीखी हरी मिर्च' },
+    { slug: 'lemon-pickles', name: 'Lemon Pickles', hindiName: 'खट्टा नीम्बू' },
+    { slug: 'rajasthani-specials', name: 'Rajasthani Specials', hindiName: 'कैर सांगरी' },
+    { slug: 'garlic-pickles', name: 'Garlic Pickles', hindiName: 'देसी लहसुन' },
+    { slug: 'sweet-pickles', name: 'Sweet Murabba', hindiName: 'मीठा अचार' },
+    { slug: 'combo-packs', name: 'Gift Hampers', hindiName: 'कॉम्बो पैक' },
+    { slug: 'all-products', name: 'All Pickles', hindiName: 'सभी अचार' },
   ];
 
-  const displayItems = dbCategories.length > 0
-    ? dbCategories.map(cat => {
-        const matched = defaultCategoryItems.find(d => d.id === cat.slug);
-        const nameParts = cat.name.split(' ');
-        return {
-          id: cat.slug || cat._id,
-          titleLine1: nameParts[0] || cat.name,
-          titleLine2: nameParts.slice(1).join(' ') || (cat.hindiName ? `(${cat.hindiName})` : ''),
-          link: `/shop?category=${cat.slug}`,
-          image: cat.image,
-          icon: matched?.icon
-        };
-      })
-    : defaultCategoryItems;
+  const categoriesToShow = dbCategories.length > 0 ? dbCategories : defaultList;
 
   return (
-    <section className="bg-white border-t border-b border-amber-200/80 shadow-[0_2px_8px_rgba(243,162,34,0.08)] select-none">
+    <section className="bg-white border-t border-b border-amber-200/80 shadow-[0_2px_8px_rgba(243,162,34,0.06)] select-none">
       
-      {/* 1. Category Icon Strip */}
+      {/* 1. Animated Category Emoji Strip (Pure transparent emoji, no background box, no badges) */}
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pt-3 pb-3">
-        <div className="flex items-start justify-start md:justify-center gap-4 sm:gap-7 lg:gap-11 overflow-x-auto scrollbar-none pb-1 pt-2 px-1">
-          {displayItems.map((item) => (
-            <Link
-              key={item.id}
-              to={item.link}
-              className="flex-shrink-0 flex flex-col items-center justify-start group text-center min-w-[62px] sm:min-w-[76px] transition-transform duration-200 hover:-translate-y-1 focus:outline-none"
-            >
-              {/* Icon Container with optional badge */}
-              <div className="relative mb-1.5 flex items-center justify-center">
-                {/* Yellow Special Badge (like NAVRATRI SPECIAL) */}
-                {item.badge && (
-                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#F3A222] text-[#3E2305] text-[7.5px] sm:text-[8px] font-black tracking-tight px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-xs uppercase border border-[#D97706]/40">
-                    {item.badge}
-                  </span>
-                )}
-                
-                {/* Category Image or Line Art Icon */}
-                {item.image ? (
-                  <img
-                    src={item.image}
-                    alt={item.titleLine1}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-amber-300 group-hover:border-brand-green shadow-xs mx-auto"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                ) : (
-                  <div className="text-gray-800 group-hover:text-[#b35400] transition-colors duration-200">
-                    {item.icon}
-                  </div>
-                )}
-              </div>
+        <div className="flex items-start justify-start md:justify-center gap-3 sm:gap-6 lg:gap-8 overflow-x-auto scrollbar-none pb-1 pt-1.5 px-1">
+          {categoriesToShow.map((cat) => {
+            const visual = resolveVisual(cat.slug, cat.name);
+            const link = cat.slug === 'all-products' ? '/shop' : `/shop?category=${cat.slug}`;
 
-              {/* Title below icon */}
-              <div className="text-[11.5px] sm:text-[12.5px] font-semibold text-gray-800 leading-tight group-hover:text-[#b35400] transition-colors duration-200 font-sans">
-                <div>{item.titleLine1}</div>
-                {item.titleLine2 && <div>{item.titleLine2}</div>}
-              </div>
-            </Link>
-          ))}
+            return (
+              <Link
+                key={cat.slug || cat._id}
+                to={link}
+                className="flex-shrink-0 flex flex-col items-center justify-start group text-center min-w-[66px] sm:min-w-[78px] transition-transform duration-200 focus:outline-none"
+              >
+                {/* Visual Icon (NO background box, NO top badges, clean transparent animated emoji) */}
+                <div className="mb-1 flex items-center justify-center">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center cursor-pointer transition-transform duration-300 group-hover:-translate-y-1">
+                    <span className="text-3xl sm:text-4xl select-none transition-transform duration-300 group-hover:scale-125 inline-block">
+                      {visual.emoji}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 2-Line Text Title */}
+                <div className="text-[11px] sm:text-[12px] font-bold text-gray-800 leading-tight group-hover:text-[#b35400] transition-colors duration-200 font-sans">
+                  <div>{visual.title1 || cat.name.split(' ')[0]}</div>
+                  <div className="text-[10px] sm:text-[11px] font-semibold text-gray-500 group-hover:text-[#b35400]/80">
+                    {visual.title2 || cat.hindiName || cat.name.split(' ').slice(1).join(' ')}
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
 
@@ -250,7 +177,6 @@ export const SubHeaderCategoryBar = () => {
           {/* Trust Item 1: NO Chemical Preservatives */}
           <div className="flex items-center gap-2">
             <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#2E7D32] flex-shrink-0" fill="currentColor">
-              {/* Rosette scalloped seal with checkmark */}
               <path d="M12 2l2.4 2.2 3.2-.6 1.4 2.9 3.2 1-.2 3.3 2.1 2.5-1.7 2.8.9 3.2-3 1.4-1 3.2-3.3-.3-2.3 2.3-2.3-2.3-3.3.3-1-3.2-3-1.4.9-3.2-1.7-2.8 2.1-2.5-.2-3.3 3.2-1 1.4-2.9 3.2.6L12 2z"/>
               <path d="M9.5 12l2 2 4-4" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -263,16 +189,16 @@ export const SubHeaderCategoryBar = () => {
               <path d="M12 2l2.4 2.2 3.2-.6 1.4 2.9 3.2 1-.2 3.3 2.1 2.5-1.7 2.8.9 3.2-3 1.4-1 3.2-3.3-.3-2.3 2.3-2.3-2.3-3.3.3-1-3.2-3-1.4.9-3.2-1.7-2.8 2.1-2.5-.2-3.3 3.2-1 1.4-2.9 3.2.6L12 2z"/>
               <path d="M9.5 12l2 2 4-4" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="tracking-tight text-gray-900">Homemade Pickles</span>
+            <span className="tracking-tight text-gray-900">100% Homemade Pickles</span>
           </div>
 
-          {/* Trust Item 3: 100% Traditional Sun-Cured (Extra authentic reassurance) */}
+          {/* Trust Item 3: Sun-Cured In Ceramic Barnis */}
           <div className="hidden md:flex items-center gap-2">
             <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#2E7D32] flex-shrink-0" fill="currentColor">
               <path d="M12 2l2.4 2.2 3.2-.6 1.4 2.9 3.2 1-.2 3.3 2.1 2.5-1.7 2.8.9 3.2-3 1.4-1 3.2-3.3-.3-2.3 2.3-2.3-2.3-3.3.3-1-3.2-3-1.4.9-3.2-1.7-2.8 2.1-2.5-.2-3.3 3.2-1 1.4-2.9 3.2.6L12 2z"/>
               <path d="M9.5 12l2 2 4-4" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="tracking-tight text-gray-900">Sun-Cured In Ceramic Barnis</span>
+            <span className="tracking-tight text-gray-900">Sun-Cured in Traditional Martabans</span>
           </div>
 
         </div>
@@ -283,4 +209,3 @@ export const SubHeaderCategoryBar = () => {
 };
 
 export default SubHeaderCategoryBar;
-

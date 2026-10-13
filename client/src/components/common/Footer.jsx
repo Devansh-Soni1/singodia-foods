@@ -12,11 +12,11 @@ export const Footer = () => {
           
           {/* Brand Col */}
           <div className="lg:col-span-2 space-y-4">
-            <Link to="/" className="inline-block bg-[#FAF6EF] p-3 sm:p-4 rounded-2xl shadow-md hover:shadow-lg transition-all group">
+            <Link to="/" className="inline-block transition-all group">
               <img 
                 src="/logo.png" 
                 alt="Singodia Foods" 
-                className="h-20 sm:h-24 w-auto object-contain drop-shadow-sm transition-transform group-hover:scale-105" 
+                className="h-28 sm:h-36 md:h-40 w-auto object-contain drop-shadow-md transition-transform group-hover:scale-105" 
               />
             </Link>
             <p className="text-xs sm:text-sm text-cream-200/90 leading-relaxed max-w-sm">
@@ -122,7 +122,7 @@ export const Footer = () => {
               </li>
               <li className="pt-1">
                 <a
-                  href="https://wa.me/919782983909?text=Namaste%20Singodhia%20Foods!%20Mujhe%20order%20%2F%20products%20ke%20sambandh%20me%20query%20%2F%20issue%20ke%20liye%20help%20chahiye."
+                  href="https://wa.me/919782983909?text=Hello%20Singodhia%20Foods%2C%20I%20have%20an%20inquiry%20regarding%20products%20and%20orders."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366] text-white font-bold text-xs hover:bg-[#20ba5a] transition-colors"

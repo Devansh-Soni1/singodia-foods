@@ -76,7 +76,7 @@ export const ContactPage = () => {
               {/* Direct WhatsApp CTA */}
               <div className="pt-4 border-t border-cream-100">
                 <a
-                  href="https://wa.me/919782983909?text=Namaste%20Singodhia%20Foods!%20Mujhe%20order%20%2F%20products%20ke%20sambandh%20me%20query%20%2F%20issue%20ke%20liye%20help%20chahiye."
+                  href="https://wa.me/919782983909?text=Hello%20Singodhia%20Foods%2C%20I%20have%20an%20inquiry%20regarding%20products%20and%20orders."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full py-3.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
