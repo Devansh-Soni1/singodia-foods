@@ -86,25 +86,26 @@ export const Navbar = ({ onOpenSearch }) => {
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-[0_4px_12px_rgba(243,162,34,0.12)] transition-all" ref={navRef}>
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-18 sm:h-[88px] md:h-[94px]">
+        <div className="relative flex items-center justify-between h-20 sm:h-[88px] md:h-[94px]">
           
-          {/* Left: Mobile Hamburger Button & Logo */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            {/* Mobile Hamburger Button */}
+          {/* Left: Mobile Hamburger Button */}
+          <div className="flex items-center lg:hidden z-10">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-1.5 -ml-1 text-gray-700 hover:text-[#b35400] focus:outline-none"
+              className="p-1.5 -ml-1 text-gray-700 hover:text-[#b35400] focus:outline-none"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
+          </div>
 
-            {/* Singodia Foods Standalone Emblem Logo */}
+          {/* Logo: Centered on mobile, left on desktop */}
+          <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 flex items-center z-10">
             <Link to="/" className="flex items-center flex-shrink-0 group py-1">
               <img 
                 src="/logo.png" 
                 alt="Singodia Foods" 
-                className="h-14 sm:h-[76px] md:h-[86px] w-auto object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105" 
+                className="h-[64px] sm:h-[78px] md:h-[88px] w-auto object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105" 
               />
             </Link>
           </div>
@@ -202,7 +203,7 @@ export const Navbar = ({ onOpenSearch }) => {
           </nav>
 
           {/* Right Side: Search Pill, Account Icon, Cart with Red Badge */}
-          <div className="flex items-center space-x-2.5 sm:space-x-4">
+          <div className="flex items-center space-x-2.5 sm:space-x-4 z-10">
             
             {/* Search Pill: "Search our store" exactly matching the reference screenshot */}
             <div 
