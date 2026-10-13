@@ -3,6 +3,7 @@ import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
 import Setting from '../models/Setting.js';
+import { v2 as cloudinary } from 'cloudinary';
 import { sampleProducts, sampleSettings } from '../utils/seedData.js';
 
 export const getDashboardStats = async (req, res, next) => {
@@ -128,10 +129,31 @@ export const updateSettings = async (req, res, next) => {
   }
 };
 
-export const uploadImage = (req, res) => {
+export const uploadImage = async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ success: false, message: 'No file uploaded' });
   }
+
+  try {
+    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+      cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+      });
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'singodia-foods/admin'
+      });
+      return res.json({
+        success: true,
+        message: 'Image uploaded to Cloudinary successfully',
+        url: result.secure_url
+      });
+    }
+  } catch (err) {
+    console.warn('Admin Cloudinary upload warning, falling back to local storage:', err.message);
+  }
+
   const fileUrl = `/uploads/${req.file.filename}`;
   res.json({
     success: true,

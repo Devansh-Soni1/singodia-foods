@@ -202,17 +202,15 @@ export const Navbar = ({ onOpenSearch }) => {
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Admin shortcut badge if logged in as admin */}
-            {isAdmin && (
-              <Link
-                to="/admin/products"
-                className="hidden md:flex items-center gap-1 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-xs transition-colors"
-                title="Manage Products in Admin Panel"
-              >
-                <span>⚙️</span>
-                <span>Admin</span>
-              </Link>
-            )}
+            {/* Admin shortcut button */}
+            <Link
+              to="/admin"
+              className="hidden md:flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-[11px] font-extrabold px-3 py-1.5 rounded-full shadow-xs transition-all hover:scale-105"
+              title="Singodia Foods Admin Panel (Products, Orders, Settings)"
+            >
+              <span>⚙️</span>
+              <span>Admin Panel</span>
+            </Link>
 
             {/* Customer Account Icon (Golden/Amber outline from image) */}
             <Link
@@ -413,6 +411,16 @@ export const Navbar = ({ onOpenSearch }) => {
                   </Link>
                 </div>
               )}
+
+              {/* Mobile Admin Portal Shortcut */}
+              <Link
+                to="/admin"
+                className="flex items-center justify-center gap-2 py-2.5 text-xs font-bold bg-[#143025] text-amber-300 hover:text-white rounded-xl shadow-xs transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <span>⚙️</span>
+                <span>Admin Control Panel (एडमिन पैनल)</span>
+              </Link>
 
               <a
                 href="https://wa.me/919876543210"

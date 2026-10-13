@@ -65,6 +65,12 @@ export const Footer = () => {
                   Rajasthani Specials (कैर सांगरी)
                 </Link>
               </li>
+              <li className="pt-1 border-t border-white/10">
+                <Link to="/admin" className="hover:text-mustard transition-colors text-amber-300 font-bold flex items-center gap-1.5">
+                  <span>⚙️</span>
+                  <span>Admin Portal (एडमिन पैनल)</span>
+                </Link>
+              </li>
             </ul>
           </div>
 
