@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cream-100 text-charcoal font-sans;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif text-charcoal tracking-tight;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F5EEDB;
+}
+::-webkit-scrollbar-thumb {
+  background: #C46809;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #1E4334;
+}
+
+/* Marquee infinite animation */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* --------------------------------------------- */
+/* "SINGODHIA FOODS" Sliding Effect Animations  */
+/* --------------------------------------------- */
+
+/* 1. Smooth Horizontal Slide Drift */
+@keyframes textSlideDrift {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(8px);
+  }
+}
+
+.animate-text-slide {
+  animation: textSlideDrift 3.2s ease-in-out infinite;
+  display: flex;
+  will-change: transform;
+}
+
+/* 2. Sliding Metallic Sunbeam / Light Slide Across Letters */
+@keyframes textSlideShine {
+  0% {
+    background-position: -180% center;
+  }
+  100% {
+    background-position: 180% center;
+  }
+}
+
+.animate-slide-shine {
+  background: linear-gradient(
+    100deg,
+    #143D2B 0%,
+    #143D2B 30%,
+    #D97706 48%,
+    #FEF08A 52%,
+    #D97706 56%,
+    #143D2B 75%,
+    #143D2B 100%
+  );
+  background-size: 250% 100%;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: textSlideShine 3.6s ease-in-out infinite;
+}
+
+/* 3. Sliding Golden Underline Bar */
+@keyframes underlineSlide {
+  0%, 100% {
+    transform: translateX(0) scaleX(0.5);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateX(20px) scaleX(1);
+    opacity: 1;
+  }
+}
+
+.animate-sliding-bar {
+  animation: underlineSlide 3.2s ease-in-out infinite;
+  transform-origin: left center;
+}
+
+@keyframes sparkleTwirl {
+  0%, 100% {
+    transform: scale(0.8) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.3) rotate(180deg);
+    opacity: 1;
+  }
+}
+
+.animate-sparkle {
+  display: inline-block;
+  animation: sparkleTwirl 2.5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+
