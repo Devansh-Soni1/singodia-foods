@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'singodhia_secret_jwt_key_2026', {
+  return jwt.sign({ id }, process.env.JWT_SECRET || 'singodhia_super_secret_jwt_key_2026_rajasthan', {
     expiresIn: '30d',
   });
 };
@@ -73,14 +73,34 @@ export const login = async (req, res, next) => {
 
     // Fallback admin login support
     const normalizedEmail = email.toLowerCase().trim();
-    const isAdminEmail = normalizedEmail === 'admin@singodhiafoods.com' || normalizedEmail === 'admin@singodiafoods.com';
+    const defaultAdminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase();
+    const isAdminEmail = normalizedEmail === defaultAdminEmail || normalizedEmail === 'admin@singodiafoods.com';
     const isMasterPassword = password === (process.env.ADMIN_PASSWORD || 'Admin@Singodhia2026') || password === 'admin123';
 
     if (!user && isAdminEmail && isMasterPassword) {
+      const adminId = '6ace6cc495d90d554ead66ed';
+      // Attempt to save admin to DB if connection is active
+      if (mongoose.connection.readyState === 1) {
+        try {
+          user = await User.create({
+            _id: adminId,
+            name: 'Singodhia Admin',
+            email: defaultAdminEmail,
+            password: password,
+            role: 'admin',
+            phone: '+91 98765 43210',
+            addresses: []
+          });
+        } catch (seedErr) {
+          console.warn('Auto-create admin in DB notice:', seedErr.message);
+        }
+      }
+
       const fallbackAdmin = {
-        _id: 'admin-master',
-        name: 'Singodhia Master Admin',
-        email: normalizedEmail,
+        _id: adminId,
+        id: adminId,
+        name: 'Singodhia Admin',
+        email: defaultAdminEmail,
         role: 'admin',
         phone: '+91 98765 43210',
         addresses: [],
@@ -89,7 +109,7 @@ export const login = async (req, res, next) => {
       return res.json({
         success: true,
         message: 'Logged in as Admin successfully',
-        token: generateToken(fallbackAdmin._id),
+        token: generateToken(adminId),
         user: fallbackAdmin
       });
     }
@@ -109,6 +129,7 @@ export const login = async (req, res, next) => {
       token: generateToken(user._id),
       user: {
         id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -124,10 +145,35 @@ export const login = async (req, res, next) => {
 
 export const getProfile = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id).select('-password').populate('wishlist');
+    let user = null;
+    if (mongoose.connection.readyState === 1 && mongoose.isValidObjectId(req.user._id)) {
+      try {
+        user = await User.findById(req.user._id).select('-password').populate('wishlist');
+      } catch (findErr) {
+        console.warn('User findById error in getProfile:', findErr.message);
+      }
+    }
+
     if (!user) {
+      // If user is admin (fallback admin or db sync pending)
+      if (req.user?.role === 'admin' || req.user?.email?.toLowerCase() === (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase()) {
+        return res.json({
+          success: true,
+          user: {
+            id: req.user._id || '6ace6cc495d90d554ead66ed',
+            _id: req.user._id || '6ace6cc495d90d554ead66ed',
+            name: req.user.name || 'Singodhia Admin',
+            email: req.user.email || 'admin@singodhiafoods.com',
+            role: 'admin',
+            phone: '+91 98765 43210',
+            addresses: [],
+            wishlist: []
+          }
+        });
+      }
       return res.status(404).json({ success: false, message: 'User not found' });
     }
+
     res.json({
       success: true,
       user

@@ -30,6 +30,7 @@ import AdminCategories from './pages/admin/AdminCategories';
 import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminReviews from './pages/admin/AdminReviews';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminLoginPage from './pages/admin/AdminLoginPage';
 
 // Protected Admin Route Guard (Strict Authentication & Authorization)
 const ProtectedAdminRoute = ({ children }) => {
@@ -46,28 +47,28 @@ const ProtectedAdminRoute = ({ children }) => {
     );
   }
 
-  // Not logged in -> Redirect to login with redirect query
+  // Not logged in -> Redirect to dedicated admin login page
   if (!isAuthenticated) {
-    return <Navigate to={`/login?redirect=${encodeURIComponent(window.location.pathname)}`} replace />;
+    return <Navigate to="/admin/login" replace />;
   }
 
   // Logged in but not an admin -> Strict Access Denied screen
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-[#FAF6EF] flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl p-8 max-w-md w-full border border-red-200 shadow-xl text-center space-y-4">
-          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-2xl font-black">
+      <div className="min-h-screen bg-[#0d221a] flex items-center justify-center p-4">
+        <div className="bg-[#143025] rounded-3xl p-8 max-w-md w-full border border-red-500/40 shadow-2xl text-center space-y-4 text-white">
+          <div className="w-16 h-16 bg-red-950/80 text-red-400 rounded-full flex items-center justify-center mx-auto text-2xl font-black">
             🔒
           </div>
-          <h2 className="text-xl font-bold text-gray-900 font-serif">Admin Access Restricted</h2>
-          <p className="text-xs text-gray-600">
-            Yeh section keval authorized administrators ke liye surakshit hai. Admin panel access karne ke liye admin credentials se log in karein.
+          <h2 className="text-xl font-bold font-serif text-white">Admin Access Restricted</h2>
+          <p className="text-xs text-emerald-200/80 leading-relaxed">
+            This area is strictly restricted to authorized administrators. You are currently logged in with a non-admin account.
           </p>
           <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
-            <Link to="/login?redirect=/admin" className="px-5 py-2.5 bg-brand-green text-white text-xs font-bold rounded-xl shadow-xs">
-              Log in as Admin
+            <Link to="/admin/login" className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-bold rounded-xl shadow-xs">
+              Log in with Admin Account
             </Link>
-            <Link to="/" className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl">
+            <Link to="/" className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl">
               Return to Store
             </Link>
           </div>
@@ -102,6 +103,9 @@ export const App = () => {
                 <Route path="about" element={<AboutPage />} />
                 <Route path="contact" element={<ContactPage />} />
               </Route>
+
+              {/* Dedicated Admin Login Page (Separate from customer login) */}
+              <Route path="/admin/login" element={<AdminLoginPage />} />
 
               {/* Protected Admin Control Dashboard */}
               <Route

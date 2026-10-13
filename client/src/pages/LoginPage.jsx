@@ -102,9 +102,6 @@ export const LoginPage = () => {
               Create an account
             </Link>
           </p>
-          <p className="text-[11px] text-gray-400">
-            Admin testing credentials: <strong>admin@singodhiafoods.com</strong> / <strong>Admin@Singodhia2026</strong>
-          </p>
         </div>
 
       </div>

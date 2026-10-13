@@ -9,20 +9,34 @@ export const protect = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'singodhia_super_secret_jwt_key_2026_rajasthan');
       
-      if (mongoose.connection.readyState === 1) {
-        req.user = await User.findById(decoded.id).select('-password');
-        if (!req.user) {
-          req.user = {
-            _id: decoded.id || 'admin-fallback',
-            role: decoded.role || (decoded.email === 'admin@singodhiafoods.com' ? 'admin' : 'customer'),
-            name: decoded.name || 'User',
-            email: decoded.email || 'user@singodhiafoods.com'
-          };
+      const isMasterAdminId = decoded.id === 'admin-master' || decoded.id === 'admin-dev' || decoded.id === 'admin-fallback' || decoded.id === '6ace6cc495d90d554ead66ed';
+      const adminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase();
+
+      if (isMasterAdminId || decoded.email?.toLowerCase() === adminEmail) {
+        if (mongoose.connection.readyState === 1 && mongoose.isValidObjectId(decoded.id)) {
+          const dbAdmin = await User.findById(decoded.id).select('-password');
+          if (dbAdmin) {
+            req.user = dbAdmin;
+            return next();
+          }
         }
-      } else {
         req.user = {
-          _id: decoded.id || 'admin-fallback',
-          role: decoded.role || (decoded.email === 'admin@singodhiafoods.com' ? 'admin' : 'customer'),
+          _id: '6ace6cc495d90d554ead66ed',
+          role: 'admin',
+          name: 'Singodhia Admin',
+          email: adminEmail
+        };
+        return next();
+      }
+
+      if (mongoose.connection.readyState === 1 && mongoose.isValidObjectId(decoded.id)) {
+        req.user = await User.findById(decoded.id).select('-password');
+      }
+
+      if (!req.user) {
+        req.user = {
+          _id: decoded.id && mongoose.isValidObjectId(decoded.id) ? decoded.id : '6ace6cc495d90d554ead66f1',
+          role: decoded.role || 'customer',
           name: decoded.name || 'User',
           email: decoded.email || 'user@singodhiafoods.com'
         };

@@ -4,9 +4,16 @@ import { authAPI } from '../services/api';
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('singodhia_user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      return null;
+    }
+  });
   const [token, setToken] = useState(localStorage.getItem('singodhia_token') || null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!user);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -15,10 +22,14 @@ export const AuthProvider = ({ children }) => {
           const res = await authAPI.getProfile();
           if (res.user) {
             setUser(res.user);
+            localStorage.setItem('singodhia_user', JSON.stringify(res.user));
           }
         } catch (err) {
-          console.warn('Session expired or invalid:', err.message);
-          logout();
+          console.warn('Profile fetch notice:', err.message || err);
+          // Only invalidate session on genuine 401 Unauthenticated error
+          if (err?.response?.status === 401 || err?.status === 401) {
+            logout();
+          }
         }
       }
       setLoading(false);
@@ -30,6 +41,7 @@ export const AuthProvider = ({ children }) => {
     const res = await authAPI.login({ email, password });
     if (res.token) {
       localStorage.setItem('singodhia_token', res.token);
+      localStorage.setItem('singodhia_user', JSON.stringify(res.user));
       setToken(res.token);
       setUser(res.user);
     }
@@ -40,6 +52,7 @@ export const AuthProvider = ({ children }) => {
     const res = await authAPI.register({ name, email, password, phone });
     if (res.token) {
       localStorage.setItem('singodhia_token', res.token);
+      localStorage.setItem('singodhia_user', JSON.stringify(res.user));
       setToken(res.token);
       setUser(res.user);
     }
@@ -48,6 +61,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('singodhia_token');
+    localStorage.removeItem('singodhia_user');
     setToken(null);
     setUser(null);
   };
@@ -56,6 +70,7 @@ export const AuthProvider = ({ children }) => {
     const res = await authAPI.updateProfile(data);
     if (res.user) {
       setUser(res.user);
+      localStorage.setItem('singodhia_user', JSON.stringify(res.user));
     }
     return res;
   };
