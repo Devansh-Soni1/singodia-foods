@@ -67,7 +67,7 @@ export const getProducts = async (req, res, next) => {
     let products = [];
     let total = 0;
 
-    // Check if Mongo is connected and has products
+    // When MongoDB is connected, strictly trust MongoDB as source of truth
     if (mongoose.connection.readyState === 1) {
       try {
         total = await Product.countDocuments(query);
@@ -75,68 +75,74 @@ export const getProducts = async (req, res, next) => {
           .sort(sortOption)
           .skip((page - 1) * limit)
           .limit(Number(limit));
+
+        return res.json({
+          success: true,
+          products,
+          total,
+          page: Number(page),
+          totalPages: Math.ceil(total / Number(limit)) || 1
+        });
       } catch (err) {
-        console.warn('Mongo find failed, reading from local storage:', err.message);
+        console.warn('Mongo find failed, reading from local fallback:', err.message);
       }
     }
 
-    // Fallback to local persistent products if DB is empty or disconnected
-    if (!products || products.length === 0) {
-      let filtered = getLocalProducts().filter(p => p.isActive !== false);
-      
-      if (category && category !== 'all') {
-        filtered = filtered.filter(p => p.category === category);
-      }
-      if (spiceLevel && spiceLevel !== 'all') {
-        filtered = filtered.filter(p => p.spiceLevel === spiceLevel);
-      }
-      if (isBestSeller === 'true') {
-        filtered = filtered.filter(p => p.isBestSeller);
-      }
-      if (isFeatured === 'true') {
-        filtered = filtered.filter(p => p.isFeatured);
-      }
-      if (isNewArrival === 'true') {
-        filtered = filtered.filter(p => p.isNewArrival);
-      }
-      if (search) {
-        const s = search.toLowerCase();
-        filtered = filtered.filter(p => 
-          p.name?.toLowerCase().includes(s) || 
-          p.hindiName?.includes(s) || 
-          p.shortDescription?.toLowerCase().includes(s) ||
-          (Array.isArray(p.tags) && p.tags.some(t => t.toLowerCase().includes(s))) ||
-          (typeof p.tags === 'string' && p.tags.toLowerCase().includes(s))
-        );
-      }
-      if (minPrice) {
-        filtered = filtered.filter(p => p.variants?.[0]?.price >= Number(minPrice));
-      }
-      if (maxPrice) {
-        filtered = filtered.filter(p => p.variants?.[0]?.price <= Number(maxPrice));
-      }
-
-      if (sort === 'price-low') {
-        filtered.sort((a, b) => (a.variants?.[0]?.price || 0) - (b.variants?.[0]?.price || 0));
-      } else if (sort === 'price-high') {
-        filtered.sort((a, b) => (b.variants?.[0]?.price || 0) - (a.variants?.[0]?.price || 0));
-      } else if (sort === 'rating' || sort === 'popular') {
-        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-      } else {
-        // newest first
-        filtered.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-      }
-
-      total = filtered.length;
-      products = filtered.slice((page - 1) * limit, page * limit);
+    // Fallback to local persistent products ONLY if MongoDB is disconnected
+    let filtered = getLocalProducts().filter(p => p.isActive !== false);
+    
+    if (category && category !== 'all') {
+      filtered = filtered.filter(p => p.category === category);
     }
+    if (spiceLevel && spiceLevel !== 'all') {
+      filtered = filtered.filter(p => p.spiceLevel === spiceLevel);
+    }
+    if (isBestSeller === 'true') {
+      filtered = filtered.filter(p => p.isBestSeller);
+    }
+    if (isFeatured === 'true') {
+      filtered = filtered.filter(p => p.isFeatured);
+    }
+    if (isNewArrival === 'true') {
+      filtered = filtered.filter(p => p.isNewArrival);
+    }
+    if (search) {
+      const s = search.toLowerCase();
+      filtered = filtered.filter(p => 
+        p.name?.toLowerCase().includes(s) || 
+        p.hindiName?.includes(s) || 
+        p.shortDescription?.toLowerCase().includes(s) ||
+        (Array.isArray(p.tags) && p.tags.some(t => t.toLowerCase().includes(s))) ||
+        (typeof p.tags === 'string' && p.tags.toLowerCase().includes(s))
+      );
+    }
+    if (minPrice) {
+      filtered = filtered.filter(p => p.variants?.[0]?.price >= Number(minPrice));
+    }
+    if (maxPrice) {
+      filtered = filtered.filter(p => p.variants?.[0]?.price <= Number(maxPrice));
+    }
+
+    if (sort === 'price-low') {
+      filtered.sort((a, b) => (a.variants?.[0]?.price || 0) - (b.variants?.[0]?.price || 0));
+    } else if (sort === 'price-high') {
+      filtered.sort((a, b) => (b.variants?.[0]?.price || 0) - (a.variants?.[0]?.price || 0));
+    } else if (sort === 'rating' || sort === 'popular') {
+      filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else {
+      // newest first
+      filtered.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    }
+
+    total = filtered.length;
+    products = filtered.slice((page - 1) * limit, page * limit);
 
     res.json({
       success: true,
       products,
       total,
       page: Number(page),
-      totalPages: Math.ceil(total / limit) || 1
+      totalPages: Math.ceil(total / Number(limit)) || 1
     });
   } catch (error) {
     next(error);
@@ -256,6 +262,12 @@ export const createProduct = async (req, res, next) => {
     }
 
     // Default fields
+    if (!productData.shortDescription) {
+      productData.shortDescription = productData.name || 'Traditional Homemade Pickle';
+    }
+    if (!productData.fullDescription) {
+      productData.fullDescription = productData.shortDescription;
+    }
     if (!productData.images || productData.images.length === 0) {
       productData.images = ['https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80'];
     }
@@ -303,7 +315,11 @@ export const updateProduct = async (req, res, next) => {
 
     if (mongoose.connection.readyState === 1) {
       try {
-        updated = await Product.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+        if (mongoose.isValidObjectId(id)) {
+          updated = await Product.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+        } else {
+          updated = await Product.findOneAndUpdate({ $or: [{ slug: id }, { _id: id }] }, req.body, { new: true, runValidators: true });
+        }
       } catch (err) {
         console.warn('Mongo findByIdAndUpdate failed:', err.message);
       }
@@ -337,9 +353,13 @@ export const deleteProduct = async (req, res, next) => {
 
     if (mongoose.connection.readyState === 1) {
       try {
-        await Product.findByIdAndDelete(id);
+        if (mongoose.isValidObjectId(id)) {
+          await Product.findByIdAndDelete(id);
+        } else {
+          await Product.findOneAndDelete({ $or: [{ slug: id }, { _id: id }] });
+        }
       } catch (err) {
-        console.warn('Mongo findByIdAndDelete failed:', err.message);
+        console.warn('Mongo delete failed:', err.message);
       }
     }
 

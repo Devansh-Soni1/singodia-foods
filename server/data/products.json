@@ -1,78 +1,28 @@
 [
   {
-    "_id": "prod-sample-2",
-    "name": "Homemade Mango Pickle | Aam ka Achar",
-    "hindiName": "पारंपरिक कच्ची केरी आम का अचार",
-    "slug": "homemade-mango-pickle-aam-ka-achar",
-    "category": "mango-pickles",
-    "shortDescription": "Classic sun-cured raw mango pickle made with hand-cut Ramkela mangoes, fenugreek, and cold-pressed mustard oil.",
-    "fullDescription": "Nothing evokes childhood nostalgia quite like the piquant crunch of raw mango pickle. We hand-select sour, firm Ramkela raw mangoes, cut them into traditional bite-sized pieces with their tender kernels intact, and marinate them with freshly ground whole spices. Bathed in golden Kachi Ghani mustard oil, our jars are kept in the blazing courtyard sun for weeks until every piece absorbs the tangy spiced richness.",
-    "images": [
-      "/products/homemade-mango-pickle.png"
-    ],
+    "_id": "prod-1791916095617-918",
+    "name": "Rajasthani Kair Sangri Pickle",
+    "hindiName": "राजस्थानी कैर सांगरी का आचार",
+    "category": "rajasthani-specials",
+    "shortDescription": "Heritage Marwadi delicacy sun-cured in pure mustard oil.",
     "variants": [
       {
-        "weight": "250g",
-        "price": 199,
-        "originalPrice": 249,
-        "inStock": true,
-        "stockCount": 80,
-        "sku": "AAM-250"
-      },
-      {
         "weight": "500g",
-        "price": 369,
-        "originalPrice": 420,
-        "inStock": true,
-        "stockCount": 50,
-        "sku": "AAM-500"
-      },
-      {
-        "weight": "1kg",
-        "price": 689,
-        "originalPrice": 799,
-        "inStock": true,
-        "stockCount": 35,
-        "sku": "AAM-1000"
+        "price": 349,
+        "originalPrice": 399,
+        "inStock": true
       }
     ],
-    "spiceLevel": "Medium spicy",
-    "ingredients": [
-      "Hand-cut Raw Mango Chunks (Kachi Keri)",
-      "Cold-Pressed Mustard Oil",
-      "Split Mustard Seeds (Rai Dal)",
-      "Fenugreek (Methi)",
-      "Fennel (Saunf)",
-      "Kalonji",
-      "Turmeric Powder",
-      "Red Chilli Powder",
-      "Hing",
-      "Iodized Salt"
+    "slug": "rajasthani-kair-sangri-pickle",
+    "images": [
+      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80"
     ],
-    "allergenInfo": "Contains Mustard. 100% Natural, no artificial vinegar or synthetic acids.",
-    "storageInstructions": "Store in cool and dry place. Ensure oil layer covers the top to maintain natural preservation.",
-    "shelfLife": "18 Months from packaging date",
-    "oilType": "Sunflower Oil",
-    "traditionNotes": "Aged in traditional white-and-yellow ceramic martabans in natural sunlight.",
-    "pairWith": [
-      "Dal Chawal",
-      "Ajwain Paratha",
-      "Thepla & Curd",
-      "Poha & Sev"
-    ],
-    "tags": [
-      "Sunflower Oil",
-      "Medium spicy",
-      "Jain Friendly"
-    ],
-    "rating": 4.7,
-    "numReviews": 1837,
-    "isBestSeller": true,
-    "isFeatured": true,
-    "isNewArrival": false,
+    "spiceLevel": "Medium",
+    "shelfLife": "12 Months from packaging date",
+    "oilType": "Pure Kachi Ghani Mustard Oil (सरसों का तेल)",
     "isActive": true,
-    "createdAt": "2026-10-12T18:44:04.659Z",
-    "updatedAt": "2026-10-10T17:58:31.559Z"
+    "createdAt": "2026-10-13T18:28:15.617Z",
+    "updatedAt": "2026-10-13T18:28:15.617Z"
   },
   {
     "_id": "prod-sample-1",

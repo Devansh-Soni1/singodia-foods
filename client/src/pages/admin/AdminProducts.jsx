@@ -265,9 +265,10 @@ export const AdminProducts = () => {
     if (window.confirm('Are you sure you want to delete this pickle product?')) {
       try {
         await productAPI.deleteProduct(id);
-        setProducts(products.filter(p => p._id !== id));
+        setProducts(prev => prev.filter(p => p._id !== id));
       } catch (err) {
-        setProducts(products.filter(p => p._id !== id));
+        console.error('Delete product error:', err);
+        alert('Failed to delete product: ' + (err?.message || 'Server error. Please verify you are logged in as admin.'));
       }
     }
   };

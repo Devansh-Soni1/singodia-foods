@@ -15,9 +15,9 @@ const productSchema = new mongoose.Schema({
   slug: { type: String, required: true, unique: true, lowercase: true },
   category: { type: String, required: true }, // Category slug or name
   categoryRef: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
-  shortDescription: { type: String, required: true },
-  fullDescription: { type: String, required: true },
-  images: [{ type: String, required: true }],
+  shortDescription: { type: String, default: '' },
+  fullDescription: { type: String, default: '' },
+  images: [{ type: String, default: '/hero-banner.png' }],
   variants: [variantSchema],
   spiceLevel: { 
     type: String, 

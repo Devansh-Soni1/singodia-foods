@@ -4,16 +4,16 @@ import { sampleCategories } from '../utils/seedData.js';
 
 export const getCategories = async (req, res, next) => {
   try {
-    let categories = [];
     if (mongoose.connection.readyState === 1) {
-      categories = await Category.find({ isActive: true }).sort({ displayOrder: 1 });
-    }
-    if (!categories || categories.length === 0) {
-      categories = sampleCategories;
+      const categories = await Category.find({ isActive: true }).sort({ displayOrder: 1 });
+      return res.json({
+        success: true,
+        categories
+      });
     }
     res.json({
       success: true,
-      categories
+      categories: sampleCategories
     });
   } catch (error) {
     next(error);

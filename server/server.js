@@ -6,6 +6,7 @@ import { connectDB } from './config/db.js';
 import { seedDatabase } from './utils/seedData.js';
 import Product from './models/Product.js';
 import User from './models/User.js';
+import Setting from './models/Setting.js';
 import mongoose from 'mongoose';
 
 const PORT = process.env.PORT || 5000;
@@ -15,9 +16,10 @@ const startServer = async () => {
 
   if (isConnected && mongoose.connection.readyState === 1) {
     try {
-      const productCount = await Product.countDocuments();
-      if (productCount === 0) {
-        console.log('Database is empty. Automatically initializing seed data...');
+      const settingCount = await Setting.countDocuments();
+      // Only seed once on initial creation, never resurrect deleted products on reboot
+      if (settingCount === 0) {
+        console.log('Fresh database detected. Initializing first-time seed data...');
         await seedDatabase();
       } else {
         const adminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase();
