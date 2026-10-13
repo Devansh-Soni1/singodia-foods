@@ -120,48 +120,57 @@ export const AdminOrders = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredOrders.map((ord) => (
-                <tr key={ord._id || ord.orderNumber} className="hover:bg-gray-50">
-                  <td className="p-4 font-bold text-brand-green">
-                    {ord.orderNumber}
-                  </td>
-                  <td className="p-4">
-                    <div className="font-bold text-gray-900">{ord.customer?.name}</div>
-                    <div className="text-[11px] text-gray-500">{ord.customer?.phone}</div>
-                    <div className="text-[10px] text-gray-400">{ord.shippingAddress?.city}, {ord.shippingAddress?.state}</div>
-                  </td>
-                  <td className="p-4">
-                    <span className="font-semibold">{ord.items?.length || 1} Jar(s)</span>
-                  </td>
-                  <td className="p-4 font-bold text-gray-900">
-                    {formatPrice(ord.totalAmount)}
-                  </td>
-                  <td className="p-4">
-                    <span className="capitalize font-medium">
-                      {ord.paymentMethod?.toUpperCase()} ({ord.paymentStatus})
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                      ord.orderStatus === 'Delivered'
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : ord.orderStatus === 'Shipped'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-amber-100 text-amber-800'
-                    }`}>
-                      {ord.orderStatus}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => openStatusModal(ord)}
-                      className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-brand-green hover:text-white font-bold text-[11px] transition-colors"
-                    >
-                      Update Status
-                    </button>
+              {filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="p-12 text-center text-gray-400">
+                    <ShoppingBag className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                    <p className="font-medium text-xs">No customer orders recorded yet.</p>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredOrders.map((ord) => (
+                  <tr key={ord._id || ord.orderNumber} className="hover:bg-gray-50">
+                    <td className="p-4 font-bold text-brand-green">
+                      {ord.orderNumber}
+                    </td>
+                    <td className="p-4">
+                      <div className="font-bold text-gray-900">{ord.customer?.name}</div>
+                      <div className="text-[11px] text-gray-500">{ord.customer?.phone}</div>
+                      <div className="text-[10px] text-gray-400">{ord.shippingAddress?.city}, {ord.shippingAddress?.state}</div>
+                    </td>
+                    <td className="p-4">
+                      <span className="font-semibold">{ord.items?.length || 1} Jar(s)</span>
+                    </td>
+                    <td className="p-4 font-bold text-gray-900">
+                      {formatPrice(ord.totalAmount)}
+                    </td>
+                    <td className="p-4">
+                      <span className="capitalize font-medium">
+                        {ord.paymentMethod?.toUpperCase()} ({ord.paymentStatus})
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                        ord.orderStatus === 'Delivered' 
+                          ? 'bg-emerald-100 text-emerald-800' 
+                          : ord.orderStatus === 'Shipped'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {ord.orderStatus}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <button
+                        onClick={() => openStatusModal(ord)}
+                        className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-brand-green hover:text-white font-bold text-[11px] transition-colors"
+                      >
+                        Update Status
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

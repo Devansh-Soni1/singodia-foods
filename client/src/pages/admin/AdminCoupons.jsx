@@ -34,7 +34,7 @@ export const AdminCoupons = () => {
       const res = await couponAPI.createCoupon(newCoupon);
       setCoupons([...coupons, res.coupon || { ...newCoupon, _id: 'coup-' + Date.now() }]);
       setShowModal(false);
-      setNewCoupon({ code: '', discountType: 'percentage', discountValue: 10, minOrderValue: 399, maxDiscountAmount: 200, description: '' });
+      setNewCoupon({ code: '', discountType: 'percentage', discountValue: '', minOrderValue: '', maxDiscountAmount: '', description: '' });
     } catch (err) {
       alert(err.message || 'Failed to create coupon');
     }

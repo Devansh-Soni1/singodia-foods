@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageCircle } from 'lucide-react';
+import { adminAPI } from '../../services/api';
 
 export const WhatsAppButton = ({ phoneNumber = '919876543210' }) => {
+  const [activeNumber, setActiveNumber] = useState(phoneNumber);
+
+  useEffect(() => {
+    const fetchNumber = async () => {
+      try {
+        const res = await adminAPI.getSettings();
+        if (res.settings?.whatsappNumber) {
+          setActiveNumber(res.settings.whatsappNumber);
+        }
+      } catch (e) {
+        // Fallback
+      }
+    };
+    fetchNumber();
+  }, [phoneNumber]);
+
   const message = encodeURIComponent('Namaste Singodhia Foods! I have a query regarding your homemade pickles.');
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+  const whatsappUrl = `https://wa.me/${activeNumber}?text=${message}`;
 
   return (
     <a

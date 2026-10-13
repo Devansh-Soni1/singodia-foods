@@ -46,8 +46,14 @@ export const AdminReviews = () => {
         <p className="text-xs text-gray-500 mt-1">Approve, moderate, or remove customer feedback.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {reviews.map((rev, idx) => (
+      {reviews.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center text-gray-400">
+          <Star className="w-8 h-8 mx-auto mb-2 opacity-30 text-mustard" />
+          <p className="font-medium text-xs">No customer reviews submitted yet.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {reviews.map((rev, idx) => (
           <div key={rev._id || rev.id || idx} className="bg-white rounded-2xl border border-gray-200 p-5 shadow-xs space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1 text-mustard">
@@ -92,8 +98,9 @@ export const AdminReviews = () => {
           </div>
         ))}
       </div>
-    </div>
-  );
+    )}
+  </div>
+);
 };
 
 export default AdminReviews;
