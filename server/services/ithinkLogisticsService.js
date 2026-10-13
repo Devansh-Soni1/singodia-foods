@@ -4,7 +4,7 @@ const ITHINK_BASE_URL = 'https://my.ithinklogistics.com';
 const ITHINK_STAGING_URL = 'https://pre-alpha.ithinklogistics.com';
 
 const getBaseUrl = () => {
-  return process.env.NODE_ENV === 'production' ? ITHINK_BASE_URL : ITHINK_STAGING_URL;
+  return process.env.ITHINK_API_URL || ITHINK_BASE_URL;
 };
 
 const getCredentials = () => {
@@ -28,7 +28,7 @@ export const isConfigured = () => {
  */
 export const calculateShippingRate = async ({
   toPincode,
-  fromPincode = process.env.ITHINK_LOGISTICS_FROM_PINCODE || '302001',
+  fromPincode = process.env.ITHINK_LOGISTICS_FROM_PINCODE || '331507',
   weight = 0.5,
   length = 15,
   width = 15,
@@ -49,19 +49,22 @@ export const calculateShippingRate = async ({
   }
 
   const { access_token, secret_key } = getCredentials();
+  const paymentMode = paymentMethod?.toUpperCase() === 'COD' ? 'COD' : 'Prepaid';
 
   try {
     const payload = {
       data: {
         access_token,
         secret_key,
-        from_pincode: parseInt(fromPincode, 10),
-        to_pincode: parseInt(toPincode, 10),
-        shipping_length_cms: parseFloat(length),
-        shipping_width_cms: parseFloat(width),
-        shipping_height_cms: parseFloat(height),
+        from_pincode: String(fromPincode),
+        to_pincode: String(toPincode),
+        shipping_weight_kg: String(weight),
+        shipping_length_cms: String(length),
+        shipping_width_cms: String(width),
+        shipping_height_cms: String(height),
         weight: parseFloat(weight),
-        payment_method: paymentMethod.toUpperCase() === 'COD' ? 'COD' : 'Prepaid',
+        payment_mode: paymentMode,
+        payment_method: paymentMode,
         order_type: 'Forward'
       }
     };
