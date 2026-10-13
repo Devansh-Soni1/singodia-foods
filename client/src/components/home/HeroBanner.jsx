@@ -1,8 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Gift, Flame } from 'lucide-react';
+import { adminAPI } from '../../services/api';
 
-export const HeroBanner = () => {
+export const HeroBanner = ({ customHeroImage }) => {
+  const [heroImage, setHeroImage] = useState(customHeroImage || '/hero-banner.png');
+
+  useEffect(() => {
+    if (customHeroImage) {
+      setHeroImage(customHeroImage);
+      return;
+    }
+    const loadBannerSetting = async () => {
+      try {
+        const res = await adminAPI.getSettings();
+        if (res.settings?.heroBannerImage) {
+          setHeroImage(res.settings.heroBannerImage);
+        }
+      } catch (err) {
+        // graceful fallback to default
+      }
+    };
+    loadBannerSetting();
+  }, [customHeroImage]);
+
   const quickPicks = [
     { name: 'आम का अचार (Mango)', slug: 'mango-pickles', icon: '🥭' },
     { name: 'भरवां लाल मिर्च (Red Chilli)', slug: 'red-chilli-pickles', icon: '🌶️' },
@@ -27,13 +48,18 @@ export const HeroBanner = () => {
           className="group block relative w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-amber-200/90 shadow-[0_8px_30px_rgba(204,18,38,0.08)] hover:shadow-[0_12px_40px_rgba(204,18,38,0.18)] transition-all duration-300 bg-amber-50"
           title="Click to Shop Singodia Foods Homemade Pickles"
         >
-          {/* Hero Banner Image */}
+          {/* Dynamic Hero Banner Image */}
           <img
-            src="/hero-banner.png"
+            src={heroImage}
             alt="Singodia Foods - पारंपरिक देसी घर के बने अचार"
             className="w-full h-auto object-cover sm:object-contain block transition-transform duration-500 group-hover:scale-[1.008]"
             loading="eager"
             fetchPriority="high"
+            onError={(e) => {
+              if (heroImage !== '/hero-banner.png') {
+                setHeroImage('/hero-banner.png');
+              }
+            }}
           />
 
           {/* Subtle hover sheen overlay */}

@@ -511,7 +511,8 @@ export const sampleSettings = [
   { key: 'whatsappNumber', value: '919876543210', description: 'Business WhatsApp phone number for customer queries' },
   { key: 'storeAddress', value: 'Singodhia Bhawan, Heritage Lane, Jaipur, Rajasthan 302001', description: 'Physical store address' },
   { key: 'supportPhone', value: '+91 98765 43210', description: 'Support helpline phone' },
-  { key: 'supportEmail', value: 'care@singodhiafoods.com', description: 'Customer support email' }
+  { key: 'supportEmail', value: 'care@singodhiafoods.com', description: 'Customer support email' },
+  { key: 'heroBannerImage', value: '/hero-banner.png', description: 'Hero banner image displayed on homepage' }
 ];
 
 export const sampleReviews = [
