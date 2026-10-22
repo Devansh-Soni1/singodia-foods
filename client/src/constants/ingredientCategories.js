@@ -126,3 +126,4 @@ export const getIngredientCategory = (catId = '') => {
     c.name.toLowerCase() === clean
   ) || null;
 };
+
