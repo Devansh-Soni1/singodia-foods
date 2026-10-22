@@ -100,7 +100,7 @@ export const ProductCard = ({ product, onQuickView }) => {
         )}
 
         {/* Product Jar Photo */}
-        <Link to={`/product/${product.slug}`} className="w-full h-full flex items-center justify-center p-1.5">
+        <Link to={`/product/${product.slug}/`} className="w-full h-full flex items-center justify-center p-1.5">
           <img
             src={product.images?.[0] || '/products/homemade-mango-pickle.png'}
             alt={product.name}
@@ -114,7 +114,7 @@ export const ProductCard = ({ product, onQuickView }) => {
       <div className="flex-1 flex flex-col justify-between">
         <div>
           {/* Title (e.g. Homemade Mango Pickle | Aam ka Achar) */}
-          <Link to={`/product/${product.slug}`} className="block">
+          <Link to={`/product/${product.slug}/`} className="block">
             <h3 className="text-sm sm:text-[15px] font-semibold text-gray-900 group-hover:text-brand-green transition-colors line-clamp-2 leading-snug font-sans">
               {product.name}
             </h3>

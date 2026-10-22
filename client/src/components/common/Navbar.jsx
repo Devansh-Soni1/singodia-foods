@@ -75,11 +75,11 @@ export const Navbar = ({ onOpenSearch }) => {
     : defaultIngredientsList;
 
   const tasteList = [
-    { name: 'Sweet (मीठा / मुरब्बा)', filter: 'subCategory=sweet', icon: '🍯' },
-    { name: 'Tangy (खट्टा / चटपटा)', filter: 'subCategory=tangy', icon: '🍋' },
-    { name: 'Spicy (तीखा / चटपटा)', filter: 'subCategory=spicy', icon: '🌶️' },
-    { name: 'Winter Special (सर्दियों का खास)', filter: 'subCategory=winter', icon: '❄️' },
-    { name: 'Rajasthani Royal (शाही राजस्थानी)', filter: 'subCategory=rajasthani', icon: '🏺' },
+    { name: 'Sweet (मीठा / मुरब्बा)', path: '/shop/taste/sweet/', icon: '🍯' },
+    { name: 'Tangy (खट्टा / चटपटा)', path: '/shop/taste/tangy/', icon: '🍋' },
+    { name: 'Spicy (तीखा / चटपटा)', path: '/shop/taste/spicy/', icon: '🌶️' },
+    { name: 'Winter Special (सर्दियों का खास)', path: '/shop/taste/winter/', icon: '❄️' },
+    { name: 'Rajasthani Royal (शाही राजस्थानी)', path: '/shop/taste/rajasthani/', icon: '🏺' },
   ];
 
   return (
@@ -136,7 +136,7 @@ export const Navbar = ({ onOpenSearch }) => {
                   {ingredientsList.map((item) => (
                     <Link
                       key={item.slug}
-                      to={`/shop?category=${item.slug}`}
+                      to={`/product/${(item.slug || '').replace(/s$/, '')}/`}
                       className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-bold text-gray-800 hover:bg-[#FAF6EF] hover:text-[#b35400] transition-colors"
                       onClick={() => setIngredientsDropdownOpen(false)}
                     >
@@ -172,7 +172,7 @@ export const Navbar = ({ onOpenSearch }) => {
                   {tasteList.map((item, idx) => (
                     <Link
                       key={idx}
-                      to={`/shop?${item.filter}`}
+                      to={item.path}
                       className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-bold text-gray-800 hover:bg-[#FAF6EF] hover:text-[#b35400] transition-colors"
                       onClick={() => setTasteDropdownOpen(false)}
                     >
@@ -324,7 +324,7 @@ export const Navbar = ({ onOpenSearch }) => {
                     {ingredientsList.map((item) => (
                       <Link
                         key={item.slug}
-                        to={`/shop?category=${item.slug}`}
+                        to={`/product/${(item.slug || '').replace(/s$/, '')}/`}
                         className="flex items-center gap-2.5 py-2 px-2 text-xs font-semibold text-gray-800 hover:text-[#b35400]"
                         onClick={() => setMobileMenuOpen(false)}
                       >
@@ -351,7 +351,7 @@ export const Navbar = ({ onOpenSearch }) => {
                     {tasteList.map((item, idx) => (
                       <Link
                         key={idx}
-                        to={`/shop?${item.filter}`}
+                        to={item.path}
                         className="flex items-center gap-2.5 py-2 px-2 text-xs font-semibold text-gray-800 hover:text-[#b35400]"
                         onClick={() => setMobileMenuOpen(false)}
                       >

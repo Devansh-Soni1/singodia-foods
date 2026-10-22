@@ -7,61 +7,71 @@ const CATEGORY_VISUALS = {
     emoji: '🥭',
     title1: 'Mango',
     title2: 'Pickles',
-    hindi: 'आम का अचार'
+    hindi: 'आम का अचार',
+    path: '/product/mango-pickle/'
   },
   'red-chilli-pickles': {
     emoji: '🌶️',
     title1: 'Red Chilli',
     title2: 'Banarasi',
-    hindi: 'भरवां लाल मिर्च'
+    hindi: 'भरवां लाल मिर्च',
+    path: '/product/red-chilli-pickle/'
   },
   'green-chilli-pickles': {
     emoji: '🫑',
     title1: 'Green Chilli',
     title2: 'Pickles',
-    hindi: 'हरी मिर्च'
+    hindi: 'हरी मिर्च',
+    path: '/product/green-chilli-pickle/'
   },
   'lemon-pickles': {
     emoji: '🍋',
     title1: 'Lemon',
     title2: 'Oil-Free',
-    hindi: 'नीम्बू का अचार'
+    hindi: 'नीम्बू का अचार',
+    path: '/product/lemon-pickle/'
   },
   'rajasthani-specials': {
     emoji: '🏺',
     title1: 'Rajasthani',
     title2: 'Specials',
-    hindi: 'कैर सांगरी'
+    hindi: 'कैर सांगरी',
+    path: '/product/rajasthani-specials/'
   },
   'garlic-pickles': {
     emoji: '🧄',
     title1: 'Garlic',
     title2: 'Pickles',
-    hindi: 'लहसुन का अचार'
+    hindi: 'लहसुन का अचार',
+    path: '/product/garlic-pickle/'
   },
   'sweet-pickles': {
     emoji: '🍯',
     title1: 'Sweet',
     title2: 'Murabba',
-    hindi: 'मीठा छुंदा'
+    hindi: 'मीठा छुंदा',
+    path: '/product/sweet-pickle/'
   },
   'combo-packs': {
     emoji: '🎁',
     title1: 'Gift Boxes',
     title2: 'Combos',
-    hindi: 'कॉम्बो पैक'
+    hindi: 'कॉम्बो पैक',
+    path: '/product/combo-packs/'
   },
   'papad': {
     emoji: '🫓',
     title1: 'Marwadi',
     title2: 'Papad',
-    hindi: 'पापड़'
+    hindi: 'पापड़',
+    path: '/product/papad/'
   },
   'all-products': {
     emoji: '⭐',
     title1: 'All',
     title2: 'Pickles',
-    hindi: 'सभी अचार'
+    hindi: 'सभी अचार',
+    path: '/shop/'
   }
 };
 
@@ -140,7 +150,7 @@ export const SubHeaderCategoryBar = () => {
         <div className="flex items-start justify-start md:justify-center gap-3 sm:gap-6 lg:gap-8 overflow-x-auto scrollbar-none pb-1 pt-1.5 px-1">
           {categoriesToShow.map((cat) => {
             const visual = resolveVisual(cat.slug, cat.name);
-            const link = cat.slug === 'all-products' ? '/shop' : `/shop?category=${cat.slug}`;
+            const link = visual.path || (cat.slug === 'all-products' ? '/shop/' : `/product/${(cat.slug || '').replace(/s$/, '')}/`);
 
             return (
               <Link

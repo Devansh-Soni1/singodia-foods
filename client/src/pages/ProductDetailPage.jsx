@@ -11,7 +11,7 @@ import { StarRating } from '../components/common/StarRating';
 import { ProductCard } from '../components/product/ProductCard';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import { SAMPLE_PRODUCTS, SAMPLE_REVIEWS } from '../utils/sampleData';
+import { SAMPLE_PRODUCTS, SAMPLE_REVIEWS, findSampleProduct } from '../utils/sampleData';
 
 export const ProductDetailPage = () => {
   const { slug } = useParams();
@@ -43,18 +43,19 @@ export const ProductDetailPage = () => {
   useEffect(() => {
     const fetchProductData = async () => {
       setLoading(true);
+      const cleanSlug = (slug || '').toLowerCase().replace(/\/$/, '');
       try {
-        const res = await productAPI.getProductBySlug(slug);
+        const res = await productAPI.getProductBySlug(cleanSlug);
         if (res.product) {
           setProduct(res.product);
           setRelatedProducts(res.relatedProducts || []);
         } else {
-          // Fallback
-          const found = SAMPLE_PRODUCTS.find(p => p.slug === slug || p._id === slug);
+          // Fallback to sample data
+          const found = findSampleProduct(cleanSlug);
           setProduct(found || SAMPLE_PRODUCTS[0]);
         }
       } catch (err) {
-        const found = SAMPLE_PRODUCTS.find(p => p.slug === slug || p._id === slug);
+        const found = findSampleProduct(cleanSlug);
         setProduct(found || SAMPLE_PRODUCTS[0]);
       } finally {
         setLoading(false);

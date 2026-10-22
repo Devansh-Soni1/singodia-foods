@@ -190,7 +190,7 @@ export const QuickViewModal = ({ product, isOpen, onClose }) => {
               </div>
 
               <Link
-                to={`/product/${product.slug}`}
+                to={`/product/${product.slug}/`}
                 onClick={onClose}
                 className="w-full text-center text-xs font-bold text-brand-green hover:underline flex items-center justify-center gap-1"
               >

@@ -489,7 +489,7 @@ export const AdminProducts = () => {
                         <div className="flex items-center justify-end gap-1.5">
                           {p.slug && (
                             <Link
-                              to={`/product/${p.slug}`}
+                              to={`/product/${p.slug}/`}
                               target="_blank"
                               className="p-2 text-gray-400 hover:text-brand-green hover:bg-gray-100 rounded-xl transition-colors"
                               title="View on Live Store"

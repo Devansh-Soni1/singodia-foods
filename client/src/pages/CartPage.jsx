@@ -111,7 +111,7 @@ export const CartPage = () => {
                         className="w-20 h-20 object-cover rounded-xl border border-cream-200 flex-shrink-0"
                       />
                       <div>
-                        <Link to={`/product/${item.slug}`} className="text-sm sm:text-base font-bold text-charcoal hover:text-brand-green line-clamp-1 font-serif">
+                        <Link to={`/product/${item.slug}/`} className="text-sm sm:text-base font-bold text-charcoal hover:text-brand-green line-clamp-1 font-serif">
                           {item.name}
                         </Link>
                         {item.hindiName && (

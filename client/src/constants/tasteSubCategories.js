@@ -51,3 +51,4 @@ export const getTasteInfo = (tasteId = '') => {
   const tid = tasteId.toLowerCase();
   return TASTE_SUBCATEGORIES.find(t => t.id === tid || t.slug === tid) || null;
 };
+

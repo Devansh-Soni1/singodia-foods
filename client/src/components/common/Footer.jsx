@@ -49,7 +49,7 @@ export const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/shop?bestsellers=true" className="hover:text-mustard transition-colors">
+                  <Link to="/shop/" className="hover:text-mustard transition-colors">
                     Bestsellers
                   </Link>
                 </li>
@@ -59,12 +59,12 @@ export const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/shop?category=combo-packs" className="hover:text-mustard transition-colors">
+                  <Link to="/product/combo-packs/" className="hover:text-mustard transition-colors">
                     Gift Hampers
                   </Link>
                 </li>
                 <li>
-                  <Link to="/shop?category=rajasthani-specials" className="hover:text-mustard transition-colors">
+                  <Link to="/product/rajasthani-specials/" className="hover:text-mustard transition-colors">
                     Rajasthani Specials
                   </Link>
                 </li>
@@ -78,27 +78,27 @@ export const Footer = () => {
               </h4>
               <ul className="space-y-1.5 sm:space-y-2 text-[11px] sm:text-xs text-cream-200/80">
                 <li>
-                  <Link to="/shop?category=mango-pickles" className="hover:text-mustard transition-colors">
+                  <Link to="/product/mango-pickle/" className="hover:text-mustard transition-colors">
                     Mango (Aam Ka Achar)
                   </Link>
                 </li>
                 <li>
-                  <Link to="/shop?category=red-chilli-pickles" className="hover:text-mustard transition-colors">
+                  <Link to="/product/red-chilli-pickle/" className="hover:text-mustard transition-colors">
                     Red Chilli (Banarasi)
                   </Link>
                 </li>
                 <li>
-                  <Link to="/shop?category=green-chilli-pickles" className="hover:text-mustard transition-colors">
+                  <Link to="/product/green-chilli-pickle/" className="hover:text-mustard transition-colors">
                     Green Chilli (Hari Mirch)
                   </Link>
                 </li>
                 <li>
-                  <Link to="/shop?category=lemon-pickles" className="hover:text-mustard transition-colors">
+                  <Link to="/product/lemon-pickle/" className="hover:text-mustard transition-colors">
                     Lemon (Oil-Free Nimbu)
                   </Link>
                 </li>
                 <li>
-                  <Link to="/shop?category=garlic-pickles" className="hover:text-mustard transition-colors">
+                  <Link to="/product/garlic-pickle/" className="hover:text-mustard transition-colors">
                     Garlic (Lahsun)
                   </Link>
                 </li>

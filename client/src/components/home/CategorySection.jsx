@@ -43,7 +43,7 @@ export const CategorySection = () => {
           {categories.map((cat) => (
             <Link
               key={cat.slug}
-              to={`/shop?category=${cat.slug}`}
+              to={`/product/${(cat.slug || '').replace(/s$/, '')}/`}
               className="group relative rounded-2xl overflow-hidden bg-cream-50 border border-cream-200 shadow-xs hover:shadow-hover transition-all duration-300 flex flex-col"
             >
               {/* Category Image */}

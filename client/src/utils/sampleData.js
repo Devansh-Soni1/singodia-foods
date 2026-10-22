@@ -94,7 +94,7 @@ export const SAMPLE_PRODUCTS = [
     _id: 'p1',
     name: 'Homemade Mango Pickle | Aam ka Achar',
     hindiName: 'घर का बना आम का अचार',
-    slug: 'homemade-mango-pickle-aam-ka-achar',
+    slug: 'mango-pickle',
     category: 'mango-pickles',
     subCategory: 'tangy',
     shortDescription: 'Classic sun-cured raw mango pickle made with hand-cut Ramkela mangoes, fenugreek, and cold-pressed oil.',
@@ -128,7 +128,7 @@ export const SAMPLE_PRODUCTS = [
     _id: 'p2',
     name: 'Red Chilli Pickle | Lal Mirch ka Achar',
     hindiName: 'बनारसी भरवां लाल मिर्च अचार',
-    slug: 'red-chilli-pickle-lal-mirch-ka-achar',
+    slug: 'red-chilli-pickle',
     category: 'red-chilli-pickles',
     subCategory: 'spicy',
     shortDescription: 'Plump sun-dried red chillies hand-stuffed with aromatic roasted spices, saunf, amchur, and pure mustard oil.',
@@ -648,4 +648,51 @@ export const SAMPLE_FAQS = [
     a: 'Yes! Use our "Build Your Own Pickle Combo" section on the website to handpick your favorite jars and boxes, or contact us directly on WhatsApp for bulk festive corporate gifting.'
   }
 ];
+
+export const findSampleProduct = (slug = '') => {
+  if (!slug) return SAMPLE_PRODUCTS[0];
+  const clean = slug.toLowerCase().replace(/\/$/, '');
+
+  // 1. Direct match
+  let p = SAMPLE_PRODUCTS.find(item => item.slug === clean || item._id === clean);
+  if (p) return p;
+
+  // 2. Common clean slug mappings
+  const cleanMap = {
+    'mango-pickle': 'homemade-mango-pickle-aam-ka-achar',
+    'mango-pickles': 'homemade-mango-pickle-aam-ka-achar',
+    'red-chilli-pickle': 'red-chilli-pickle-lal-mirch-ka-achar',
+    'red-chilli-pickles': 'red-chilli-pickle-lal-mirch-ka-achar',
+    'green-chilli-pickle': 'rajasthani-hari-mirch-tipore',
+    'green-chilli-pickles': 'rajasthani-hari-mirch-tipore',
+    'lemon-pickle': 'khatta-meetha-nimbu-achar',
+    'lemon-pickles': 'khatta-meetha-nimbu-achar',
+    'rajasthani-specials': 'ker-sangri-pickle-kair-sangri-ka-achar',
+    'kair-sangri-pickle': 'ker-sangri-pickle-kair-sangri-ka-achar',
+    'garlic-pickle': 'desi-lahsun-masaledar-achar',
+    'garlic-pickles': 'desi-lahsun-masaledar-achar',
+    'mixed-pickle': 'pachranga-shahi-mix-achar',
+    'mixed-pickles': 'pachranga-shahi-mix-achar',
+    'sweet-pickle': 'khatta-meetha-nimbu-achar',
+    'papad': 'bikaneri-handmade-moong-dal-papad',
+    'a2-ghee': 'pure-desi-gir-cow-a2-bilona-ghee',
+    'masalas': 'artisan-shahi-achar-masala-chai-masala',
+    'combo-packs': 'dadis-special-pickle-trial-box'
+  };
+
+  const target = cleanMap[clean];
+  if (target) {
+    p = SAMPLE_PRODUCTS.find(item => item.slug === target);
+    if (p) return p;
+  }
+
+  // 3. Substring match
+  p = SAMPLE_PRODUCTS.find(item => 
+    item.slug?.includes(clean) || 
+    clean.includes(item.slug) ||
+    item.category?.replace(/s$/, '') === clean.replace(/s$/, '')
+  );
+
+  return p || SAMPLE_PRODUCTS[0];
+};
 

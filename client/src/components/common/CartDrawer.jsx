@@ -138,7 +138,7 @@ export const CartDrawer = () => {
                     <div>
                       <div className="flex items-start justify-between gap-1">
                         <Link
-                          to={`/product/${item.slug}`}
+                          to={`/product/${item.slug}/`}
                           onClick={closeCart}
                           className="text-xs sm:text-sm font-bold text-charcoal hover:text-brand-green line-clamp-1"
                         >

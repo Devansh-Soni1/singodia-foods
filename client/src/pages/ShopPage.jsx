@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import { Filter, SlidersHorizontal, X, Sparkles, ChevronDown } from 'lucide-react';
 import { ProductCard } from '../components/product/ProductCard';
 import { QuickViewModal } from '../components/product/QuickViewModal';
@@ -9,15 +9,35 @@ import { TASTE_SUBCATEGORIES, getTasteInfo } from '../constants/tasteSubCategori
 
 export const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { categorySlug, subCategorySlug, slug } = useParams();
+  const navigate = useNavigate();
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedProductForQuickView, setSelectedProductForQuickView] = useState(null);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
-  // Filter states
-  const categoryParam = searchParams.get('category') || 'all';
-  const subCategoryParam = searchParams.get('subCategory') || searchParams.get('taste') || 'all';
+  // Normalize category slugs (e.g. 'mango-pickle' -> 'mango-pickles')
+  const normalizeCategory = (s = '') => {
+    if (!s || s === 'all') return 'all';
+    const c = s.toLowerCase().replace(/\/$/, '');
+    if (c === 'mango-pickle') return 'mango-pickles';
+    if (c === 'red-chilli-pickle') return 'red-chilli-pickles';
+    if (c === 'green-chilli-pickle') return 'green-chilli-pickles';
+    if (c === 'lemon-pickle') return 'lemon-pickles';
+    if (c === 'garlic-pickle') return 'garlic-pickles';
+    if (c === 'mixed-pickle') return 'mixed-pickles';
+    if (c === 'sweet-pickle') return 'sweet-pickles';
+    return c;
+  };
+
+  // Extract category and subcategory from clean URL path, fallback to searchParams
+  const rawCat = categorySlug || (slug && slug !== 'all' ? slug : null) || searchParams.get('category') || 'all';
+  const categoryParam = normalizeCategory(rawCat);
+
+  const rawSub = subCategorySlug || searchParams.get('subCategory') || searchParams.get('taste') || 'all';
+  const subCategoryParam = rawSub ? rawSub.toLowerCase().replace(/\/$/, '') : 'all';
   const spiceParam = searchParams.get('spice') || 'all';
   const sortParam = searchParams.get('sort') || 'popular';
   const searchParam = searchParams.get('q') || '';
@@ -76,6 +96,32 @@ export const ShopPage = () => {
   }, [categoryParam, subCategoryParam, spiceParam, sortParam, searchParam, bestsellersParam, jainParam]);
 
   const updateFilter = (key, value) => {
+    if (key === 'category') {
+      if (value === 'all' || !value) {
+        navigate('/shop/');
+      } else {
+        navigate(`/category/${value}/`);
+      }
+      return;
+    }
+
+    if (key === 'subCategory') {
+      if (value === 'all' || !value) {
+        if (categoryParam !== 'all') {
+          navigate(`/category/${categoryParam}/`);
+        } else {
+          navigate('/shop/');
+        }
+      } else {
+        if (categoryParam !== 'all') {
+          navigate(`/category/${categoryParam}/${value}/`);
+        } else {
+          navigate(`/shop/taste/${value}/`);
+        }
+      }
+      return;
+    }
+
     const newParams = new URLSearchParams(searchParams);
     if (value === 'all' || !value) {
       newParams.delete(key);
@@ -86,6 +132,7 @@ export const ShopPage = () => {
   };
 
   const clearAllFilters = () => {
+    navigate('/shop/');
     setSearchParams({});
   };
 

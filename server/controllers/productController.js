@@ -161,8 +161,35 @@ export const getProducts = async (req, res, next) => {
 
 export const getProductBySlug = async (req, res, next) => {
   try {
-    const { slug } = req.params;
+    let { slug } = req.params;
+    if (slug) {
+      slug = slug.toLowerCase().replace(/\/$/, '');
+    }
     let product = null;
+
+    const SLUG_ALIASES = {
+      'mango-pickle': ['mango-pickle', 'homemade-mango-pickle-aam-ka-achar', 'kachi-keri-desi-aam-ka-achar', 'punjabi-mango-pickle-punjabi-aam-ka-achar'],
+      'mango-pickles': ['mango-pickle', 'homemade-mango-pickle-aam-ka-achar', 'kachi-keri-desi-aam-ka-achar', 'punjabi-mango-pickle-punjabi-aam-ka-achar'],
+      'red-chilli-pickle': ['red-chilli-pickle', 'banarasi-lal-mirch-bharwa-achar', 'red-chilli-pickle-lal-mirch-ka-achar'],
+      'red-chilli-pickles': ['red-chilli-pickle', 'banarasi-lal-mirch-bharwa-achar', 'red-chilli-pickle-lal-mirch-ka-achar'],
+      'green-chilli-pickle': ['green-chilli-pickle', 'rajasthani-hari-mirch-tipore'],
+      'green-chilli-pickles': ['green-chilli-pickle', 'rajasthani-hari-mirch-tipore'],
+      'lemon-pickle': ['lemon-pickle', 'khatta-meetha-nimbu-achar'],
+      'lemon-pickles': ['lemon-pickle', 'khatta-meetha-nimbu-achar'],
+      'rajasthani-specials': ['rajasthani-specials', 'kair-sangri-pickle', 'ker-sangri-pickle-kair-sangri-ka-achar', 'marwadi-kair-sangri-shahi-achar'],
+      'kair-sangri-pickle': ['kair-sangri-pickle', 'ker-sangri-pickle-kair-sangri-ka-achar', 'marwadi-kair-sangri-shahi-achar'],
+      'garlic-pickle': ['garlic-pickle', 'desi-lahsun-masaledar-achar'],
+      'garlic-pickles': ['garlic-pickle', 'desi-lahsun-masaledar-achar'],
+      'sweet-pickle': ['sweet-pickle', 'khatta-meetha-nimbu-achar'],
+      'mixed-pickle': ['mixed-pickle', 'pachranga-shahi-mix-achar'],
+      'mixed-pickles': ['mixed-pickle', 'pachranga-shahi-mix-achar'],
+      'papad': ['papad', 'bikaneri-handmade-moong-dal-papad'],
+      'a2-ghee': ['a2-ghee', 'pure-desi-gir-cow-a2-bilona-ghee'],
+      'masalas': ['masalas', 'artisan-shahi-achar-masala-chai-masala'],
+      'combo-packs': ['combo-packs', 'dadis-special-pickle-trial-box', 'rajasthani-shahi-martaban-hamper']
+    };
+
+    const searchSlugs = [slug, ...(SLUG_ALIASES[slug] || [])];
 
     if (mongoose.connection.readyState === 1) {
       try {
@@ -170,7 +197,14 @@ export const getProductBySlug = async (req, res, next) => {
           product = await Product.findById(slug);
         }
         if (!product) {
-          product = await Product.findOne({ slug });
+          product = await Product.findOne({
+            $or: [
+              { slug: { $in: searchSlugs } },
+              { slug: new RegExp(`^${slug}`, 'i') },
+              { category: slug },
+              { category: slug + 's' }
+            ]
+          });
         }
       } catch (err) {
         console.warn('Mongo findOne error:', err.message);
@@ -179,7 +213,14 @@ export const getProductBySlug = async (req, res, next) => {
 
     if (!product) {
       const local = getLocalProducts();
-      product = local.find(p => p.slug === slug || p._id?.toString() === slug);
+      product = local.find(p => 
+        searchSlugs.includes(p.slug) ||
+        p.slug === slug || 
+        p.slug?.includes(slug) ||
+        p.category === slug ||
+        p.category === slug + 's' ||
+        p._id?.toString() === slug
+      );
     }
 
     if (!product) {

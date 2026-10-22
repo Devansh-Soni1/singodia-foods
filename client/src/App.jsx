@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
@@ -31,6 +31,22 @@ import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminReviews from './pages/admin/AdminReviews';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
+
+// Smart Product & Category Route Handler
+// If slug is a multi-product bundle/category like combo-packs, renders ShopPage.
+// Otherwise renders ProductDetailPage with clean SEO URL (e.g. /product/mango-pickle/)
+const ProductRouteHandler = () => {
+  const { slug } = useParams();
+  const cleanSlug = (slug || '').toLowerCase().replace(/\/$/, '');
+
+  const isCategoryListing = ['combo-packs', 'all-products', 'all-pickles', 'trial-packs'].includes(cleanSlug);
+
+  if (isCategoryListing) {
+    return <ShopPage />;
+  }
+
+  return <ProductDetailPage />;
+};
 
 // Protected Admin Route Guard (Strict Authentication & Authorization)
 const ProtectedAdminRoute = ({ children }) => {
@@ -92,7 +108,13 @@ export const App = () => {
               <Route path="/" element={<MainLayout />}>
                 <Route index element={<HomePage />} />
                 <Route path="shop" element={<ShopPage />} />
-                <Route path="product/:slug" element={<ProductDetailPage />} />
+                <Route path="shop/:categorySlug" element={<ShopPage />} />
+                <Route path="shop/:categorySlug/:subCategorySlug" element={<ShopPage />} />
+                <Route path="shop/taste/:subCategorySlug" element={<ShopPage />} />
+                <Route path="category/:categorySlug" element={<ShopPage />} />
+                <Route path="category/:categorySlug/:subCategorySlug" element={<ShopPage />} />
+                <Route path="product/:slug" element={<ProductRouteHandler />} />
+                <Route path="products/:slug" element={<ProductRouteHandler />} />
                 <Route path="build-combo" element={<BuildComboPage />} />
                 <Route path="cart" element={<CartPage />} />
                 <Route path="checkout" element={<CheckoutPage />} />
