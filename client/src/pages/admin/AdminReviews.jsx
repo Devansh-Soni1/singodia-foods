@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Star, CheckCircle, Trash2, Check, X } from 'lucide-react';
 import { reviewAPI } from '../../services/api';
-import { SAMPLE_REVIEWS } from '../../utils/sampleData';
 
 export const AdminReviews = () => {
   const [reviews, setReviews] = useState([]);

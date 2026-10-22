@@ -11,14 +11,13 @@ import { StarRating } from '../components/common/StarRating';
 import { ProductCard } from '../components/product/ProductCard';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import { SAMPLE_PRODUCTS, SAMPLE_REVIEWS, findSampleProduct } from '../utils/sampleData';
 
 export const ProductDetailPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
-  const [reviews, setReviews] = useState(SAMPLE_REVIEWS);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   
   // Selected variant & quantity
@@ -46,17 +45,21 @@ export const ProductDetailPage = () => {
       const cleanSlug = (slug || '').toLowerCase().replace(/\/$/, '');
       try {
         const res = await productAPI.getProductBySlug(cleanSlug);
-        if (res.product) {
+        if (res && res.product) {
           setProduct(res.product);
           setRelatedProducts(res.relatedProducts || []);
+          if (Array.isArray(res.reviews) && res.reviews.length > 0) {
+            setReviews(res.reviews);
+          } else if (Array.isArray(res.product.reviews) && res.product.reviews.length > 0) {
+            setReviews(res.product.reviews);
+          } else {
+            setReviews([]);
+          }
         } else {
-          // Fallback to sample data
-          const found = findSampleProduct(cleanSlug);
-          setProduct(found || SAMPLE_PRODUCTS[0]);
+          setProduct(null);
         }
       } catch (err) {
-        const found = findSampleProduct(cleanSlug);
-        setProduct(found || SAMPLE_PRODUCTS[0]);
+        setProduct(null);
       } finally {
         setLoading(false);
         window.scrollTo(0, 0);
@@ -65,10 +68,40 @@ export const ProductDetailPage = () => {
     fetchProductData();
   }, [slug]);
 
-  if (loading || !product) {
+  if (loading) {
     return (
       <div className="py-24 text-center min-h-[60vh] flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-brand-green border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="py-20 px-4 min-h-[65vh] flex flex-col items-center justify-center text-center bg-[#FAF6EF]">
+        <div className="w-20 h-20 rounded-full bg-amber-100/90 border border-amber-300 flex items-center justify-center text-3xl mb-4 shadow-sm">
+          🏺
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-extrabold font-serif text-charcoal mb-2">
+          यह उत्पाद अभी उपलब्ध नहीं है
+        </h2>
+        <p className="text-earth-brown text-sm sm:text-base max-w-md mb-6 leading-relaxed">
+          यह उत्पाद अभी तक स्टोर पर अपलोड नहीं हुआ है। जैसे ही एडमिन पैनल से यह उत्पाद जोड़ा जाएगा, आप इसे यहाँ लाइव देख पाएंगे।
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Link
+            to="/shop/"
+            className="px-6 py-2.5 bg-brand-green text-white text-xs sm:text-sm font-bold rounded-full hover:bg-emerald-800 transition-colors shadow-sm"
+          >
+            सभी उपलब्ध उत्पाद देखें (Browse Store)
+          </Link>
+          <Link
+            to="/"
+            className="px-6 py-2.5 bg-white border border-gray-300 text-charcoal text-xs sm:text-sm font-semibold rounded-full hover:bg-gray-50 transition-colors"
+          >
+            होम पेज (Home)
+          </Link>
+        </div>
       </div>
     );
   }

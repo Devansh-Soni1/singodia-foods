@@ -7,7 +7,6 @@ import {
 import { Link } from 'react-router-dom';
 import { productAPI, categoryAPI, adminAPI } from '../../services/api';
 import { formatPrice } from '../../utils/formatCurrency';
-import { SAMPLE_PRODUCTS, SAMPLE_CATEGORIES } from '../../utils/sampleData';
 import { TASTE_SUBCATEGORIES, getTasteInfo } from '../../constants/tasteSubCategories';
 
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80';

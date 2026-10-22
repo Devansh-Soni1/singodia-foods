@@ -206,6 +206,9 @@ export const getProductBySlug = async (req, res, next) => {
             ]
           });
         }
+        if (!product) {
+          return res.status(404).json({ success: false, message: 'Product not found' });
+        }
       } catch (err) {
         console.warn('Mongo findOne error:', err.message);
       }
@@ -233,14 +236,14 @@ export const getProductBySlug = async (req, res, next) => {
       try {
         relatedProducts = await Product.find({
           category: product.category,
-          slug: { $ne: product.slug }
+          slug: { $ne: product.slug },
+          isActive: { $ne: false }
         }).limit(4);
       } catch (e) {}
-    }
-    if (!relatedProducts || relatedProducts.length === 0) {
+    } else {
       const local = getLocalProducts();
       relatedProducts = local
-        .filter(p => p.category === product.category && p.slug !== product.slug)
+        .filter(p => p.category === product.category && p.slug !== product.slug && p.isActive !== false)
         .slice(0, 4);
     }
 

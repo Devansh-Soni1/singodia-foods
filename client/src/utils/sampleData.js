@@ -650,7 +650,7 @@ export const SAMPLE_FAQS = [
 ];
 
 export const findSampleProduct = (slug = '') => {
-  if (!slug) return SAMPLE_PRODUCTS[0];
+  if (!slug) return null;
   const clean = slug.toLowerCase().replace(/\/$/, '');
 
   // 1. Direct match
@@ -693,6 +693,6 @@ export const findSampleProduct = (slug = '') => {
     item.category?.replace(/s$/, '') === clean.replace(/s$/, '')
   );
 
-  return p || SAMPLE_PRODUCTS[0];
+  return p || null;
 };
 

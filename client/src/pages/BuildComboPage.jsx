@@ -1,15 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Sparkles, Plus, Check, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
-import { SAMPLE_PRODUCTS } from '../utils/sampleData';
+import { productAPI } from '../services/api';
 import { formatPrice } from '../utils/formatCurrency';
 import { useCart } from '../context/CartContext';
 
 export const BuildComboPage = () => {
   const [boxSize, setBoxSize] = useState(3); // 3 or 4 jars
   const [selectedJars, setSelectedJars] = useState([]);
+  const [availableProducts, setAvailableProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
   const [isAdded, setIsAdded] = useState(false);
+
+  useEffect(() => {
+    const fetchPickles = async () => {
+      setLoading(true);
+      try {
+        const res = await productAPI.getProducts({ limit: 60 });
+        if (Array.isArray(res.products)) {
+          setAvailableProducts(res.products.filter(p => p.category !== 'combo-packs'));
+        }
+      } catch (e) {
+        setAvailableProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPickles();
+  }, []);
 
   const boxPricing = {
     3: { price: 649, originalPrice: 750, label: '3-Jar Artisanal Box (Any 3 Pickles)' },
@@ -231,8 +250,18 @@ export const BuildComboPage = () => {
             Pick From Our Artisanal Collection
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {SAMPLE_PRODUCTS.filter(p => p.category !== 'combo-packs').map((product) => {
+          {loading ? (
+            <div className="py-12 text-center text-xs text-earth-brown font-semibold">
+              Loading available pickles...
+            </div>
+          ) : availableProducts.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-cream-200 p-8 text-center text-charcoal max-w-md mx-auto">
+              <p className="font-bold text-sm mb-1">अभी कॉम्बो के लिए कोई अचार उपलब्ध नहीं है</p>
+              <p className="text-xs text-earth-brown">जैसे ही एडमिन पैनल से नए अचार अपलोड होंगे, वे यहाँ दिखाई देंगे।</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {availableProducts.map((product) => {
               const countInBox = selectedJars.filter(j => (j._id || j.slug) === (product._id || product.slug)).length;
               const isBoxFull = selectedJars.length >= boxSize;
 
@@ -285,6 +314,7 @@ export const BuildComboPage = () => {
               );
             })}
           </div>
+          )}
         </div>
 
       </div>

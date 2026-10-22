@@ -4,7 +4,6 @@ import { Filter, SlidersHorizontal, X, Sparkles, ChevronDown } from 'lucide-reac
 import { ProductCard } from '../components/product/ProductCard';
 import { QuickViewModal } from '../components/product/QuickViewModal';
 import { productAPI, categoryAPI } from '../services/api';
-import { SAMPLE_CATEGORIES, SAMPLE_PRODUCTS } from '../utils/sampleData';
 import { TASTE_SUBCATEGORIES, getTasteInfo } from '../constants/tasteSubCategories';
 
 export const ShopPage = () => {

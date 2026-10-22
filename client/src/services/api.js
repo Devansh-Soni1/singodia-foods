@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { SAMPLE_PRODUCTS, SAMPLE_CATEGORIES, SAMPLE_REVIEWS } from '../utils/sampleData';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -282,7 +281,7 @@ export const reviewAPI = {
       const res = await api.get(`/reviews/product/${productId}`);
       return res.data;
     } catch (err) {
-      return { success: true, reviews: SAMPLE_REVIEWS };
+      return { success: true, reviews: [] };
     }
   },
   addReview: async (reviewData) => {
@@ -302,7 +301,7 @@ export const reviewAPI = {
       const res = await api.get('/reviews');
       return res.data;
     } catch (err) {
-      return { success: true, reviews: SAMPLE_REVIEWS };
+      return { success: true, reviews: [] };
     }
   },
   updateReviewStatus: async (id, isApproved) => {

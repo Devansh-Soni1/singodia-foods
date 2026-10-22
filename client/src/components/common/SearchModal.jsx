@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, X, Flame, ChevronRight } from 'lucide-react';
-import { SAMPLE_PRODUCTS } from '../../utils/sampleData';
+import { productAPI } from '../../services/api';
 import { formatPrice } from '../../utils/formatCurrency';
 
 export const SearchModal = ({ isOpen, onClose }) => {
@@ -24,15 +24,15 @@ export const SearchModal = ({ isOpen, onClose }) => {
       setResults([]);
       return;
     }
-    const q = query.toLowerCase().trim();
-    const matched = SAMPLE_PRODUCTS.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.hindiName.includes(q) ||
-      p.shortDescription.toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q) ||
-      p.ingredients?.some(ing => ing.toLowerCase().includes(q))
-    );
-    setResults(matched);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await productAPI.getProducts({ search: query.trim() });
+        setResults(Array.isArray(res.products) ? res.products : []);
+      } catch (err) {
+        setResults([]);
+      }
+    }, 250);
+    return () => clearTimeout(timer);
   }, [query]);
 
   if (!isOpen) return null;
