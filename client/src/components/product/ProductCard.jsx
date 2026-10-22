@@ -4,6 +4,7 @@ import { Star, Heart, ShoppingBag, Eye, Check } from 'lucide-react';
 import { formatPrice } from '../../utils/formatCurrency';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { getTasteInfo } from '../../constants/tasteSubCategories';
 
 export const ProductCard = ({ product, onQuickView }) => {
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
@@ -131,8 +132,17 @@ export const ProductCard = ({ product, onQuickView }) => {
             </span>
           </div>
 
-          {/* Distinctive Yellow Badge Pills (Mustard Oil, Medium Spicy, Jain Friendly) */}
-          <div className="flex flex-wrap gap-1.5 mt-2.5 mb-3">
+          {/* Distinctive Badges: Taste Sub-Category + Yellow Badges */}
+          <div className="flex flex-wrap items-center gap-1.5 mt-2.5 mb-3">
+            {product.subCategory && getTasteInfo(product.subCategory) && (
+              <span
+                className={`text-[11px] font-bold px-2 py-0.5 rounded-md border flex items-center gap-1 shadow-2xs tracking-tight ${getTasteInfo(product.subCategory).badgeClass}`}
+                title={`Taste Profile: ${getTasteInfo(product.subCategory).name} (${getTasteInfo(product.subCategory).hindiName})`}
+              >
+                <span>{getTasteInfo(product.subCategory).icon}</span>
+                <span>{getTasteInfo(product.subCategory).name}</span>
+              </span>
+            )}
             {badges.map((badge, idx) => (
               <span
                 key={idx}

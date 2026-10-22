@@ -82,6 +82,7 @@ export const sampleProducts = [
     hindiName: 'बनारसी भरवां लाल मिर्च अचार',
     slug: 'banarasi-lal-mirch-bharwa-achar',
     category: 'red-chilli-pickles',
+    subCategory: 'spicy',
     shortDescription: 'Plump sun-dried red chillies hand-stuffed with aromatic roasted spices, saunf, amchur, and pure mustard oil.',
     fullDescription: 'Our Banarasi Bharwa Lal Mirch Achar is the crown jewel of traditional Indian pickling. Each ripe, crimson chilli is carefully handpicked, slit with precision, and meticulously stuffed by hand with a slow-roasted dry spice blend comprising whole coriander seeds, fennel (saunf), fenugreek (methi), black mustard seeds (rai), dry mango powder (amchur), and pungent Hing. Matured naturally under the Indian sun in large ceramic barnis with cold-pressed Kachi Ghani mustard oil.',
     images: [
@@ -124,6 +125,7 @@ export const sampleProducts = [
     hindiName: 'पारंपरिक कच्ची केरी आम का अचार',
     slug: 'kachi-keri-desi-aam-ka-achar',
     category: 'mango-pickles',
+    subCategory: 'tangy',
     shortDescription: 'Classic sun-cured raw mango pickle made with hand-cut Ramkela mangoes, fenugreek, and cold-pressed mustard oil.',
     fullDescription: 'Nothing evokes childhood nostalgia quite like the piquant crunch of raw mango pickle. We hand-select sour, firm Ramkela raw mangoes, cut them into traditional bite-sized pieces with their tender kernels intact, and marinate them with freshly ground whole spices. Bathed in golden Kachi Ghani mustard oil, our jars are kept in the blazing courtyard sun for weeks until every piece absorbs the tangy spiced richness.',
     images: [
@@ -167,6 +169,7 @@ export const sampleProducts = [
     hindiName: 'खट्टा मीठा नीम्बू का अचार (बिना तेल)',
     slug: 'khatta-meetha-nimbu-achar',
     category: 'lemon-pickles',
+    subCategory: 'sweet',
     shortDescription: 'Zero oil, sunlight-cured juicy thin-skinned lemons blended with organic jaggery, black salt, and ajwain.',
     fullDescription: 'Our heirloom Oil-Free Khatta Meetha Nimbu Achar is as therapeutic as it is delectable. Thin-skinned, seedless Kagzi lemons are quartered and slow-matured in earthen jars under direct sunlight with whole spices, black rock salt, and authentic organic gur (jaggery). Over months, the lemon rinds soften into a glistening, melt-in-mouth dark preserve that aids digestion and awakens every taste bud.',
     images: [
@@ -208,6 +211,7 @@ export const sampleProducts = [
     hindiName: 'मारवाड़ी कैर सांगरी शाही अचार',
     slug: 'marwadi-kair-sangri-shahi-achar',
     category: 'rajasthani-specials',
+    subCategory: 'rajasthani',
     shortDescription: 'Royal Thar Desert delicacy crafted from wild Kair capers and desert Sangri pods in golden mustard oil and royal spices.',
     fullDescription: 'Hailing from the heart of the Thar Desert, Kair Sangri is Rajasthan’s most prized culinary treasure. Hand-foraged wild desert capers (Kair) and indigenous Sangri bean pods are dried and soaked in buttermilk, then simmered with roasted spices, whole red Mathania chillies, amchur, and fragrant cold-pressed mustard oil. Rich, earthy, and extraordinarily aromatic.',
     images: [
@@ -249,6 +253,7 @@ export const sampleProducts = [
     hindiName: 'राजस्थानी तीखी हरी मिर्च का अचार',
     slug: 'rajasthani-hari-mirch-tipore',
     category: 'green-chilli-pickles',
+    subCategory: 'spicy',
     shortDescription: 'Fresh crisp green chillies chopped and tossed with coarse ground mustard, turmeric, and tangy lemon brine.',
     fullDescription: 'A daily dining essential across Rajasthani homes! Freshly harvested spicy green chillies are slit and tossed with cracked rai seeds, aromatic saunf, pinch of turmeric, and warm mustard oil. Gives an instant zesty punch to everyday dal-roti without overwhelming the palate.',
     images: [
@@ -289,6 +294,7 @@ export const sampleProducts = [
     hindiName: 'देसी लहसुन का चटपटा अचार',
     slug: 'desi-lahsun-masaledar-achar',
     category: 'garlic-pickles',
+    subCategory: 'spicy',
     shortDescription: 'Plump desi garlic cloves steeped in mustard oil, roasted fenugreek, nigella, and fiery chilli powder.',
     fullDescription: 'Our Lahsun Achar uses small, intensely flavourful indigenous garlic cloves grown in Rajasthan. Each clove is gently peeled and preserved in aromatic mustard oil laced with methi, kalonji, crushed coriander, and chilli powder. Exceptional for heart health, immunity, and warming winter meals.',
     images: [
@@ -330,6 +336,7 @@ export const sampleProducts = [
     hindiName: 'पचरंगा शाही मिक्स अचार',
     slug: 'pachranga-shahi-mix-achar',
     category: 'mixed-pickles',
+    subCategory: 'winter',
     shortDescription: 'Harvest blend of raw mango, lime, crunchy carrots, cauliflower, and green chillies in spiced mustard oil.',
     fullDescription: 'The ultimate all-rounder on the Indian dinner table! A harmony of five farm-fresh ingredients: firm raw mangoes, juicy Kagzi limes, crisp winter carrots, tender cauliflower florets, and slit green chillies. Balanced seasoning ensures every spoonful delivers tangy, spicy, and crunchy notes.',
     images: [

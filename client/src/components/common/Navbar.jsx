@@ -75,12 +75,11 @@ export const Navbar = ({ onOpenSearch }) => {
     : defaultIngredientsList;
 
   const tasteList = [
-    { name: 'Spicy (तीखा अचार)', filter: 'spice=Spicy', icon: '🔥' },
-    { name: 'Extra Spicy (बहुत तीखा / Teekha)', filter: 'spice=Extra Spicy', icon: '🌶️' },
-    { name: 'Medium Spice (मध्यम तीखा)', filter: 'spice=Medium', icon: '✨' },
-    { name: 'Mild Spice (कम तीखा)', filter: 'spice=Mild', icon: '🍃' },
-    { name: 'Sweet & Tangy (खट्टा-मीठा नीम्बू)', filter: 'category=lemon-pickles', icon: '🍯' },
-    { name: 'Royal Heritage (शाही राजस्थानी)', filter: 'category=rajasthani-specials', icon: '👑' },
+    { name: 'Sweet (मीठा / मुरब्बा)', filter: 'subCategory=sweet', icon: '🍯' },
+    { name: 'Tangy (खट्टा / चटपटा)', filter: 'subCategory=tangy', icon: '🍋' },
+    { name: 'Spicy (तीखा / चटपटा)', filter: 'subCategory=spicy', icon: '🌶️' },
+    { name: 'Winter Special (सर्दियों का खास)', filter: 'subCategory=winter', icon: '❄️' },
+    { name: 'Rajasthani Royal (शाही राजस्थानी)', filter: 'subCategory=rajasthani', icon: '🏺' },
   ];
 
   return (

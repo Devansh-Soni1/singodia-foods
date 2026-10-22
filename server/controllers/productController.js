@@ -6,6 +6,8 @@ export const getProducts = async (req, res, next) => {
   try {
     const { 
       category, 
+      subCategory,
+      taste,
       spiceLevel, 
       search, 
       minPrice, 
@@ -22,6 +24,11 @@ export const getProducts = async (req, res, next) => {
 
     if (category && category !== 'all') {
       query.category = category;
+    }
+
+    const tasteSub = subCategory || taste;
+    if (tasteSub && tasteSub !== 'all') {
+      query.subCategory = tasteSub.toLowerCase();
     }
 
     if (spiceLevel && spiceLevel !== 'all') {
@@ -93,6 +100,9 @@ export const getProducts = async (req, res, next) => {
     
     if (category && category !== 'all') {
       filtered = filtered.filter(p => p.category === category);
+    }
+    if (tasteSub && tasteSub !== 'all') {
+      filtered = filtered.filter(p => (p.subCategory || '').toLowerCase() === tasteSub.toLowerCase());
     }
     if (spiceLevel && spiceLevel !== 'all') {
       filtered = filtered.filter(p => p.spiceLevel === spiceLevel);

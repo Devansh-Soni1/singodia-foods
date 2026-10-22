@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { productAPI, categoryAPI, adminAPI } from '../../services/api';
 import { formatPrice } from '../../utils/formatCurrency';
 import { SAMPLE_PRODUCTS, SAMPLE_CATEGORIES } from '../../utils/sampleData';
+import { TASTE_SUBCATEGORIES, getTasteInfo } from '../../constants/tasteSubCategories';
 
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80';
 
@@ -17,6 +18,7 @@ export const AdminProducts = () => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedSubCategory, setSelectedSubCategory] = useState('all');
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -33,6 +35,7 @@ export const AdminProducts = () => {
     name: '',
     hindiName: '',
     category: '',
+    subCategory: '',
     shortDescription: '',
     fullDescription: '',
     images: [],
@@ -76,6 +79,7 @@ export const AdminProducts = () => {
     setFormData({
       ...defaultFormData,
       category: categories[0]?.slug || 'mango-pickles',
+      subCategory: '',
       images: []
     });
     setUploadError('');
@@ -90,6 +94,7 @@ export const AdminProducts = () => {
       name: p.name || '',
       hindiName: p.hindiName || '',
       category: p.category || 'mango-pickles',
+      subCategory: p.subCategory || '',
       shortDescription: p.shortDescription || '',
       fullDescription: p.fullDescription || '',
       images: Array.isArray(p.images) && p.images.length > 0 ? p.images : [DEFAULT_IMAGE],
@@ -277,10 +282,12 @@ export const AdminProducts = () => {
     const matchesSearch = 
       p.name?.toLowerCase().includes(search.toLowerCase()) ||
       p.hindiName?.toLowerCase().includes(search.toLowerCase()) ||
-      p.category?.toLowerCase().includes(search.toLowerCase());
+      p.category?.toLowerCase().includes(search.toLowerCase()) ||
+      p.subCategory?.toLowerCase().includes(search.toLowerCase());
     
     const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesSubCategory = selectedSubCategory === 'all' || (p.subCategory || '').toLowerCase() === selectedSubCategory.toLowerCase();
+    return matchesSearch && matchesCategory && matchesSubCategory;
   });
 
   return (
@@ -313,22 +320,35 @@ export const AdminProducts = () => {
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by name, Hindi title, or category..."
+            placeholder="Search by name, Hindi title, category, or taste..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-brand-green transition-colors"
           />
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
+          {/* Main Category Dropdown */}
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="text-xs py-2 px-3 bg-gray-50 border border-gray-200 rounded-xl font-medium text-gray-700 focus:outline-none focus:border-brand-green"
           >
-            <option value="all">All Categories ({products.length})</option>
+            <option value="all">All Categories</option>
             {categories.map((c) => (
               <option key={c.slug} value={c.slug}>{c.name}</option>
+            ))}
+          </select>
+
+          {/* Taste Sub-Category Dropdown */}
+          <select
+            value={selectedSubCategory}
+            onChange={(e) => setSelectedSubCategory(e.target.value)}
+            className="text-xs py-2 px-3 bg-amber-50/60 border border-amber-200 rounded-xl font-medium text-gray-800 focus:outline-none focus:border-brand-green"
+          >
+            <option value="all">All Tastes (सब-कैटेगरी)</option>
+            {TASTE_SUBCATEGORIES.map((t) => (
+              <option key={t.id} value={t.id}>{t.icon} {t.name} ({t.hindiName})</option>
             ))}
           </select>
 
@@ -406,9 +426,17 @@ export const AdminProducts = () => {
                       </td>
 
                       <td className="p-4 text-gray-600 capitalize font-medium">
-                        <span className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg">
-                          {p.category ? p.category.replace(/-/g, ' ') : 'General'}
-                        </span>
+                        <div className="flex flex-col gap-1.5 items-start">
+                          <span className="bg-gray-100 text-gray-700 px-2.5 py-0.5 rounded-lg text-xs font-semibold">
+                            {p.category ? p.category.replace(/-/g, ' ') : 'General'}
+                          </span>
+                          {p.subCategory && (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200">
+                              <span>{getTasteInfo(p.subCategory)?.icon || '✨'}</span>
+                              <span className="capitalize">{getTasteInfo(p.subCategory)?.name || p.subCategory}</span>
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       <td className="p-4">
@@ -689,7 +717,7 @@ export const AdminProducts = () => {
               {/* CATEGORY & SPICE LEVEL */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="font-bold block mb-1 text-gray-800">Pickle Category *</label>
+                  <label className="font-bold block mb-1 text-gray-800">Pickle Category (मुख्य कैटेगरी) *</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -712,6 +740,53 @@ export const AdminProducts = () => {
                     <option value="Spicy">Spicy (तीखा - 🌶️🌶️🌶️)</option>
                     <option value="Extra Spicy">Extra Spicy (बहुत तीखा - 🌶️🌶️🌶️🌶️)</option>
                   </select>
+                </div>
+              </div>
+
+              {/* TASTE SUB-CATEGORY (Selected based on taste: sweet, tangy, spicy, winter, rajasthani) */}
+              <div className="p-3.5 bg-amber-50/70 border border-amber-200/90 rounded-2xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-xs text-gray-900 flex items-center gap-1.5">
+                    <span>Taste Sub-Category (स्वाद अनुसार सब-कैटेगरी)</span>
+                    <span className="text-[10px] text-amber-800 font-bold uppercase tracking-wider px-1.5 py-0.5 bg-white rounded-md border border-amber-200">
+                      Sweet • Tangy • Spicy • Winter • Rajasthani
+                    </span>
+                  </label>
+                  {formData.subCategory && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, subCategory: '' })}
+                      className="text-[11px] text-gray-400 hover:text-chilli font-semibold cursor-pointer"
+                    >
+                      Clear Selection
+                    </button>
+                  )}
+                </div>
+                <p className="text-[11px] text-gray-600">
+                  Category select karne ke baad is pickle ka main taste profile select karein:
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
+                  {TASTE_SUBCATEGORIES.map((taste) => {
+                    const isSelected = (formData.subCategory || '').toLowerCase() === taste.id;
+                    return (
+                      <button
+                        key={taste.id}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, subCategory: isSelected ? '' : taste.id })}
+                        className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all text-center cursor-pointer ${
+                          isSelected
+                            ? 'bg-brand-green text-white border-brand-green shadow-xs font-bold ring-2 ring-brand-green/20 scale-[1.02]'
+                            : 'bg-white hover:bg-amber-100/70 text-gray-800 border-gray-200 hover:border-amber-300'
+                        }`}
+                      >
+                        <span className="text-xl mb-1">{taste.icon}</span>
+                        <span className="text-xs font-bold leading-tight">{taste.name}</span>
+                        <span className={`text-[10px] ${isSelected ? 'text-white/80' : 'text-gray-500'}`}>
+                          {taste.hindiName}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

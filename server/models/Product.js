@@ -15,6 +15,12 @@ const productSchema = new mongoose.Schema({
   slug: { type: String, required: true, unique: true, lowercase: true },
   category: { type: String, required: true }, // Category slug or name
   categoryRef: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+  subCategory: { 
+    type: String, 
+    default: '',
+    lowercase: true,
+    trim: true
+  },
   shortDescription: { type: String, default: '' },
   fullDescription: { type: String, default: '' },
   images: [{ type: String, default: '/hero-banner.png' }],

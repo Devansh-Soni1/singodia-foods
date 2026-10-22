@@ -96,6 +96,7 @@ export const SAMPLE_PRODUCTS = [
     hindiName: 'घर का बना आम का अचार',
     slug: 'homemade-mango-pickle-aam-ka-achar',
     category: 'mango-pickles',
+    subCategory: 'tangy',
     shortDescription: 'Classic sun-cured raw mango pickle made with hand-cut Ramkela mangoes, fenugreek, and cold-pressed oil.',
     fullDescription: 'Nothing evokes childhood nostalgia quite like the piquant crunch of raw mango pickle. We hand-select sour, firm Ramkela raw mangoes, cut them into traditional bite-sized pieces with their tender kernels intact, and marinate them with freshly ground whole spices.',
     images: [
@@ -129,6 +130,7 @@ export const SAMPLE_PRODUCTS = [
     hindiName: 'बनारसी भरवां लाल मिर्च अचार',
     slug: 'red-chilli-pickle-lal-mirch-ka-achar',
     category: 'red-chilli-pickles',
+    subCategory: 'spicy',
     shortDescription: 'Plump sun-dried red chillies hand-stuffed with aromatic roasted spices, saunf, amchur, and pure mustard oil.',
     fullDescription: 'Our Bharwa Lal Mirch Achar is the crown jewel of traditional Indian pickling. Each ripe, crimson chilli is carefully handpicked, slit with precision, and meticulously stuffed by hand with a slow-roasted dry spice blend.',
     images: [
@@ -162,6 +164,7 @@ export const SAMPLE_PRODUCTS = [
     hindiName: 'पंजाबी आम का अचार',
     slug: 'punjabi-mango-pickle-punjabi-aam-ka-achar',
     category: 'mango-pickles',
+    subCategory: 'tangy',
     shortDescription: 'Zesty North Indian style raw mango pickle with whole methi dana, saunf, and aromatic mustard oil.',
     fullDescription: 'Rich Punjabi style raw mango pickle infused with roasted kalonji, saunf, fenugreek, and cold-pressed Kachi Ghani mustard oil for an authentic dhaba and home flavor.',
     images: [
@@ -195,6 +198,7 @@ export const SAMPLE_PRODUCTS = [
     hindiName: 'मारवाड़ी कैर सांगरी शाही अचार',
     slug: 'ker-sangri-pickle-kair-sangri-ka-achar',
     category: 'rajasthani-specials',
+    subCategory: 'rajasthani',
     shortDescription: 'Royal Thar Desert delicacy crafted from wild Kair capers and desert Sangri pods in golden mustard oil.',
     fullDescription: 'Hailing from the heart of the Thar Desert, Kair Sangri is Rajasthan’s most prized culinary treasure. Hand-foraged wild desert capers (Kair) and indigenous Sangri bean pods simmered with roasted spices and cold-pressed mustard oil.',
     images: [
@@ -228,6 +232,7 @@ export const SAMPLE_PRODUCTS = [
     hindiName: 'राजस्थानी तीखी हरी मिर्च का अचार',
     slug: 'rajasthani-hari-mirch-tipore',
     category: 'green-chilli-pickles',
+    subCategory: 'spicy',
     shortDescription: 'Fresh crisp green chillies chopped and tossed with coarse ground mustard, turmeric, and tangy lemon brine.',
     fullDescription: 'A daily dining essential across Rajasthani homes! Freshly harvested spicy green chillies are slit and tossed with cracked rai seeds, aromatic saunf, pinch of turmeric, and warm mustard oil. Gives an instant zesty punch to everyday dal-roti without overwhelming the palate.',
     images: [
@@ -269,6 +274,7 @@ export const SAMPLE_PRODUCTS = [
     hindiName: 'देसी लहसुन का चटपटा अचार',
     slug: 'desi-lahsun-masaledar-achar',
     category: 'garlic-pickles',
+    subCategory: 'spicy',
     shortDescription: 'Plump desi garlic cloves steeped in mustard oil, roasted fenugreek, nigella, and fiery chilli powder.',
     fullDescription: 'Our Lahsun Achar uses small, intensely flavourful indigenous garlic cloves grown in Rajasthan. Each clove is gently peeled and preserved in aromatic mustard oil laced with methi, kalonji, crushed coriander, and chilli powder. Exceptional for heart health, immunity, and warming winter meals.',
     images: [
@@ -311,6 +317,7 @@ export const SAMPLE_PRODUCTS = [
     hindiName: 'पचरंगा शाही मिक्स अचार',
     slug: 'pachranga-shahi-mix-achar',
     category: 'mixed-pickles',
+    subCategory: 'winter',
     shortDescription: 'Harvest blend of raw mango, lime, crunchy carrots, cauliflower, and green chillies in spiced mustard oil.',
     fullDescription: 'The ultimate all-rounder on the Indian dinner table! A harmony of five farm-fresh ingredients: firm raw mangoes, juicy Kagzi limes, crisp winter carrots, tender cauliflower florets, and slit green chillies. Balanced seasoning ensures every spoonful delivers tangy, spicy, and crunchy notes.',
     images: [
@@ -345,6 +352,39 @@ export const SAMPLE_PRODUCTS = [
     numReviews: 134,
     isBestSeller: true,
     isFeatured: false,
+    isNewArrival: false,
+    isActive: true
+  },
+  {
+    _id: 'p_lemon',
+    name: 'Khatta Meetha Nimbu Ka Achar | Sweet Lemon Pickle',
+    hindiName: 'खट्टा-मीठा नीम्बू का पारंपरिक अचार',
+    slug: 'khatta-meetha-nimbu-achar',
+    category: 'lemon-pickles',
+    subCategory: 'sweet',
+    shortDescription: 'Sun-cured thin-skinned Kagzi lemons cooked with mishri, black salt, cumin, and warm spices without a single drop of oil.',
+    fullDescription: 'Our signature zero-oil digestive tonic! Hand-selected juicy thin-skinned Kagzi limes are cured in rock salt and raw mishri inside authentic clay martabans under bright sunlight for over 45 days. The lemon peels turn velvety soft, creating an irresistible sweet, sour, and mildly spiced syrup that enhances digestion.',
+    images: [
+      'https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80'
+    ],
+    variants: [
+      { weight: '250g', price: 219, originalPrice: 269, inStock: true, stockCount: 60, sku: 'KMN-250' },
+      { weight: '500g', price: 399, originalPrice: 480, inStock: true, stockCount: 45, sku: 'KMN-500' }
+    ],
+    spiceLevel: 'Mild',
+    ingredients: ['Kagzi Lemons', 'Raw Cane Sugar (Mishri)', 'Black Salt', 'Ajwain', 'Cumin Seeds', 'Degi Mirch', 'Hing', 'Rock Salt'],
+    allergenInfo: '100% Oil-Free & Preservative-Free.',
+    storageInstructions: 'Store in a cool dry place. Keep jar tightly sealed.',
+    shelfLife: '24 Months (Tastes richer as it ages)',
+    oilType: 'Oil-Free (बिना तेल का)',
+    traditionNotes: 'Aged in sunlight for 45+ days in traditional ceramic jars.',
+    pairWith: ['Ajwain Poori', 'Khichdi', 'Thepla', 'Stomach Soothing Tonic'],
+    tags: ['Oil-Free', 'Sweet & Sour', 'Digestive', 'Sun-Cured'],
+    rating: 4.9,
+    numReviews: 240,
+    isBestSeller: true,
+    isFeatured: true,
     isNewArrival: false,
     isActive: true
   },
