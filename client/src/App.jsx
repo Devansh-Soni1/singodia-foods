@@ -39,7 +39,20 @@ const ProductRouteHandler = () => {
   const { slug } = useParams();
   const cleanSlug = (slug || '').toLowerCase().replace(/\/$/, '');
 
-  const isCategoryListing = ['combo-packs', 'all-products', 'all-pickles', 'trial-packs'].includes(cleanSlug);
+  const isCategoryListing = [
+    'combo-packs', 'all-products', 'all-pickles', 'trial-packs',
+    'mango-pickle', 'mango-pickles',
+    'red-chilli-pickle', 'red-chilli-pickles',
+    'green-chilli-pickle', 'green-chilli-pickles',
+    'lemon-pickle', 'lemon-pickles',
+    'garlic-pickle', 'garlic-pickles',
+    'mixed-pickle', 'mixed-pickles',
+    'sweet-pickle', 'sweet-pickles',
+    'jackfruit-pickle', 'jackfruit-pickles',
+    'amla-pickle', 'amla-pickles',
+    'ginger-pickle', 'ginger-pickles',
+    'rajasthani-specials'
+  ].includes(cleanSlug);
 
   if (isCategoryListing) {
     return <ShopPage />;

@@ -71,7 +71,21 @@ export const ShopPage = () => {
 
         // Apply subCategory taste filter on fallback / local results
         if (subCategoryParam !== 'all') {
-          list = list.filter(p => (p.subCategory || '').toLowerCase() === subCategoryParam.toLowerCase());
+          const rawSub = subCategoryParam.toLowerCase();
+          const cleanWords = rawSub.replace(/-/g, ' ').split(' ').filter(w => !['pickle', 'pickles', 'achar', 'ka', 'ke', 'style'].includes(w));
+          list = list.filter(p => {
+            const pSub = (p.subCategory || '').toLowerCase();
+            const pName = (p.name || '').toLowerCase();
+            const pHindi = (p.hindiName || '').toLowerCase();
+            const pSlug = (p.slug || '').toLowerCase();
+            const pTags = Array.isArray(p.tags) ? p.tags.join(' ').toLowerCase() : (p.tags || '').toLowerCase();
+
+            if (pSub === rawSub || pSlug === rawSub || pSlug.includes(rawSub)) return true;
+            if (cleanWords.length > 0) {
+              return cleanWords.some(w => pSub.includes(w) || pName.includes(w) || pHindi.includes(w) || pTags.includes(w) || pSlug.includes(w));
+            }
+            return false;
+          });
         }
         
         // Jain friendly filter
@@ -149,17 +163,43 @@ export const ShopPage = () => {
         
         {/* Breadcrumb & Header */}
         <div className="mb-8">
-          <div className="text-xs text-earth-brown mb-1.5">
-            <span>Home</span> / <span className="font-bold text-charcoal">All Pickles</span>
+          <div className="text-xs text-earth-brown mb-1.5 flex items-center gap-1.5 flex-wrap">
+            <button onClick={() => navigate('/')} className="hover:text-brand-green">Home</button>
+            <span>/</span>
+            <button onClick={() => navigate('/shop/')} className="hover:text-brand-green">All Pickles</button>
             {categoryParam !== 'all' && (
-              <> / <span className="text-brand-green font-bold capitalize">{categoryParam.replace(/-/g, ' ')}</span></>
+              <>
+                <span>/</span>
+                <button onClick={() => navigate(`/category/${categoryParam}/`)} className="font-bold text-brand-green capitalize hover:underline">
+                  {categoryParam.replace(/-/g, ' ')}
+                </button>
+              </>
+            )}
+            {subCategoryParam !== 'all' && (
+              <>
+                <span>/</span>
+                <span className="font-bold text-amber-800 capitalize bg-amber-100/90 border border-amber-200 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5">
+                  <span>{subCategoryParam.replace(/-/g, ' ')}</span>
+                  <button 
+                    onClick={() => updateFilter('subCategory', 'all')} 
+                    className="hover:text-red-600 font-black text-xs ml-0.5"
+                    title="Clear subcategory filter"
+                  >
+                    ×
+                  </button>
+                </span>
+              </>
             )}
           </div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-charcoal font-serif">
-            Traditional Desi Pickles (देसी आचार)
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-charcoal font-serif capitalize">
+            {categoryParam !== 'all'
+              ? `${categoryParam.replace(/-/g, ' ')} ${subCategoryParam !== 'all' ? `— ${subCategoryParam.replace(/-/g, ' ')}` : ''}`
+              : 'Traditional Desi Pickles (देसी आचार)'}
           </h1>
           <p className="text-xs sm:text-sm text-earth-brown mt-1">
-            Hand-crafted in small batches, sun-cured in ceramic martabans with pure mustard oil.
+            {categoryParam !== 'all'
+              ? `Authentic homemade Rajasthani ${categoryParam.replace(/-/g, ' ')} cured in pure cold-pressed mustard oil.`
+              : 'Hand-crafted in small batches, sun-cured in ceramic martabans with pure mustard oil.'}
           </p>
         </div>
 

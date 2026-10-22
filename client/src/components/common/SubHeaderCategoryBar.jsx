@@ -8,69 +8,69 @@ const CATEGORY_VISUALS = {
     title1: 'Mango',
     title2: 'Pickles',
     hindi: 'आम का अचार',
-    path: '/product/mango-pickle/'
+    path: '/category/mango-pickles/'
   },
   'red-chilli-pickles': {
     emoji: '🌶️',
     title1: 'Red Chilli',
     title2: 'Banarasi',
     hindi: 'भरवां लाल मिर्च',
-    path: '/product/red-chilli-pickle/'
+    path: '/category/red-chilli-pickles/'
   },
   'green-chilli-pickles': {
     emoji: '🫑',
     title1: 'Green Chilli',
     title2: 'Pickles',
     hindi: 'हरी मिर्च',
-    path: '/product/green-chilli-pickle/'
+    path: '/category/green-chilli-pickles/'
   },
   'lemon-pickles': {
     emoji: '🍋',
     title1: 'Lemon',
     title2: 'Oil-Free',
     hindi: 'नीम्बू का अचार',
-    path: '/product/lemon-pickle/'
+    path: '/category/lemon-pickles/'
   },
   'rajasthani-specials': {
     emoji: '🏺',
     title1: 'Rajasthani',
     title2: 'Specials',
     hindi: 'कैर सांगरी',
-    path: '/product/rajasthani-specials/'
+    path: '/category/rajasthani-specials/'
   },
   'garlic-pickles': {
     emoji: '🧄',
     title1: 'Garlic',
     title2: 'Pickles',
     hindi: 'लहसुन का अचार',
-    path: '/product/garlic-pickle/'
+    path: '/category/garlic-pickles/'
   },
   'sweet-pickles': {
     emoji: '🍯',
     title1: 'Sweet',
     title2: 'Murabba',
     hindi: 'मीठा छुंदा',
-    path: '/product/sweet-pickle/'
+    path: '/category/sweet-pickles/'
   },
   'combo-packs': {
     emoji: '🎁',
     title1: 'Gift Boxes',
     title2: 'Combos',
     hindi: 'कॉम्बो पैक',
-    path: '/product/combo-packs/'
+    path: '/category/combo-packs/'
   },
   'papad': {
     emoji: '🫓',
     title1: 'Marwadi',
     title2: 'Papad',
     hindi: 'पापड़',
-    path: '/product/papad/'
+    path: '/category/rajasthani-specials/'
   },
   'all-products': {
     emoji: '⭐',
     title1: 'All',
     title2: 'Pickles',
-    hindi: 'सभी अचार',
+    hindi: 'सभी आचार',
     path: '/shop/'
   }
 };

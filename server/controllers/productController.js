@@ -23,12 +23,43 @@ export const getProducts = async (req, res, next) => {
     const query = { isActive: { $ne: false } };
 
     if (category && category !== 'all') {
-      query.category = category;
+      const cleanCat = category.toLowerCase().replace(/\/$/, '');
+      const baseCat = cleanCat.replace(/s$/, '').replace(/-pickle$/, '').replace(/-pickles$/, '');
+      query.$or = [
+        { category: cleanCat },
+        { category: cleanCat.replace(/s$/, '') },
+        { category: cleanCat + 's' },
+        { category: new RegExp(baseCat, 'i') },
+        { tags: new RegExp(baseCat, 'i') }
+      ];
     }
 
     const tasteSub = subCategory || taste;
     if (tasteSub && tasteSub !== 'all') {
-      query.subCategory = tasteSub.toLowerCase();
+      const cleanSub = tasteSub.toLowerCase().replace(/\/$/, '');
+      const cleanWords = cleanSub.replace(/-/g, ' ').split(' ').filter(w => !['pickle', 'pickles', 'achar', 'ka', 'ke', 'style'].includes(w));
+      const subRegex = new RegExp(cleanSub.replace(/-/g, '.*'), 'i');
+      const wordRegex = cleanWords.length > 0 ? new RegExp(cleanWords.join('|'), 'i') : subRegex;
+
+      const subCondition = {
+        $or: [
+          { subCategory: new RegExp(cleanSub, 'i') },
+          { subCategory: wordRegex },
+          { name: wordRegex },
+          { hindiName: wordRegex },
+          { slug: subRegex },
+          { tags: wordRegex }
+        ]
+      };
+
+      if (query.$and) {
+        query.$and.push(subCondition);
+      } else if (query.$or) {
+        query.$and = [{ $or: query.$or }, subCondition];
+        delete query.$or;
+      } else {
+        query.$or = subCondition.$or;
+      }
     }
 
     if (spiceLevel && spiceLevel !== 'all') {
@@ -99,10 +130,25 @@ export const getProducts = async (req, res, next) => {
     let filtered = getLocalProducts().filter(p => p.isActive !== false);
     
     if (category && category !== 'all') {
-      filtered = filtered.filter(p => p.category === category);
+      const cleanCat = category.toLowerCase().replace(/\/$/, '');
+      const baseCat = cleanCat.replace(/s$/, '').replace(/-pickle$/, '').replace(/-pickles$/, '');
+      filtered = filtered.filter(p => {
+        const cat = (p.category || '').toLowerCase();
+        return cat.includes(baseCat) || cat === cleanCat || cat === baseCat || cat === baseCat + 's';
+      });
     }
     if (tasteSub && tasteSub !== 'all') {
-      filtered = filtered.filter(p => (p.subCategory || '').toLowerCase() === tasteSub.toLowerCase());
+      const cleanSub = tasteSub.toLowerCase().replace(/\/$/, '');
+      const cleanWords = cleanSub.replace(/-/g, ' ').split(' ').filter(w => !['pickle', 'pickles', 'achar', 'ka', 'ke', 'style'].includes(w));
+      filtered = filtered.filter(p => {
+        const sub = (p.subCategory || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        const hindi = (p.hindiName || '').toLowerCase();
+        const slug = (p.slug || '').toLowerCase();
+        const tags = Array.isArray(p.tags) ? p.tags.join(' ').toLowerCase() : (p.tags || '').toLowerCase();
+        if (sub.includes(cleanSub) || slug.includes(cleanSub)) return true;
+        return cleanWords.some(w => sub.includes(w) || name.includes(w) || hindi.includes(w) || slug.includes(w) || tags.includes(w));
+      });
     }
     if (spiceLevel && spiceLevel !== 'all') {
       filtered = filtered.filter(p => p.spiceLevel === spiceLevel);

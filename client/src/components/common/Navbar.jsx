@@ -4,14 +4,19 @@ import { Search, ShoppingCart, User, Menu, X, ChevronDown, Sparkles, MessageCirc
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { categoryAPI } from '../../services/api';
+import { INGREDIENT_CATEGORIES } from '../../constants/ingredientCategories';
 
 export const Navbar = ({ onOpenSearch }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [ingredientsDropdownOpen, setIngredientsDropdownOpen] = useState(false);
   const [tasteDropdownOpen, setTasteDropdownOpen] = useState(false);
   
+  // Active hovered ingredient in 2-column mega menu
+  const [activeHoveredIngredientId, setActiveHoveredIngredientId] = useState('mango');
+
   // Mobile accordion states
   const [mobileIngredientsOpen, setMobileIngredientsOpen] = useState(false);
+  const [mobileActiveIngredient, setMobileActiveIngredient] = useState('mango');
   const [mobileTasteOpen, setMobileTasteOpen] = useState(false);
 
   const { cartCount, openCart } = useCart();
@@ -82,6 +87,8 @@ export const Navbar = ({ onOpenSearch }) => {
     { name: 'Rajasthani Royal (शाही राजस्थानी)', path: '/shop/taste/rajasthani/', icon: '🏺' },
   ];
 
+  const activeIngredient = INGREDIENT_CATEGORIES.find(c => c.id === activeHoveredIngredientId) || INGREDIENT_CATEGORIES[0];
+
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-[0_4px_12px_rgba(243,162,34,0.12)] transition-all" ref={navRef}>
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
@@ -112,13 +119,13 @@ export const Navbar = ({ onOpenSearch }) => {
           {/* Center Navigation Links (Exact FarmDidi Style without our story & blogs) */}
           <nav className="hidden lg:flex items-center space-x-7 font-sans font-bold text-[15px] text-[#b35400]">
             
-            {/* 1. Shop by Ingredients Dropdown */}
+            {/* 1. Shop by Ingredients 2-Column Flyout Dropdown (Exact FarmDidi Style) */}
             <div 
               className="relative"
               onMouseEnter={() => { setIngredientsDropdownOpen(true); setTasteDropdownOpen(false); }}
             >
               <button 
-                onClick={() => setIngredientsDropdownOpen(!ingredientsDropdownOpen)}
+                onClick={() => navigate('/shop/')}
                 className="flex items-center gap-1.5 hover:text-[#e68819] transition-colors py-2 focus:outline-none"
               >
                 <span>Shop by Ingredients</span>
@@ -127,23 +134,86 @@ export const Navbar = ({ onOpenSearch }) => {
 
               {ingredientsDropdownOpen && (
                 <div 
-                  className="absolute top-full left-0 w-72 bg-white rounded-xl shadow-xl border border-gray-100 py-3 px-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
+                  className="absolute top-full -left-4 w-[600px] bg-white rounded-2xl shadow-2xl border border-amber-200/80 z-50 flex overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
                   onMouseLeave={() => setIngredientsDropdownOpen(false)}
                 >
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-gray-400 px-3 py-1 mb-1 border-b border-gray-100">
-                    Traditional Ingredients
+                  {/* Left Column: Ingredients with chevron '>' */}
+                  <div className="w-[260px] bg-white border-r border-gray-100 py-3 px-2 space-y-0.5">
+                    {INGREDIENT_CATEGORIES.map((item) => {
+                      const isHovered = (activeHoveredIngredientId || 'mango') === item.id;
+                      return (
+                        <div
+                          key={item.id}
+                          onMouseEnter={() => setActiveHoveredIngredientId(item.id)}
+                        >
+                          <Link
+                            to={`/category/${item.categorySlug}/`}
+                            onClick={() => setIngredientsDropdownOpen(false)}
+                            className={`flex items-center justify-between px-3 py-2 rounded-xl text-[14px] font-bold transition-all ${
+                              isHovered
+                                ? 'text-[#b35400] underline font-extrabold bg-[#FAF6EF]'
+                                : 'text-[#854102] hover:text-[#b35400] hover:bg-[#FAF6EF]/50'
+                            }`}
+                          >
+                            <span className="flex items-center gap-1.5 truncate">
+                              <span>{item.name}</span>
+                              <span className="text-[13px] font-normal text-[#854102]/80">( {item.hindiName} )</span>
+                            </span>
+                            <span className="text-sm font-bold text-[#b35400] ml-2 flex-shrink-0">&gt;</span>
+                          </Link>
+                        </div>
+                      );
+                    })}
                   </div>
-                  {ingredientsList.map((item) => (
-                    <Link
-                      key={item.slug}
-                      to={`/product/${(item.slug || '').replace(/s$/, '')}/`}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-bold text-gray-800 hover:bg-[#FAF6EF] hover:text-[#b35400] transition-colors"
-                      onClick={() => setIngredientsDropdownOpen(false)}
-                    >
-                      <span className="text-base">{item.icon}</span>
-                      <span>{item.name}</span>
-                    </Link>
-                  ))}
+
+                  {/* Right Column: Subcategories of the active hovered ingredient */}
+                  <div className="flex-1 bg-white p-5 flex flex-col justify-between">
+                    <div>
+                      {/* Top Header: View All Pickles of this Ingredient */}
+                      <Link
+                        to={`/category/${activeIngredient.categorySlug}/`}
+                        onClick={() => setIngredientsDropdownOpen(false)}
+                        className="group flex items-center justify-between pb-3 mb-3 border-b border-amber-100 text-xs font-black text-[#b35400] hover:text-[#e68819]"
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="text-base">{activeIngredient.icon}</span>
+                          <span>All {activeIngredient.name} Pickles (सभी {activeIngredient.hindiName})</span>
+                        </span>
+                        <span className="group-hover:translate-x-1 transition-transform font-bold">&rarr;</span>
+                      </Link>
+
+                      {/* Subcategories List */}
+                      <div className="space-y-1.5">
+                        {activeIngredient.subCategories.map((sub) => (
+                          <Link
+                            key={sub.slug}
+                            to={`/category/${activeIngredient.categorySlug}/${sub.slug}/`}
+                            onClick={() => setIngredientsDropdownOpen(false)}
+                            className="group block py-1.5 px-2 rounded-lg hover:bg-[#FAF6EF] transition-all"
+                          >
+                            <div className="text-[14px] font-bold text-[#b35400] group-hover:text-[#e68819] transition-colors leading-tight">
+                              {sub.name}
+                            </div>
+                            <div className="text-[11px] text-gray-500 font-medium group-hover:text-[#854102] mt-0.5">
+                              {sub.hindi}
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Bottom Footer Note */}
+                    <div className="pt-3 mt-4 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+                      <span>पारंपरिक देसी घर का स्वाद</span>
+                      <Link
+                        to={`/category/${activeIngredient.categorySlug}/`}
+                        onClick={() => setIngredientsDropdownOpen(false)}
+                        className="text-[#b35400] font-bold hover:underline"
+                      >
+                        Explore all &rarr;
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -313,25 +383,60 @@ export const Navbar = ({ onOpenSearch }) => {
               <div className="border-b border-gray-100 py-1">
                 <button
                   onClick={() => setMobileIngredientsOpen(!mobileIngredientsOpen)}
-                  className="w-full py-2.5 px-3 rounded-lg flex items-center justify-between hover:bg-cream-100 text-[#b35400]"
+                  className="w-full py-2.5 px-3 rounded-lg flex items-center justify-between hover:bg-cream-100 text-[#b35400] font-bold"
                 >
                   <span>Shop by Ingredients</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${mobileIngredientsOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileIngredientsOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {mobileIngredientsOpen && (
-                  <div className="pl-4 pr-2 py-1 space-y-1 bg-[#FAF6EF]/60 rounded-xl my-1">
-                    {ingredientsList.map((item) => (
-                      <Link
-                        key={item.slug}
-                        to={`/product/${(item.slug || '').replace(/s$/, '')}/`}
-                        className="flex items-center gap-2.5 py-2 px-2 text-xs font-semibold text-gray-800 hover:text-[#b35400]"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <span>{item.icon}</span>
-                        <span>{item.name}</span>
-                      </Link>
-                    ))}
+                  <div className="pl-1 pr-1 py-1 space-y-1 bg-[#FAF6EF]/70 rounded-xl my-1">
+                    {INGREDIENT_CATEGORIES.map((item) => {
+                      const isExpanded = mobileActiveIngredient === item.id;
+                      return (
+                        <div key={item.id} className="border-b border-amber-100/60 last:border-0 py-1">
+                          <div className="flex items-center justify-between px-2 py-1.5">
+                            <Link
+                              to={`/category/${item.categorySlug}/`}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="text-xs font-bold text-gray-800 hover:text-[#b35400] flex items-center gap-2 flex-1"
+                            >
+                              <span>{item.icon}</span>
+                              <span>{item.name} ({item.hindiName})</span>
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => setMobileActiveIngredient(isExpanded ? null : item.id)}
+                              className="p-1.5 text-gray-400 hover:text-[#b35400]"
+                              aria-label={`Toggle ${item.name} subcategories`}
+                            >
+                              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-[#b35400]' : ''}`} />
+                            </button>
+                          </div>
+                          {isExpanded && (
+                            <div className="pl-6 pr-2 py-1.5 space-y-1.5 bg-white/80 rounded-lg mb-1">
+                              <Link
+                                to={`/category/${item.categorySlug}/`}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="block text-[11px] font-extrabold text-[#b35400] py-0.5 border-b border-amber-200/50"
+                              >
+                                All {item.name} Pickles (सभी {item.hindiName}) &rarr;
+                              </Link>
+                              {item.subCategories.map((sub) => (
+                                <Link
+                                  key={sub.slug}
+                                  to={`/category/${item.categorySlug}/${sub.slug}/`}
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="block text-[11px] font-semibold text-gray-700 hover:text-[#b35400] py-1"
+                                >
+                                  {sub.name} <span className="text-[10px] text-gray-400">({sub.hindi})</span>
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
