@@ -108,24 +108,54 @@ export const Navbar = ({ onOpenSearch }) => {
     fetchNavbarCategories();
   }, []);
 
-  const defaultIngredientsList = [
-    { name: 'Mango (Aam / आम का अचार)', slug: 'mango-pickles', icon: '🥭' },
-    { name: 'Red Chilli (Banarasi Lal Mirch / भरवां लाल मिर्च)', slug: 'red-chilli-pickles', icon: '🌶️' },
-    { name: 'Green Chilli (Hari Mirch Tipore / हरी मिर्च)', slug: 'green-chilli-pickles', icon: '🫑' },
-    { name: 'Lemon (Nimbu / खट्टा मीठा नीम्बू)', slug: 'lemon-pickles', icon: '🍋' },
-    { name: 'Garlic (Lahsun / देसी लहसुन)', slug: 'garlic-pickles', icon: '🧄' },
-    { name: 'Rajasthani Kair Sangri (कैर सांगरी शाही अचार)', slug: 'rajasthani-specials', icon: '👑' },
-    { name: 'Mixed Vegetables (Pachranga Mix / पचरंगा)', slug: 'mixed-pickles', icon: '🥕' },
-    { name: 'Combo Packs & Hampers (कॉम्बो पैक)', slug: 'combo-packs', icon: '🎁' },
-  ];
+  const getCategoryIcon = (cat = {}) => {
+    const img = (cat.image || '').trim();
+    if (img && !img.startsWith('http') && !img.startsWith('/') && !img.includes('.')) {
+      return img;
+    }
+    const slug = (cat.slug || '').toLowerCase();
+    const name = (cat.name || '').toLowerCase();
+    if (slug.includes('mango') || name.includes('mango') || name.includes('aam')) return '🥭';
+    if (slug.includes('red') || name.includes('red') || name.includes('lal mirch')) return '🌶️';
+    if (slug.includes('green') || name.includes('green') || name.includes('hari mirch')) return '🫑';
+    if (slug.includes('lemon') || name.includes('lemon') || name.includes('nimbu')) return '🍋';
+    if (slug.includes('rajasthan') || name.includes('kair') || name.includes('sangri')) return '🏺';
+    if (slug.includes('garlic') || name.includes('garlic') || name.includes('lahsun')) return '🧄';
+    if (slug.includes('jack') || name.includes('jack') || name.includes('kathal')) return '🪵';
+    if (slug.includes('amla') || name.includes('amla') || name.includes('gooseberry')) return '🟢';
+    if (slug.includes('ginger') || name.includes('ginger') || name.includes('adrak')) return '🫚';
+    if (slug.includes('mix') || name.includes('mix')) return '🥗';
+    if (slug.includes('sweet') || name.includes('meetha') || name.includes('murabba')) return '🍯';
+    if (slug.includes('combo') || name.includes('box') || name.includes('hamp')) return '🎁';
+    if (slug.includes('papad') || name.includes('papad')) return '🫓';
+    return '🏺';
+  };
 
-  const ingredientsList = dynamicCategories.length > 0
-    ? dynamicCategories.map(c => ({
-        name: c.hindiName ? `${c.name} (${c.hindiName})` : c.name,
-        slug: c.slug,
-        icon: c.slug.includes('mango') ? '🥭' : c.slug.includes('chilli') || c.slug.includes('mirch') ? '🌶️' : c.slug.includes('lemon') || c.slug.includes('nimbu') ? '🍋' : c.slug.includes('garlic') || c.slug.includes('lahsun') ? '🧄' : c.slug.includes('combo') ? '🎁' : '👑'
-      }))
-    : defaultIngredientsList;
+  const navCategories = (dynamicCategories && dynamicCategories.length > 0)
+    ? dynamicCategories.map((c) => {
+        const cleanId = (c.slug || '').toLowerCase().replace(/-pickles?$/, '').replace(/s$/, '');
+        const staticMatch = INGREDIENT_CATEGORIES.find(
+          sc => sc.categorySlug === c.slug || sc.id === cleanId
+        );
+        const rawSubCats = (c.subCategories && c.subCategories.length > 0)
+          ? c.subCategories
+          : (staticMatch?.subCategories || []);
+
+        return {
+          id: c.slug || cleanId,
+          name: c.name,
+          hindiName: c.hindiName || staticMatch?.hindiName || '',
+          categorySlug: c.slug,
+          icon: getCategoryIcon(c) || staticMatch?.icon || '🏺',
+          subCategories: rawSubCats.map(sub => ({
+            name: sub.name,
+            hindi: sub.hindiName || sub.hindi || '',
+            slug: sub.slug,
+            taste: sub.taste || 'tangy'
+          }))
+        };
+      })
+    : INGREDIENT_CATEGORIES;
 
   const tasteList = [
     { name: 'Sweet (मीठा / मुरब्बा)', path: '/shop/taste/sweet/', icon: '🍯' },
@@ -135,7 +165,7 @@ export const Navbar = ({ onOpenSearch }) => {
     { name: 'Rajasthani Royal (शाही राजस्थानी)', path: '/shop/taste/rajasthani/', icon: '🏺' },
   ];
 
-  const activeIngredient = INGREDIENT_CATEGORIES.find(c => c.id === activeHoveredIngredientId) || null;
+  const activeIngredient = navCategories.find(c => c.id === activeHoveredIngredientId || c.categorySlug === activeHoveredIngredientId) || null;
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-[0_4px_12px_rgba(243,162,34,0.12)] transition-all" ref={navRef}>
@@ -190,8 +220,8 @@ export const Navbar = ({ onOpenSearch }) => {
                 >
                   {/* Left Column: Ingredients with chevron '>' */}
                   <div className="w-[280px] bg-white border-r border-gray-100 py-3 px-2 space-y-0.5 flex-shrink-0">
-                    {INGREDIENT_CATEGORIES.map((item) => {
-                      const isHovered = activeHoveredIngredientId === item.id;
+                    {navCategories.map((item) => {
+                      const isHovered = activeHoveredIngredientId === item.id || activeHoveredIngredientId === item.categorySlug;
                       return (
                         <div
                           key={item.id}
@@ -212,7 +242,9 @@ export const Navbar = ({ onOpenSearch }) => {
                             <span className="flex items-center gap-2 truncate">
                               <span className="text-base">{item.icon}</span>
                               <span>{item.name}</span>
-                              <span className="text-[12px] font-normal text-[#854102]/80">({item.hindiName})</span>
+                              {item.hindiName && (
+                                <span className="text-[12px] font-normal text-[#854102]/80">({item.hindiName})</span>
+                              )}
                             </span>
                             <span className="text-sm font-bold text-[#b35400] ml-2 flex-shrink-0">&gt;</span>
                           </Link>
@@ -236,31 +268,39 @@ export const Navbar = ({ onOpenSearch }) => {
                         >
                           <span className="flex items-center gap-2">
                             <span className="text-base">{activeIngredient.icon}</span>
-                            <span>All {activeIngredient.name} Pickles (सभी {activeIngredient.hindiName})</span>
+                            <span>All {activeIngredient.name} Pickles {activeIngredient.hindiName ? `(सभी ${activeIngredient.hindiName})` : ''}</span>
                           </span>
                           <span className="group-hover:translate-x-1 transition-transform font-bold">&rarr;</span>
                         </Link>
 
                         {/* Subcategories List */}
                         <div className="space-y-1.5 max-h-[360px] overflow-y-auto pr-1">
-                          {activeIngredient.subCategories.map((sub) => (
-                            <Link
-                              key={sub.slug}
-                              to={`/category/${activeIngredient.categorySlug}/${sub.slug}/`}
-                              onClick={() => {
-                                setIngredientsDropdownOpen(false);
-                                setActiveHoveredIngredientId(null);
-                              }}
-                              className="group block py-1.5 px-2 rounded-lg hover:bg-[#FAF6EF] transition-all"
-                            >
-                              <div className="text-[14px] font-bold text-[#b35400] group-hover:text-[#e68819] transition-colors leading-tight">
-                                {sub.name}
-                              </div>
-                              <div className="text-[11px] text-gray-500 font-medium group-hover:text-[#854102] mt-0.5">
-                                {sub.hindi}
-                              </div>
-                            </Link>
-                          ))}
+                          {activeIngredient.subCategories && activeIngredient.subCategories.length > 0 ? (
+                            activeIngredient.subCategories.map((sub) => (
+                              <Link
+                                key={sub.slug}
+                                to={`/category/${activeIngredient.categorySlug}/${sub.slug}/`}
+                                onClick={() => {
+                                  setIngredientsDropdownOpen(false);
+                                  setActiveHoveredIngredientId(null);
+                                }}
+                                className="group block py-1.5 px-2 rounded-lg hover:bg-[#FAF6EF] transition-all"
+                              >
+                                <div className="text-[14px] font-bold text-[#b35400] group-hover:text-[#e68819] transition-colors leading-tight">
+                                  {sub.name}
+                                </div>
+                                {sub.hindi && (
+                                  <div className="text-[11px] text-gray-500 font-medium group-hover:text-[#854102] mt-0.5">
+                                    {sub.hindi}
+                                  </div>
+                                )}
+                              </Link>
+                            ))
+                          ) : (
+                            <div className="text-xs text-gray-400 py-3 italic">
+                              Explore all {activeIngredient.name} pickles.
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -457,8 +497,8 @@ export const Navbar = ({ onOpenSearch }) => {
 
                 {mobileIngredientsOpen && (
                   <div className="pl-1 pr-1 py-1 space-y-1 bg-[#FAF6EF]/70 rounded-xl my-1">
-                    {INGREDIENT_CATEGORIES.map((item) => {
-                      const isExpanded = mobileActiveIngredient === item.id;
+                    {navCategories.map((item) => {
+                      const isExpanded = mobileActiveIngredient === item.id || mobileActiveIngredient === item.categorySlug;
                       return (
                         <div key={item.id} className="border-b border-amber-100/60 last:border-0 py-1">
                           <div className="flex items-center justify-between px-2 py-1.5">
@@ -468,12 +508,12 @@ export const Navbar = ({ onOpenSearch }) => {
                               className="text-xs font-bold text-gray-800 hover:text-[#b35400] flex items-center gap-2 flex-1"
                             >
                               <span>{item.icon}</span>
-                              <span>{item.name} ({item.hindiName})</span>
+                              <span>{item.name} {item.hindiName ? `(${item.hindiName})` : ''}</span>
                             </Link>
                             <button
                               type="button"
                               onClick={() => setMobileActiveIngredient(isExpanded ? null : item.id)}
-                              className="p-1.5 text-gray-400 hover:text-[#b35400]"
+                              className="p-1.5 text-gray-400 hover:text-[#b35400] cursor-pointer"
                               aria-label={`Toggle ${item.name} subcategories`}
                             >
                               <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-[#b35400]' : ''}`} />
@@ -486,18 +526,20 @@ export const Navbar = ({ onOpenSearch }) => {
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="block text-[11px] font-extrabold text-[#b35400] py-0.5 border-b border-amber-200/50"
                               >
-                                All {item.name} Pickles (सभी {item.hindiName}) &rarr;
+                                All {item.name} Pickles {item.hindiName ? `(सभी ${item.hindiName})` : ''} &rarr;
                               </Link>
-                              {item.subCategories.map((sub) => (
-                                <Link
-                                  key={sub.slug}
-                                  to={`/category/${item.categorySlug}/${sub.slug}/`}
-                                  onClick={() => setMobileMenuOpen(false)}
-                                  className="block text-[11px] font-semibold text-gray-700 hover:text-[#b35400] py-1"
-                                >
-                                  {sub.name} <span className="text-[10px] text-gray-400">({sub.hindi})</span>
-                                </Link>
-                              ))}
+                              {item.subCategories && item.subCategories.length > 0 ? (
+                                item.subCategories.map((sub) => (
+                                  <Link
+                                    key={sub.slug}
+                                    to={`/category/${item.categorySlug}/${sub.slug}/`}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="block text-[11px] font-semibold text-gray-700 hover:text-[#b35400] py-1"
+                                  >
+                                    {sub.name} {sub.hindi ? <span className="text-[10px] text-gray-400">({sub.hindi})</span> : null}
+                                  </Link>
+                                ))
+                              ) : null}
                             </div>
                           )}
                         </div>

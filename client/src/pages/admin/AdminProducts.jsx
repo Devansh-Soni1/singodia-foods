@@ -742,14 +742,16 @@ export const AdminProducts = () => {
                 </div>
               </div>
 
-              {/* TASTE SUB-CATEGORY (Selected based on taste: sweet, tangy, spicy, winter, rajasthani) */}
-              <div className="p-3.5 bg-amber-50/70 border border-amber-200/90 rounded-2xl space-y-2">
+              {/* TASTE & VARIETY SUB-CATEGORY */}
+              <div className="p-3.5 bg-amber-50/70 border border-amber-200/90 rounded-2xl space-y-3">
                 <div className="flex items-center justify-between">
                   <label className="font-bold text-xs text-gray-900 flex items-center gap-1.5">
-                    <span>Taste Sub-Category (स्वाद अनुसार सब-कैटेगरी)</span>
-                    <span className="text-[10px] text-amber-800 font-bold uppercase tracking-wider px-1.5 py-0.5 bg-white rounded-md border border-amber-200">
-                      Sweet • Tangy • Spicy • Winter • Rajasthani
-                    </span>
+                    <span>Sub-Category & Variety (सब-कैटेगरी और प्रकार)</span>
+                    {formData.subCategory && (
+                      <span className="text-[10px] text-amber-900 font-bold px-2 py-0.5 bg-amber-200/80 rounded-md border border-amber-300">
+                        Selected: {formData.subCategory}
+                      </span>
+                    )}
                   </label>
                   {formData.subCategory && (
                     <button
@@ -761,31 +763,74 @@ export const AdminProducts = () => {
                     </button>
                   )}
                 </div>
-                <p className="text-[11px] text-gray-600">
-                  Category select karne ke baad is pickle ka main taste profile select karein:
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
-                  {TASTE_SUBCATEGORIES.map((taste) => {
-                    const isSelected = (formData.subCategory || '').toLowerCase() === taste.id;
+
+                {/* If selected category has subcategories configured in Admin Categories */}
+                {(() => {
+                  const selCat = categories.find(c => c.slug === formData.category || c._id === formData.category);
+                  const subList = selCat?.subCategories || [];
+                  if (subList.length > 0) {
                     return (
-                      <button
-                        key={taste.id}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, subCategory: isSelected ? '' : taste.id })}
-                        className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all text-center cursor-pointer ${
-                          isSelected
-                            ? 'bg-brand-green text-white border-brand-green shadow-xs font-bold ring-2 ring-brand-green/20 scale-[1.02]'
-                            : 'bg-white hover:bg-amber-100/70 text-gray-800 border-gray-200 hover:border-amber-300'
-                        }`}
-                      >
-                        <span className="text-xl mb-1">{taste.icon}</span>
-                        <span className="text-xs font-bold leading-tight">{taste.name}</span>
-                        <span className={`text-[10px] ${isSelected ? 'text-white/80' : 'text-gray-500'}`}>
-                          {taste.hindiName}
+                      <div className="space-y-1.5">
+                        <span className="text-[11px] font-bold text-[#b35400] block">
+                          {selCat.name} Specific Varieties (इस कैटेगरी की सब-कैटेगरी):
                         </span>
-                      </button>
+                        <div className="flex flex-wrap gap-1.5">
+                          {subList.map((sub, sIdx) => {
+                            const isSelected = (formData.subCategory || '').toLowerCase() === sub.slug.toLowerCase();
+                            return (
+                              <button
+                                key={sIdx}
+                                type="button"
+                                onClick={() => setFormData({ ...formData, subCategory: isSelected ? '' : sub.slug })}
+                                className={`px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                                  isSelected
+                                    ? 'bg-brand-green text-white border-brand-green shadow-xs'
+                                    : 'bg-white hover:bg-amber-100 text-gray-800 border-amber-200'
+                                }`}
+                              >
+                                <span>{sub.name}</span>
+                                {sub.hindiName && (
+                                  <span className={`text-[10px] font-normal ${isSelected ? 'text-white/80' : 'text-gray-400'}`}>
+                                    ({sub.hindiName})
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     );
-                  })}
+                  }
+                  return null;
+                })()}
+
+                <div>
+                  <span className="text-[11px] font-bold text-gray-700 block mb-1">
+                    Or select by general taste profile (स्वाद अनुसार):
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
+                    {TASTE_SUBCATEGORIES.map((taste) => {
+                      const isSelected = (formData.subCategory || '').toLowerCase() === taste.id;
+                      return (
+                        <button
+                          key={taste.id}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, subCategory: isSelected ? '' : taste.id })}
+                          className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all text-center cursor-pointer ${
+                            isSelected
+                              ? 'bg-brand-green text-white border-brand-green shadow-xs font-bold ring-2 ring-brand-green/20 scale-[1.02]'
+                              : 'bg-white hover:bg-amber-100/70 text-gray-800 border-gray-200 hover:border-amber-300'
+                          }`}
+                        >
+                          <span className="text-xl mb-1">{taste.icon}</span>
+                          <span className="text-xs font-bold leading-tight">{taste.name}</span>
+                          <span className={`text-[10px] ${isSelected ? 'text-white/80' : 'text-gray-500'}`}>
+                            {taste.hindiName}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
