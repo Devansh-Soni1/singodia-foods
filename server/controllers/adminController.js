@@ -154,7 +154,10 @@ export const uploadImage = async (req, res) => {
     console.warn('Admin Cloudinary upload warning, falling back to local storage:', err.message);
   }
 
-  const fileUrl = `/uploads/${req.file.filename}`;
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+  const host = req.headers['x-forwarded-host'] || req.get('host');
+  const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
+  const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
   res.json({
     success: true,
     message: 'Image uploaded successfully',

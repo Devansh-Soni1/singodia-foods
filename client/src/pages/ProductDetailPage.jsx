@@ -11,6 +11,7 @@ import { StarRating } from '../components/common/StarRating';
 import { ProductCard } from '../components/product/ProductCard';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { resolveProductImage } from '../utils/imageUtils';
 
 export const ProductDetailPage = () => {
   const { slug } = useParams();
@@ -170,7 +171,7 @@ export const ProductDetailPage = () => {
             <div className="lg:col-span-6 space-y-4">
               <div className="aspect-square rounded-2xl overflow-hidden bg-cream-50 border border-cream-200 shadow-xs relative">
                 <img
-                  src={product.images?.[activeImageIdx] || product.images?.[0]}
+                  src={resolveProductImage(product.images?.[activeImageIdx] || product.images?.[0])}
                   alt={product.name}
                   className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
                 />
@@ -199,7 +200,7 @@ export const ProductDetailPage = () => {
                           : 'border-cream-200 opacity-70 hover:opacity-100'
                       }`}
                     >
-                      <img src={img} alt="thumbnail" className="w-full h-full object-cover" />
+                      <img src={resolveProductImage(img)} alt="thumbnail" className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>

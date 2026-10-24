@@ -6,6 +6,7 @@ import { SpiceMeter } from '../common/SpiceMeter';
 import { StarRating } from '../common/StarRating';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { resolveProductImage } from '../../utils/imageUtils';
 
 export const QuickViewModal = ({ product, isOpen, onClose }) => {
   if (!isOpen || !product) return null;
@@ -50,7 +51,7 @@ export const QuickViewModal = ({ product, isOpen, onClose }) => {
           <div className="p-6 bg-cream-50 flex flex-col justify-center items-center">
             <div className="aspect-square w-full rounded-2xl overflow-hidden border border-cream-200 mb-3 bg-white">
               <img
-                src={product.images?.[activeImageIdx] || product.images?.[0]}
+                src={resolveProductImage(product.images?.[activeImageIdx] || product.images?.[0])}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
@@ -65,7 +66,7 @@ export const QuickViewModal = ({ product, isOpen, onClose }) => {
                       activeImageIdx === i ? 'border-brand-green' : 'border-transparent opacity-70'
                     }`}
                   >
-                    <img src={img} alt="thumb" className="w-full h-full object-cover" />
+                    <img src={resolveProductImage(img)} alt="thumb" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { productAPI, categoryAPI, adminAPI } from '../../services/api';
 import { formatPrice } from '../../utils/formatCurrency';
 import { TASTE_SUBCATEGORIES, getTasteInfo } from '../../constants/tasteSubCategories';
+import { compressImageFile, resolveProductImage } from '../../utils/imageUtils';
 
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80';
 
@@ -130,29 +131,32 @@ export const AdminProducts = () => {
         continue;
       }
 
-      // Try uploading to backend /api/upload
       try {
-        const uploadData = new FormData();
-        uploadData.append('image', file);
-        const res = await productAPI.uploadImage(uploadData);
-        if (res.url) {
+        // Fast client-side HD compression (1200px max, converts 10MB phone photo to ~150KB)
+        const { file: compressedFile, dataUrl } = await compressImageFile(file);
+
+        let uploadedUrl = null;
+        try {
+          const uploadData = new FormData();
+          uploadData.append('image', compressedFile);
+          const res = await productAPI.uploadImage(uploadData);
+          if (res.url) {
+            uploadedUrl = res.url;
+          }
+        } catch (uploadErr) {
+          console.warn('Backend upload notice, using optimized DataURL fallback:', uploadErr.message);
+        }
+
+        const finalImgUrl = uploadedUrl || dataUrl;
+        if (finalImgUrl) {
           setFormData(prev => ({
             ...prev,
-            images: [...prev.images.filter(img => img !== DEFAULT_IMAGE), res.url]
+            images: [...prev.images.filter(img => img !== DEFAULT_IMAGE), finalImgUrl]
           }));
         }
       } catch (err) {
-        console.warn('Backend upload failed, using local browser DataURL fallback:', err);
-        // Fallback to Data URL preview so admin is NEVER blocked
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const dataUrl = e.target.result;
-          setFormData(prev => ({
-            ...prev,
-            images: [...prev.images.filter(img => img !== DEFAULT_IMAGE), dataUrl]
-          }));
-        };
-        reader.readAsDataURL(file);
+        console.error('Image processing failed:', err);
+        setUploadError('Failed to process image: ' + err.message);
       }
     }
 
@@ -253,15 +257,19 @@ export const AdminProducts = () => {
         const res = await productAPI.updateProduct(editingProduct._id, payload);
         const updatedObj = res.product || { ...payload, _id: editingProduct._id };
         setProducts(products.map(p => p._id === editingProduct._id ? updatedObj : p));
+        alert('Pickle product updated successfully!');
       } else {
         const res = await productAPI.createProduct(payload);
         const createdObj = res.product || { ...payload, _id: 'prod-' + Date.now() };
         setProducts([createdObj, ...products]);
+        alert('Pickle product uploaded successfully!');
       }
       setShowModal(false);
       fetchProducts();
     } catch (err) {
-      alert(err.message || 'Operation failed');
+      console.error('Submit product error:', err);
+      const errMsg = err.response?.data?.message || err.message || 'Operation failed';
+      alert('Upload failed: ' + errMsg);
     }
   };
 
@@ -397,7 +405,7 @@ export const AdminProducts = () => {
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <img
-                            src={primaryImg}
+                            src={resolveProductImage(primaryImg, DEFAULT_IMAGE)}
                             alt={p.name}
                             onError={(e) => { e.target.src = DEFAULT_IMAGE; }}
                             className="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0 bg-gray-100 shadow-xs"
@@ -651,7 +659,7 @@ export const AdminProducts = () => {
                           className="relative group w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-amber-300 bg-white shadow-xs"
                         >
                           <img
-                            src={img}
+                            src={resolveProductImage(img, DEFAULT_IMAGE)}
                             alt={`Pickle photo ${idx + 1}`}
                             className="w-full h-full object-cover"
                           />

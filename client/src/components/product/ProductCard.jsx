@@ -5,6 +5,7 @@ import { formatPrice } from '../../utils/formatCurrency';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { getTasteInfo } from '../../constants/tasteSubCategories';
+import { resolveProductImage } from '../../utils/imageUtils';
 
 export const ProductCard = ({ product, onQuickView }) => {
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
@@ -102,7 +103,7 @@ export const ProductCard = ({ product, onQuickView }) => {
         {/* Product Jar Photo */}
         <Link to={`/product/${product.slug}/`} className="w-full h-full flex items-center justify-center p-1.5">
           <img
-            src={product.images?.[0] || '/products/homemade-mango-pickle.png'}
+            src={resolveProductImage(product.images?.[0])}
             alt={product.name}
             loading="lazy"
             className="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-500 ease-out"

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, X, Flame, ChevronRight } from 'lucide-react';
 import { productAPI } from '../../services/api';
 import { formatPrice } from '../../utils/formatCurrency';
+import { resolveProductImage } from '../../utils/imageUtils';
 
 export const SearchModal = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState('');
@@ -107,7 +108,7 @@ export const SearchModal = ({ isOpen, onClose }) => {
               className="flex items-center gap-3.5 p-2.5 rounded-xl hover:bg-cream-100 cursor-pointer transition-colors group"
             >
               <img
-                src={product.images[0]}
+                src={resolveProductImage(product.images?.[0])}
                 alt={product.name}
                 className="w-14 h-14 object-cover rounded-lg flex-shrink-0 border border-cream-200"
               />

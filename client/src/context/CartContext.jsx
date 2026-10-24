@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { couponAPI } from '../services/api';
+import { resolveProductImage } from '../utils/imageUtils';
 
 const CartContext = createContext(null);
 
@@ -76,7 +77,7 @@ export const CartProvider = ({ children }) => {
             name: product.name,
             hindiName: product.hindiName,
             slug: product.slug,
-            image: product.images?.[0] || 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=600&q=80',
+            image: resolveProductImage(product.images?.[0]),
             weight: selectedVariant.weight,
             price: selectedVariant.price,
             originalPrice: selectedVariant.originalPrice || 0,

@@ -9,22 +9,29 @@ export const protect = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'singodhia_super_secret_jwt_key_2026_rajasthan');
       
-      const isMasterAdminId = decoded.id === 'admin-master' || decoded.id === 'admin-dev' || decoded.id === 'admin-fallback' || decoded.id === '6ace6cc495d90d554ead66ed';
       const adminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase();
+      const adminEmails = [
+        adminEmail,
+        'singodia.bajranglal9@gmail.com',
+        'premsingodiya861@gmail.com'
+      ];
+      const isMasterAdminId = decoded.id === 'admin-master' || decoded.id === 'admin-dev' || decoded.id === 'admin-fallback' || decoded.id === '6ace6cc495d90d554ead66ed';
+      const isConfiguredAdmin = adminEmails.includes(decoded.email?.toLowerCase());
 
-      if (isMasterAdminId || decoded.email?.toLowerCase() === adminEmail) {
+      if (isMasterAdminId || isConfiguredAdmin || decoded.role === 'admin') {
         if (mongoose.connection.readyState === 1 && mongoose.isValidObjectId(decoded.id)) {
           const dbAdmin = await User.findById(decoded.id).select('-password');
           if (dbAdmin) {
             req.user = dbAdmin;
+            req.user.role = 'admin';
             return next();
           }
         }
         req.user = {
-          _id: '6ace6cc495d90d554ead66ed',
+          _id: decoded.id && mongoose.isValidObjectId(decoded.id) ? decoded.id : '6ace6cc495d90d554ead66ed',
           role: 'admin',
-          name: 'Singodhia Admin',
-          email: adminEmail
+          name: decoded.name || 'Singodhia Admin',
+          email: decoded.email || adminEmail
         };
         return next();
       }
@@ -53,7 +60,12 @@ export const protect = async (req, res, next) => {
 };
 
 export const adminOnly = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
+  const adminEmails = [
+    (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase(),
+    'singodia.bajranglal9@gmail.com',
+    'premsingodiya861@gmail.com'
+  ];
+  if (req.user && (req.user.role === 'admin' || adminEmails.includes(req.user.email?.toLowerCase()))) {
     next();
   } else {
     res.status(403).json({ success: false, message: 'Forbidden: Admin access required.' });

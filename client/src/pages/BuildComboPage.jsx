@@ -4,6 +4,7 @@ import { Sparkles, Plus, Check, Trash2, ShoppingBag, ArrowRight } from 'lucide-r
 import { productAPI } from '../services/api';
 import { formatPrice } from '../utils/formatCurrency';
 import { useCart } from '../context/CartContext';
+import { resolveProductImage } from '../utils/imageUtils';
 
 export const BuildComboPage = () => {
   const [boxSize, setBoxSize] = useState(3); // 3 or 4 jars
@@ -273,7 +274,7 @@ export const BuildComboPage = () => {
                   <div>
                     <div className="aspect-square rounded-xl overflow-hidden bg-cream-100 mb-3">
                       <img
-                        src={product.images[0]}
+                        src={resolveProductImage(product.images?.[0])}
                         alt={product.name}
                         className="w-full h-full object-cover"
                       />

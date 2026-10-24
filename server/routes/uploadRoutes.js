@@ -66,8 +66,11 @@ router.post('/', (req, res) => {
       }
     }
 
-    // 3. Local file fallback so uploading NEVER breaks
-    const urls = req.files.map(f => `/uploads/${f.filename}`);
+    // 3. Absolute URL fallback so uploading NEVER breaks across domains
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+    const host = req.headers['x-forwarded-host'] || req.get('host');
+    const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
+    const urls = req.files.map(f => `${baseUrl}/uploads/${f.filename}`);
     res.json({
       success: true,
       message: 'Image uploaded successfully',
