@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import fs from 'fs';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
@@ -154,14 +155,26 @@ export const uploadImage = async (req, res) => {
     console.warn('Admin Cloudinary upload warning, falling back to local storage:', err.message);
   }
 
-  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
-  const host = req.headers['x-forwarded-host'] || req.get('host');
-  const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
-  const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
-  res.json({
-    success: true,
-    message: 'Image uploaded successfully',
-    url: fileUrl
-  });
+  // Fallback: Return permanent base64 Data URI so Render ephemeral disk wipes never cause 404
+  try {
+    const fileData = fs.readFileSync(req.file.path);
+    const mime = req.file.mimetype || 'image/jpeg';
+    const dataUrl = `data:${mime};base64,${fileData.toString('base64')}`;
+    return res.json({
+      success: true,
+      message: 'Image uploaded and encoded permanently',
+      url: dataUrl
+    });
+  } catch {
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+    const host = req.headers['x-forwarded-host'] || req.get('host');
+    const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
+    const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
+    res.json({
+      success: true,
+      message: 'Image uploaded successfully',
+      url: fileUrl
+    });
+  }
 };
 

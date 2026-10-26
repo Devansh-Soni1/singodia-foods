@@ -1,8 +1,12 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 const BACKEND_URL = API_BASE_URL.replace(/\/api\/?$/, '');
 
-export const resolveProductImage = (imgUrl, fallback = '/products/homemade-mango-pickle.png') => {
+export const resolveProductImage = (imgUrl, fallback = 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80') => {
   if (!imgUrl) return fallback;
+  // Intercept the masala spice image so it never shows to customers
+  if (imgUrl.includes('photo-1596040033229-a9821ebd058d')) {
+    return fallback;
+  }
   if (imgUrl.startsWith('data:') || imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
     return imgUrl;
   }

@@ -86,8 +86,8 @@ export const sampleProducts = [
     shortDescription: 'Plump sun-dried red chillies hand-stuffed with aromatic roasted spices, saunf, amchur, and pure mustard oil.',
     fullDescription: 'Our Banarasi Bharwa Lal Mirch Achar is the crown jewel of traditional Indian pickling. Each ripe, crimson chilli is carefully handpicked, slit with precision, and meticulously stuffed by hand with a slow-roasted dry spice blend comprising whole coriander seeds, fennel (saunf), fenugreek (methi), black mustard seeds (rai), dry mango powder (amchur), and pungent Hing. Matured naturally under the Indian sun in large ceramic barnis with cold-pressed Kachi Ghani mustard oil.',
     images: [
-      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80'
     ],
     variants: [
       { weight: '250g', price: 249, originalPrice: 299, inStock: true, stockCount: 65, sku: 'BLM-250' },
@@ -216,7 +216,7 @@ export const sampleProducts = [
     fullDescription: 'Hailing from the heart of the Thar Desert, Kair Sangri is Rajasthan’s most prized culinary treasure. Hand-foraged wild desert capers (Kair) and indigenous Sangri bean pods are dried and soaked in buttermilk, then simmered with roasted spices, whole red Mathania chillies, amchur, and fragrant cold-pressed mustard oil. Rich, earthy, and extraordinarily aromatic.',
     images: [
       'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1590502593747-42a996133562?auto=format&fit=crop&w=800&q=80'
     ],
     variants: [
       { weight: '250g', price: 349, originalPrice: 399, inStock: true, stockCount: 30, sku: 'KS-250' },
@@ -258,7 +258,7 @@ export const sampleProducts = [
     fullDescription: 'A daily dining essential across Rajasthani homes! Freshly harvested spicy green chillies are slit and tossed with cracked rai seeds, aromatic saunf, pinch of turmeric, and warm mustard oil. Gives an instant zesty punch to everyday dal-roti without overwhelming the palate.',
     images: [
       'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80'
     ],
     variants: [
       { weight: '250g', price: 189, originalPrice: 229, inStock: true, stockCount: 75, sku: 'HM-250' },
@@ -383,7 +383,7 @@ export const sampleProducts = [
     fullDescription: 'Crafted for true pickle connoisseurs, this distinct pickle is infused with unadulterated Hathras pure Hing (asafoetida). Sour green mango cubes are preserved without excess clutter—just Hing, hand-ground Mathania chilli, turmeric, and mustard oil. The lingering aroma of authentic Hing transforms ordinary meals.',
     images: [
       'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80'
     ],
     variants: [
       { weight: '250g', price: 239, originalPrice: 279, inStock: true, stockCount: 35, sku: 'HNG-250' },

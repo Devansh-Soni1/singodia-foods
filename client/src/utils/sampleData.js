@@ -135,7 +135,7 @@ export const SAMPLE_PRODUCTS = [
     fullDescription: 'Our Bharwa Lal Mirch Achar is the crown jewel of traditional Indian pickling. Each ripe, crimson chilli is carefully handpicked, slit with precision, and meticulously stuffed by hand with a slow-roasted dry spice blend.',
     images: [
       '/products/red-chilli-pickle.png',
-      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80'
     ],
     variants: [
       { weight: '250g', price: 249, originalPrice: 299, inStock: true, stockCount: 65, sku: 'RCP-250' },
@@ -237,7 +237,7 @@ export const SAMPLE_PRODUCTS = [
     fullDescription: 'A daily dining essential across Rajasthani homes! Freshly harvested spicy green chillies are slit and tossed with cracked rai seeds, aromatic saunf, pinch of turmeric, and warm mustard oil. Gives an instant zesty punch to everyday dal-roti without overwhelming the palate.',
     images: [
       'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80'
     ],
     variants: [
       { weight: '250g', price: 189, originalPrice: 229, inStock: true, stockCount: 75, sku: 'HM-250' },
@@ -525,7 +525,7 @@ export const SAMPLE_PRODUCTS = [
     shortDescription: 'Stone-ground heritage spices: Fresh whole-spice pickle seasoning & royal Rajasthani saffron cardamom tea blend.',
     fullDescription: 'Two iconic spice secrets from grandmother’s pantry. Includes 200g of our signature slow-roasted Achar Masala (perfect for curating homemade pickles, achari paneer, or stuffing parathas) and 100g of aromatic royal Chai Masala infused with green cardamom, ginger, cloves, and saffron strands.',
     images: [
-      'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80'
+      'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80'
     ],
     variants: [
       { weight: '200g Achar Masala + 100g Chai Masala', price: 349, originalPrice: 420, inStock: true, stockCount: 45, sku: 'MAS-DUO' }

@@ -10,7 +10,8 @@ import { formatPrice } from '../../utils/formatCurrency';
 import { TASTE_SUBCATEGORIES, getTasteInfo } from '../../constants/tasteSubCategories';
 import { compressImageFile, resolveProductImage } from '../../utils/imageUtils';
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80';
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80';
+const MASALA_IMAGE_SNIPPET = 'photo-1596040033229-a9821ebd058d';
 
 export const AdminProducts = () => {
   const [products, setProducts] = useState([]);
@@ -102,7 +103,9 @@ export const AdminProducts = () => {
       subCategory: p.subCategory || '',
       shortDescription: p.shortDescription || '',
       fullDescription: p.fullDescription || '',
-      images: Array.isArray(p.images) && p.images.length > 0 ? p.images : [DEFAULT_IMAGE],
+      images: Array.isArray(p.images) && p.images.length > 0 
+        ? p.images.filter(img => img && !img.includes(MASALA_IMAGE_SNIPPET))
+        : [],
       spiceLevel: p.spiceLevel || 'Medium',
       ingredients: Array.isArray(p.ingredients) ? p.ingredients.join(', ') : (p.ingredients || ''),
       shelfLife: p.shelfLife || '12 Months from packaging date',
@@ -137,26 +140,31 @@ export const AdminProducts = () => {
       }
 
       try {
-        // Fast client-side HD compression (1200px max, converts 10MB phone photo to ~150KB)
-        const { file: compressedFile, dataUrl } = await compressImageFile(file);
+        // Fast client-side HD compression (converts phone photo to lightweight ~80KB high-res image)
+        const { file: compressedFile, dataUrl } = await compressImageFile(file, 900, 0.78);
 
         let uploadedUrl = null;
         try {
           const uploadData = new FormData();
           uploadData.append('image', compressedFile);
           const res = await productAPI.uploadImage(uploadData);
-          if (res.url) {
+          // Only trust uploaded URL if it is a persistent cloud storage CDN or persistent Data URL.
+          // Never use ephemeral /uploads/ paths that get wiped on server reboot!
+          if (res?.url && (res.url.startsWith('https://res.cloudinary.com') || res.url.startsWith('data:image/'))) {
             uploadedUrl = res.url;
           }
         } catch (uploadErr) {
-          console.warn('Backend upload notice, using optimized DataURL fallback:', uploadErr.message);
+          console.warn('Backend upload notice, using persistent DataURL fallback:', uploadErr.message);
         }
 
         const finalImgUrl = uploadedUrl || dataUrl;
         if (finalImgUrl) {
           setFormData(prev => ({
             ...prev,
-            images: [...prev.images.filter(img => img !== DEFAULT_IMAGE), finalImgUrl]
+            images: [
+              ...prev.images.filter(img => img !== DEFAULT_IMAGE && !img.includes(MASALA_IMAGE_SNIPPET)),
+              finalImgUrl
+            ]
           }));
         }
       } catch (err) {
@@ -172,20 +180,20 @@ export const AdminProducts = () => {
     if (!urlInput.trim()) return;
     setFormData(prev => ({
       ...prev,
-      images: [...prev.images.filter(img => img !== DEFAULT_IMAGE), urlInput.trim()]
+      images: [
+        ...prev.images.filter(img => img !== DEFAULT_IMAGE && !img.includes(MASALA_IMAGE_SNIPPET)),
+        urlInput.trim()
+      ]
     }));
     setUrlInput('');
     setShowUrlInput(false);
   };
 
   const handleRemoveImage = (indexToRemove) => {
-    setFormData(prev => {
-      const updated = prev.images.filter((_, idx) => idx !== indexToRemove);
-      return {
-        ...prev,
-        images: updated.length > 0 ? updated : [DEFAULT_IMAGE]
-      };
-    });
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, idx) => idx !== indexToRemove)
+    }));
   };
 
   const handleMakePrimary = (index) => {
@@ -251,8 +259,11 @@ export const AdminProducts = () => {
       return;
     }
 
-    const finalImages = formData.images && formData.images.length > 0
-      ? formData.images
+    const cleanImages = (formData.images || [])
+      .filter(img => img && !img.includes(MASALA_IMAGE_SNIPPET));
+
+    const finalImages = cleanImages.length > 0
+      ? cleanImages
       : [DEFAULT_IMAGE];
 
     const payload = {
@@ -434,7 +445,7 @@ export const AdminProducts = () => {
               ) : (
                 filteredProducts.map((p) => {
                   const totalStock = p.variants?.reduce((sum, v) => sum + (v.stockCount || 0), 0) || 0;
-                  const primaryImg = p.images?.[0] || DEFAULT_IMAGE;
+                  const primaryImg = (p.images && p.images.find(img => img && !img.includes(MASALA_IMAGE_SNIPPET))) || DEFAULT_IMAGE;
                   
                   return (
                     <tr key={p._id || p.slug} className="hover:bg-amber-50/30 transition-colors">
@@ -443,7 +454,11 @@ export const AdminProducts = () => {
                           <img
                             src={resolveProductImage(primaryImg, DEFAULT_IMAGE)}
                             alt={p.name}
-                            onError={(e) => { e.target.src = DEFAULT_IMAGE; }}
+                            onError={(e) => {
+                              if (e.target.src !== DEFAULT_IMAGE) {
+                                e.target.src = DEFAULT_IMAGE;
+                              }
+                            }}
                             className="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0 bg-gray-100 shadow-xs"
                           />
                           <div>

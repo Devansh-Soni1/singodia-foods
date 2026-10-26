@@ -372,7 +372,7 @@ export const createProduct = async (req, res, next) => {
       productData.fullDescription = productData.shortDescription;
     }
     if (!productData.images || productData.images.length === 0) {
-      productData.images = ['https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80'];
+      productData.images = ['https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80'];
     }
     if (!productData.spiceLevel) productData.spiceLevel = 'Medium';
     if (!productData.shelfLife) productData.shelfLife = '12 Months from packaging date';

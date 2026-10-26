@@ -66,17 +66,42 @@ router.post('/', (req, res) => {
       }
     }
 
-    // 3. Absolute URL fallback so uploading NEVER breaks across domains
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
-    const host = req.headers['x-forwarded-host'] || req.get('host');
-    const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
-    const urls = req.files.map(f => `${baseUrl}/uploads/${f.filename}`);
-    res.json({
-      success: true,
-      message: 'Image uploaded successfully',
-      url: urls[0],
-      urls
-    });
+    // 3. Permanent Data URI Fallback:
+    // Render and similar platforms have ephemeral disks that wipe /uploads/ on reboot.
+    // By returning base64 Data URIs when Cloudinary isn't available, images are saved
+    // directly inside MongoDB Atlas and will NEVER disappear or 404!
+    try {
+      const urls = req.files.map(f => {
+        try {
+          const fileData = fs.readFileSync(f.path);
+          const mime = f.mimetype || 'image/jpeg';
+          return `data:${mime};base64,${fileData.toString('base64')}`;
+        } catch {
+          const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+          const host = req.headers['x-forwarded-host'] || req.get('host');
+          const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
+          return `${baseUrl}/uploads/${f.filename}`;
+        }
+      });
+
+      return res.json({
+        success: true,
+        message: 'Image uploaded and encoded permanently',
+        url: urls[0],
+        urls
+      });
+    } catch (fallbackErr) {
+      const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+      const host = req.headers['x-forwarded-host'] || req.get('host');
+      const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
+      const urls = req.files.map(f => `${baseUrl}/uploads/${f.filename}`);
+      return res.json({
+        success: true,
+        message: 'Image uploaded successfully',
+        url: urls[0],
+        urls
+      });
+    }
   });
 });
 
