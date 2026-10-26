@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { X, Check, ShoppingBag, Heart, ArrowRight } from 'lucide-react';
 import { formatPrice, calculateDiscount } from '../../utils/formatCurrency';
-import { SpiceMeter } from '../common/SpiceMeter';
 import { StarRating } from '../common/StarRating';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -77,7 +76,6 @@ export const QuickViewModal = ({ product, isOpen, onClose }) => {
           <div className="p-6 md:p-8 flex flex-col justify-between space-y-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <SpiceMeter level={product.spiceLevel} size="sm" />
                 <StarRating rating={product.rating || 4.8} reviewCount={product.numReviews} size="sm" />
               </div>
 

@@ -41,16 +41,17 @@ export const AdminProducts = () => {
     images: [],
     spiceLevel: 'Medium',
     ingredients: '',
-    shelfLife: '',
-    oilType: '',
-    pairWith: '',
+    shelfLife: '12 Months from packaging date',
+    oilType: 'Pure Kachi Ghani Mustard Oil (सरसों का तेल)',
+    pairWith: 'Aloo Paratha, Dal Rice, Khichdi',
     tags: '',
     isBestSeller: false,
     isFeatured: false,
     isNewArrival: false,
     isActive: true,
     variants: [
-      { weight: '', price: '', originalPrice: '', inStock: true, stockCount: '' }
+      { weight: '250g', price: 249, originalPrice: 299, inStock: true, stockCount: 50 },
+      { weight: '500g', price: 449, originalPrice: 520, inStock: true, stockCount: 50 }
     ]
   };
 
@@ -80,7 +81,11 @@ export const AdminProducts = () => {
       ...defaultFormData,
       category: categories[0]?.slug || 'mango-pickles',
       subCategory: '',
-      images: []
+      images: [],
+      variants: [
+        { weight: '250g', price: 249, originalPrice: 299, inStock: true, stockCount: 50 },
+        { weight: '500g', price: 449, originalPrice: 520, inStock: true, stockCount: 50 }
+      ]
     });
     setUploadError('');
     setShowUrlInput(false);
@@ -192,9 +197,21 @@ export const AdminProducts = () => {
     });
   };
 
-  // Variant operations
+  // Preset weights for 1-click addition without blank inputs
+  const PRESET_OPTIONS = [
+    { weight: '250g', price: 249, originalPrice: 299 },
+    { weight: '500g', price: 449, originalPrice: 520 },
+    { weight: '1kg', price: 799, originalPrice: 950 },
+    { weight: '2kg', price: 1499, originalPrice: 1750 },
+    { weight: 'Combo Pack', price: 699, originalPrice: 850 }
+  ];
+
   const addQuickVariant = (weight, price, originalPrice) => {
-    if (formData.variants.some(v => v.weight === weight)) return;
+    const existingIndex = formData.variants.findIndex(v => v.weight.toLowerCase() === weight.toLowerCase());
+    if (existingIndex >= 0) {
+      alert(`${weight} already added in variants!`);
+      return;
+    }
     setFormData(prev => ({
       ...prev,
       variants: [...prev.variants, { weight, price, originalPrice, inStock: true, stockCount: 50 }]
@@ -270,6 +287,25 @@ export const AdminProducts = () => {
       console.error('Submit product error:', err);
       const errMsg = err.response?.data?.message || err.message || 'Operation failed';
       alert('Upload failed: ' + errMsg);
+    }
+  };
+
+  const handleToggleFeatured = async (product) => {
+    const willBeFeatured = !product.isFeatured;
+    if (willBeFeatured) {
+      const currentFeaturedCount = products.filter(p => p.isFeatured && p._id !== product._id).length;
+      if (currentFeaturedCount >= 4) {
+        alert('Home page par sirf 4 hi products add ho sakte hain! Kripya pehle kisi doosre product ko uncheck karein.');
+        return;
+      }
+    }
+
+    try {
+      await productAPI.updateProduct(product._id, { isFeatured: willBeFeatured });
+      setProducts(prev => prev.map(p => p._id === product._id ? { ...p, isFeatured: willBeFeatured } : p));
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update featured status: ' + (err?.message || 'Server error'));
     }
   };
 
@@ -373,7 +409,7 @@ export const AdminProducts = () => {
               <tr>
                 <th className="p-4">Pickle & Photo</th>
                 <th className="p-4">Category</th>
-                <th className="p-4">Spice Level</th>
+                <th className="p-4">Homepage (Max 4)</th>
                 <th className="p-4">Weights & Prices</th>
                 <th className="p-4">Stock</th>
                 <th className="p-4">Status</th>
@@ -447,15 +483,18 @@ export const AdminProducts = () => {
                       </td>
 
                       <td className="p-4">
-                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border ${
-                          p.spiceLevel === 'Extra Spicy' 
-                            ? 'bg-red-50 text-red-700 border-red-200' 
-                            : p.spiceLevel === 'Spicy' 
-                            ? 'bg-amber-50 text-amber-800 border-amber-200' 
-                            : 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                        }`}>
-                          {p.spiceLevel || 'Medium'}
-                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleFeatured(p)}
+                          className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border flex items-center gap-1.5 transition-all cursor-pointer ${
+                            p.isFeatured
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-2xs hover:bg-emerald-100'
+                              : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
+                          }`}
+                          title={p.isFeatured ? 'Featured on Homepage (Click to remove)' : 'Click to feature on Homepage'}
+                        >
+                          <span>{p.isFeatured ? '🏠 Featured (Live)' : '+ Add to Home'}</span>
+                        </button>
                       </td>
 
                       <td className="p-4">
@@ -721,33 +760,18 @@ export const AdminProducts = () => {
                 </div>
               </div>
 
-              {/* CATEGORY & SPICE LEVEL */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="font-bold block mb-1 text-gray-800">Pickle Category (मुख्य कैटेगरी) *</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-brand-green text-xs font-medium"
-                  >
-                    {categories.map((c) => (
-                      <option key={c.slug} value={c.slug}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="font-bold block mb-1 text-gray-800">Spice Level (तीखापन) *</label>
-                  <select
-                    value={formData.spiceLevel}
-                    onChange={(e) => setFormData({ ...formData, spiceLevel: e.target.value })}
-                    className="w-full p-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-brand-green text-xs font-medium"
-                  >
-                    <option value="Mild">Mild (कम तीखा - 🌶️)</option>
-                    <option value="Medium">Medium (मध्यम तीखा - 🌶️🌶️)</option>
-                    <option value="Spicy">Spicy (तीखा - 🌶️🌶️🌶️)</option>
-                    <option value="Extra Spicy">Extra Spicy (बहुत तीखा - 🌶️🌶️🌶️🌶️)</option>
-                  </select>
-                </div>
+              {/* CATEGORY */}
+              <div>
+                <label className="font-bold block mb-1 text-gray-800">Pickle Category (मुख्य कैटेगरी) *</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full p-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-brand-green text-xs font-medium"
+                >
+                  {categories.map((c) => (
+                    <option key={c.slug} value={c.slug}>{c.name}</option>
+                  ))}
+                </select>
               </div>
 
               {/* TASTE & VARIETY SUB-CATEGORY */}
@@ -868,119 +892,140 @@ export const AdminProducts = () => {
               </div>
 
               {/* WEIGHT & PRICE VARIANTS */}
-              <div className="bg-gray-50 p-4 sm:p-5 rounded-2xl border border-gray-200">
+              <div className="bg-amber-50/40 p-4 sm:p-5 rounded-2xl border border-amber-200">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                   <div>
                     <label className="font-bold text-gray-900 text-sm block">
                       Weight & Price Variants (वज़न और कीमतें) *
                     </label>
                     <p className="text-[11px] text-gray-500">
-                      Specify available jar sizes (e.g. 250g, 500g, 1kg), selling prices, and MRP.
+                      Click below pills to instantly add standard sizes with ready-made prices (कोई ब्लैंक बॉक्स नहीं भरना पड़ेगा):
                     </p>
-                  </div>
-
-                  {/* Quick variant buttons */}
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[10px] text-gray-400 font-bold uppercase">Quick Add:</span>
-                    <button
-                      type="button"
-                      onClick={() => addQuickVariant('250g', 249, 299)}
-                      className="px-2 py-1 bg-white border border-gray-300 hover:border-brand-green text-gray-700 text-[10px] font-bold rounded-lg cursor-pointer"
-                    >
-                      + 250g
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => addQuickVariant('500g', 449, 520)}
-                      className="px-2 py-1 bg-white border border-gray-300 hover:border-brand-green text-gray-700 text-[10px] font-bold rounded-lg cursor-pointer"
-                    >
-                      + 500g
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => addQuickVariant('1kg', 799, 950)}
-                      className="px-2 py-1 bg-white border border-gray-300 hover:border-brand-green text-gray-700 text-[10px] font-bold rounded-lg cursor-pointer"
-                    >
-                      + 1kg
-                    </button>
-                    <button
-                      type="button"
-                      onClick={addCustomVariant}
-                      className="px-2 py-1 bg-brand-green/10 text-brand-green text-[10px] font-bold rounded-lg cursor-pointer hover:bg-brand-green/20"
-                    >
-                      + Custom
-                    </button>
                   </div>
                 </div>
 
-                <div className="space-y-2.5">
+                {/* Instant 1-Click Weight Preset Pills */}
+                <div className="flex flex-wrap items-center gap-2 mb-4 p-2.5 bg-white rounded-xl border border-amber-300 shadow-2xs">
+                  <span className="text-[11px] font-black text-amber-900 uppercase tracking-wide">
+                    1-Click Add:
+                  </span>
+                  {PRESET_OPTIONS.map((opt) => {
+                    const isAdded = formData.variants.some(v => (v.weight || '').toLowerCase() === opt.weight.toLowerCase());
+                    return (
+                      <button
+                        key={opt.weight}
+                        type="button"
+                        onClick={() => addQuickVariant(opt.weight, opt.price, opt.originalPrice)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 cursor-pointer ${
+                          isAdded
+                            ? 'bg-brand-green/10 text-brand-green border-brand-green ring-1 ring-brand-green/20'
+                            : 'bg-amber-50 hover:bg-amber-100 text-gray-800 border-amber-300 shadow-2xs hover:scale-105'
+                        }`}
+                      >
+                        <span className="font-black">{isAdded ? '✓' : '+'}</span>
+                        <span>{opt.weight}</span>
+                        <span className="text-[10px] text-gray-500 font-normal">({formatPrice(opt.price)})</span>
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    onClick={addCustomVariant}
+                    className="px-2.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[11px] font-bold rounded-xl border border-gray-300 cursor-pointer"
+                  >
+                    + Custom
+                  </button>
+                </div>
+
+                <div className="space-y-3">
                   {formData.variants.map((v, i) => (
-                    <div key={i} className="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-white p-2.5 rounded-xl border border-gray-200">
-                      <div className="w-28">
-                        <label className="text-[9px] font-bold text-gray-400 uppercase block mb-0.5">Weight</label>
-                        <input
-                          type="text"
-                          required
-                          placeholder="e.g. 250g"
-                          value={v.weight}
-                          onChange={(e) => updateVariant(i, 'weight', e.target.value)}
-                          className="w-full p-1.5 rounded-lg border border-gray-300 text-xs font-bold"
-                        />
-                      </div>
-
-                      <div className="w-28">
-                        <label className="text-[9px] font-bold text-gray-400 uppercase block mb-0.5">Price (₹)</label>
-                        <input
-                          type="number"
-                          required
-                          placeholder="249"
-                          value={v.price}
-                          onChange={(e) => updateVariant(i, 'price', Number(e.target.value))}
-                          className="w-full p-1.5 rounded-lg border border-gray-300 text-xs font-bold text-brand-green"
-                        />
-                      </div>
-
-                      <div className="w-28">
-                        <label className="text-[9px] font-bold text-gray-400 uppercase block mb-0.5">MRP / Original (₹)</label>
-                        <input
-                          type="number"
-                          placeholder="299"
-                          value={v.originalPrice || ''}
-                          onChange={(e) => updateVariant(i, 'originalPrice', Number(e.target.value))}
-                          className="w-full p-1.5 rounded-lg border border-gray-300 text-xs"
-                        />
-                      </div>
-
-                      <div className="w-24">
-                        <label className="text-[9px] font-bold text-gray-400 uppercase block mb-0.5">Stock Count</label>
-                        <input
-                          type="number"
-                          placeholder="50"
-                          value={v.stockCount}
-                          onChange={(e) => updateVariant(i, 'stockCount', Number(e.target.value))}
-                          className="w-full p-1.5 rounded-lg border border-gray-300 text-xs font-medium"
-                        />
-                      </div>
-
-                      <div className="flex items-center gap-2 sm:ml-auto pt-2 sm:pt-0">
-                        <label className="flex items-center gap-1.5 text-[11px] font-bold text-gray-600 cursor-pointer">
+                    <div key={i} className="bg-white p-3 rounded-xl border border-gray-200 shadow-2xs space-y-2">
+                      <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
+                        <div className="w-32">
+                          <label className="text-[10px] font-bold text-gray-500 uppercase block mb-0.5">Weight (वज़न)</label>
                           <input
-                            type="checkbox"
-                            checked={v.inStock !== false}
-                            onChange={(e) => updateVariant(i, 'inStock', e.target.checked)}
-                            className="rounded text-brand-green"
+                            type="text"
+                            required
+                            placeholder="e.g. 250g"
+                            value={v.weight}
+                            onChange={(e) => updateVariant(i, 'weight', e.target.value)}
+                            className="w-full p-2 rounded-lg border border-gray-300 text-xs font-bold text-gray-900"
                           />
-                          <span>In Stock</span>
-                        </label>
+                        </div>
 
-                        <button
-                          type="button"
-                          onClick={() => removeVariant(i)}
-                          className="p-1.5 text-gray-400 hover:text-chilli hover:bg-red-50 rounded-lg cursor-pointer"
-                          title="Remove variant"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="w-28">
+                          <label className="text-[10px] font-bold text-gray-500 uppercase block mb-0.5">Selling Price (₹)</label>
+                          <input
+                            type="number"
+                            required
+                            placeholder="249"
+                            value={v.price}
+                            onChange={(e) => updateVariant(i, 'price', Number(e.target.value))}
+                            className="w-full p-2 rounded-lg border border-gray-300 text-xs font-black text-brand-green"
+                          />
+                        </div>
+
+                        <div className="w-28">
+                          <label className="text-[10px] font-bold text-gray-500 uppercase block mb-0.5">MRP / Original (₹)</label>
+                          <input
+                            type="number"
+                            placeholder="299"
+                            value={v.originalPrice || ''}
+                            onChange={(e) => updateVariant(i, 'originalPrice', Number(e.target.value))}
+                            className="w-full p-2 rounded-lg border border-gray-300 text-xs text-gray-700"
+                          />
+                        </div>
+
+                        <div className="w-24">
+                          <label className="text-[10px] font-bold text-gray-500 uppercase block mb-0.5">Stock Count</label>
+                          <input
+                            type="number"
+                            placeholder="50"
+                            value={v.stockCount}
+                            onChange={(e) => updateVariant(i, 'stockCount', Number(e.target.value))}
+                            className="w-full p-2 rounded-lg border border-gray-300 text-xs font-medium"
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-3 sm:ml-auto pt-2 sm:pt-4">
+                          <label className="flex items-center gap-1.5 text-[11px] font-bold text-gray-700 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={v.inStock !== false}
+                              onChange={(e) => updateVariant(i, 'inStock', e.target.checked)}
+                              className="rounded text-brand-green"
+                            />
+                            <span>In Stock</span>
+                          </label>
+
+                          <button
+                            type="button"
+                            onClick={() => removeVariant(i)}
+                            className="p-1.5 text-gray-400 hover:text-chilli hover:bg-red-50 rounded-lg cursor-pointer transition-colors"
+                            title="Remove variant"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Quick weight selector chips for this row */}
+                      <div className="flex items-center gap-1 pt-1 border-t border-gray-100">
+                        <span className="text-[9px] text-gray-400 font-bold uppercase mr-1">Switch:</span>
+                        {['250g', '500g', '1kg', '2kg', 'Combo Pack'].map(w => (
+                          <button
+                            key={w}
+                            type="button"
+                            onClick={() => updateVariant(i, 'weight', w)}
+                            className={`text-[10px] px-2 py-0.5 rounded-md font-semibold transition-colors cursor-pointer ${
+                              v.weight === w
+                                ? 'bg-brand-green text-white font-bold'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                          >
+                            {w}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   ))}
@@ -1050,10 +1095,21 @@ export const AdminProducts = () => {
                   <input
                     type="checkbox"
                     checked={formData.isFeatured}
-                    onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const currentFeaturedCount = products.filter(
+                          p => p.isFeatured && (!editingProduct || (p._id !== editingProduct._id && p.slug !== editingProduct.slug))
+                        ).length;
+                        if (currentFeaturedCount >= 4) {
+                          alert('Home page par sirf 4 hi products add ho sakte hain! Kripya pehle kisi doosre product ko uncheck karein.');
+                          return;
+                        }
+                      }
+                      setFormData({ ...formData, isFeatured: e.target.checked });
+                    }}
                     className="rounded text-brand-green w-4 h-4"
                   />
-                  <span>🏠 Homepage</span>
+                  <span>🏠 Homepage (Max 4)</span>
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer font-bold text-gray-800">

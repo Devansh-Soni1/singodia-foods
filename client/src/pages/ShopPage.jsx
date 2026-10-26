@@ -37,7 +37,6 @@ export const ShopPage = () => {
 
   const rawSub = subCategorySlug || searchParams.get('subCategory') || searchParams.get('taste') || 'all';
   const subCategoryParam = rawSub ? rawSub.toLowerCase().replace(/\/$/, '') : 'all';
-  const spiceParam = searchParams.get('spice') || 'all';
   const sortParam = searchParams.get('sort') || 'popular';
   const searchParam = searchParams.get('q') || '';
   const bestsellersParam = searchParams.get('bestsellers') === 'true';
@@ -62,7 +61,6 @@ export const ShopPage = () => {
         const res = await productAPI.getProducts({
           category: categoryParam !== 'all' ? categoryParam : undefined,
           subCategory: subCategoryParam !== 'all' ? subCategoryParam : undefined,
-          spiceLevel: spiceParam !== 'all' ? spiceParam : undefined,
           sort: sortParam,
           search: searchParam,
           isBestSeller: bestsellersParam ? 'true' : undefined
@@ -106,7 +104,7 @@ export const ShopPage = () => {
       }
     };
     fetchFiltered();
-  }, [categoryParam, subCategoryParam, spiceParam, sortParam, searchParam, bestsellersParam, jainParam]);
+  }, [categoryParam, subCategoryParam, sortParam, searchParam, bestsellersParam, jainParam]);
 
   const updateFilter = (key, value) => {
     if (key === 'category') {
@@ -148,14 +146,6 @@ export const ShopPage = () => {
     navigate('/shop/');
     setSearchParams({});
   };
-
-  const spiceLevels = [
-    { id: 'all', label: 'All Spice Levels' },
-    { id: 'Mild', label: 'Mild Spice (कम तीखा)' },
-    { id: 'Medium', label: 'Medium Spice (मध्यम तीखा)' },
-    { id: 'Spicy', label: 'Spicy (तीखा)' },
-    { id: 'Extra Spicy', label: 'Teekha / Extra Spicy (बहुत तीखा)' },
-  ];
 
   return (
     <div className="py-8 sm:py-12 bg-[#FAF6EF] min-h-screen">
@@ -238,7 +228,7 @@ export const ShopPage = () => {
         </div>
 
         {/* Active Filter Pills */}
-        {(categoryParam !== 'all' || subCategoryParam !== 'all' || spiceParam !== 'all' || bestsellersParam || searchParam) && (
+        {(categoryParam !== 'all' || subCategoryParam !== 'all' || bestsellersParam || searchParam) && (
           <div className="flex flex-wrap items-center gap-2 mb-6">
             <span className="text-xs text-earth-brown font-semibold">Active Filters:</span>
             {categoryParam !== 'all' && (
@@ -251,12 +241,6 @@ export const ShopPage = () => {
               <span className="inline-flex items-center gap-1.5 text-xs bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1 rounded-full font-bold">
                 <span>Taste: {getTasteInfo(subCategoryParam)?.name || subCategoryParam} {getTasteInfo(subCategoryParam)?.icon}</span>
                 <X className="w-3 h-3 cursor-pointer hover:text-chilli" onClick={() => updateFilter('subCategory', 'all')} />
-              </span>
-            )}
-            {spiceParam !== 'all' && (
-              <span className="inline-flex items-center gap-1 text-xs bg-cream-200 text-charcoal px-3 py-1 rounded-full font-bold">
-                Spice: {spiceParam}
-                <X className="w-3 h-3 cursor-pointer hover:text-chilli" onClick={() => updateFilter('spice', 'all')} />
               </span>
             )}
             {bestsellersParam && (
@@ -359,31 +343,6 @@ export const ShopPage = () => {
                     </button>
                   );
                 })}
-              </div>
-            </div>
-
-            {/* Spice Level Filter */}
-            <div className="bg-white rounded-2xl p-5 border border-cream-200 shadow-card">
-              <h3 className="text-sm font-bold text-charcoal font-serif mb-3 pb-2 border-b border-cream-100 flex items-center justify-between">
-                <span>Spice Level (तीखापन)</span>
-                {spiceParam !== 'all' && (
-                  <button onClick={() => updateFilter('spice', 'all')} className="text-[11px] text-chilli font-semibold">
-                    Reset
-                  </button>
-                )}
-              </h3>
-              <div className="space-y-1.5">
-                {spiceLevels.map((lvl) => (
-                  <button
-                    key={lvl.id}
-                    onClick={() => updateFilter('spice', lvl.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                      spiceParam === lvl.id ? 'bg-brand-green text-white font-bold' : 'text-charcoal hover:bg-cream-100'
-                    }`}
-                  >
-                    {lvl.label}
-                  </button>
-                ))}
               </div>
             </div>
 

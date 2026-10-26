@@ -57,3 +57,4 @@ export const compressImageFile = (file, maxWidth = 1200, quality = 0.82) => {
     reader.readAsDataURL(file);
   });
 };
+

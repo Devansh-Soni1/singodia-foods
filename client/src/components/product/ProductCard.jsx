@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Heart, ShoppingBag, Eye, Check } from 'lucide-react';
+import { Star, Heart, ShoppingBag, Eye, Check, Plus, Minus } from 'lucide-react';
 import { formatPrice } from '../../utils/formatCurrency';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -10,18 +10,23 @@ import { resolveProductImage } from '../../utils/imageUtils';
 export const ProductCard = ({ product, onQuickView }) => {
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [isAdded, setIsAdded] = useState(false);
-  const { addToCart } = useCart();
+  const { addToCart, updateQuantity, cartItems } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const variant = product.variants?.[selectedVariantIndex] || { weight: '250g', price: 249, originalPrice: 299 };
   const inWishlist = isInWishlist(product._id || product.slug);
+
+  // Cart item matching
+  const currentCartItemId = `${product._id || product.slug}-${variant.weight}`;
+  const currentCartItem = cartItems?.find(item => item.cartItemId === currentCartItemId);
+  const currentQty = currentCartItem ? currentCartItem.quantity : 0;
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
     addToCart(product, variant, 1);
     setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 1500);
+    setTimeout(() => setIsAdded(false), 1200);
   };
 
   const handleWishlistToggle = (e) => {
@@ -36,20 +41,16 @@ export const ProductCard = ({ product, onQuickView }) => {
     if (onQuickView) onQuickView(product);
   };
 
-  // Extract / standardize the 3 yellow badge tags matching the FarmDidi screenshot
+  // Distinctive badges (oil and handmade purity - spice level removed as requested)
   const oilBadge = product.oilType?.toLowerCase().includes('sunflower')
     ? 'Sunflower Oil'
     : (product.oilType?.toLowerCase().includes('oil-free') ? 'Oil-Free' : 'Mustard Oil');
 
-  const spiceBadge = product.spiceLevel 
-    ? (product.spiceLevel.toLowerCase() === 'medium' ? 'Medium spicy' : product.spiceLevel)
-    : 'Medium spicy';
-
-  const thirdBadge = product.tags?.includes('Jain Friendly') 
+  const traditionBadge = product.tags?.includes('Jain Friendly') 
     ? 'Jain Friendly' 
-    : (product.tags?.includes('Sun-Cured') ? 'Sun-Cured' : 'Jain Friendly');
+    : (product.tags?.includes('Sun-Cured') ? 'Sun-Cured' : 'Handmade Batch');
 
-  const badges = [oilBadge, spiceBadge, thirdBadge];
+  const badges = [oilBadge, traditionBadge];
 
   // Dynamic subtle backdrop color splash for jars matching the card style
   const isRed = product.slug?.includes('red-chilli') || product.name?.toLowerCase().includes('red chilli') || product.name?.toLowerCase().includes('punjabi');
@@ -194,26 +195,60 @@ export const ProductCard = ({ product, onQuickView }) => {
               )}
             </div>
 
-            {/* Add to Cart Button */}
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              className={`py-1.5 px-3 rounded-xl font-bold text-xs tracking-wide transition-all duration-200 flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer ${
-                isAdded
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-[#F3A222] hover:bg-[#D97706] text-[#3E2305] hover:shadow-xs'
-              }`}
-            >
-              {isAdded ? (
-                <>
-                  <Check className="w-3.5 h-3.5" /> Added!
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="w-3.5 h-3.5" /> Add
-                </>
-              )}
-            </button>
+            {/* Add to Cart or Inline Quantity Controls */}
+            {currentQty > 0 ? (
+              <div className="flex items-center border border-amber-300 bg-amber-50/80 rounded-xl overflow-hidden shadow-2xs h-8">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    updateQuantity(currentCartItemId, currentQty - 1);
+                  }}
+                  className="px-2.5 h-full text-gray-800 hover:text-chilli hover:bg-amber-100 flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Decrease quantity"
+                  title="Kam karein"
+                >
+                  <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+                </button>
+                <span className="px-2 text-xs font-black text-gray-950 min-w-[22px] text-center select-none font-sans">
+                  {currentQty}
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    updateQuantity(currentCartItemId, currentQty + 1);
+                  }}
+                  className="px-2.5 h-full text-gray-800 hover:text-brand-green hover:bg-amber-100 flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Increase quantity"
+                  title="Badhayein"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className={`py-1.5 px-3 rounded-xl font-bold text-xs tracking-wide transition-all duration-200 flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer ${
+                  isAdded
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-[#F3A222] hover:bg-[#D97706] text-[#3E2305] hover:shadow-xs'
+                }`}
+              >
+                {isAdded ? (
+                  <>
+                    <Check className="w-3.5 h-3.5" /> Added!
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="w-3.5 h-3.5" /> Add
+                  </>
+                )}
+              </button>
+            )}
           </div>
 
         </div>
