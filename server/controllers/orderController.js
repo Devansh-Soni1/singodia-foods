@@ -4,6 +4,7 @@ import Razorpay from 'razorpay';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
+import { createShipmentOrder } from '../services/ithinkLogisticsService.js';
 
 // In-memory fallback for orders when Mongo is not connected
 let memoryOrders = [];
@@ -147,6 +148,28 @@ export const createOrder = async (req, res, next) => {
       memoryOrders.unshift(order);
     }
 
+    // Auto-create shipment with iThink Logistics for COD orders
+    if (order && paymentMethod === 'cod') {
+      try {
+        const shipRes = await createShipmentOrder(order);
+        if (shipRes?.success && shipRes.waybill) {
+          order.trackingNumber = shipRes.waybill;
+          order.carrier = shipRes.courierName || 'iThink Logistics Express';
+          order.shipping = {
+            carrier: shipRes.courierName || 'iThink Logistics Express',
+            trackingNumber: shipRes.waybill,
+            trackingUrl: `https://my.ithinklogistics.com/track/${shipRes.waybill}`,
+            dispatchedAt: new Date()
+          };
+          if (mongoose.connection.readyState === 1 && typeof order.save === 'function') {
+            await order.save();
+          }
+        }
+      } catch (shipErr) {
+        console.warn('Auto iThink COD shipment notice:', shipErr.message);
+      }
+    }
+
     res.status(201).json({
       success: true,
       message: 'Order created successfully',
@@ -194,6 +217,25 @@ export const verifyPayment = async (req, res, next) => {
         order.paymentStatus = 'completed';
         order.razorpayPaymentId = razorpayPaymentId;
         order.razorpaySignature = razorpaySignature;
+
+        // Auto-create shipment with iThink Logistics on verified payment
+        try {
+          const shipRes = await createShipmentOrder(order);
+          if (shipRes?.success && shipRes.waybill) {
+            order.trackingNumber = shipRes.waybill;
+            order.carrier = shipRes.courierName || 'iThink Logistics Express';
+            order.orderStatus = 'Dispatched';
+            order.shipping = {
+              carrier: shipRes.courierName || 'iThink Logistics Express',
+              trackingNumber: shipRes.waybill,
+              trackingUrl: `https://my.ithinklogistics.com/track/${shipRes.waybill}`,
+              dispatchedAt: new Date()
+            };
+          }
+        } catch (shipErr) {
+          console.warn('Auto iThink online shipment notice:', shipErr.message);
+        }
+
         await order.save();
       }
     } else {

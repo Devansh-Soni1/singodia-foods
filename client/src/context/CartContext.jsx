@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { couponAPI } from '../services/api';
+import { couponAPI, adminAPI } from '../services/api';
 import { resolveProductImage } from '../utils/imageUtils';
 
 const CartContext = createContext(null);
@@ -26,9 +26,30 @@ export const CartProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
-  // Free shipping threshold settings
-  const freeShippingThreshold = 499;
-  const standardShippingFee = 60;
+  // Dynamic shipping settings from admin configuration
+  const [storeSettings, setStoreSettings] = useState({
+    freeShippingEnabled: false,
+    freeShippingThreshold: 499,
+    standardShippingFee: 60
+  });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await adminAPI.getSettings();
+        if (res?.settings) {
+          setStoreSettings({
+            freeShippingEnabled: res.settings.freeShippingEnabled === true,
+            freeShippingThreshold: Number(res.settings.freeShippingThreshold) || 499,
+            standardShippingFee: Number(res.settings.standardShippingFee) || 60
+          });
+        }
+      } catch (err) {
+        // Fallback default
+      }
+    };
+    fetchSettings();
+  }, []);
 
   // Save cart to localStorage
   useEffect(() => {
@@ -149,9 +170,10 @@ export const CartProvider = ({ children }) => {
     discountAmount = Math.min(discountAmount, subtotal);
   }
 
-  const shippingFee = (subtotal >= freeShippingThreshold || subtotal === 0) ? 0 : standardShippingFee;
-  const remainingForFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
-  const freeShippingProgress = Math.min(100, (subtotal / freeShippingThreshold) * 100);
+  const isFreeShipping = storeSettings.freeShippingEnabled && (subtotal >= storeSettings.freeShippingThreshold);
+  const shippingFee = (subtotal === 0 || isFreeShipping) ? 0 : storeSettings.standardShippingFee;
+  const remainingForFreeShipping = storeSettings.freeShippingEnabled ? Math.max(0, storeSettings.freeShippingThreshold - subtotal) : 0;
+  const freeShippingProgress = storeSettings.freeShippingEnabled ? Math.min(100, (subtotal / storeSettings.freeShippingThreshold) * 100) : 0;
   const finalTotal = Math.max(0, subtotal - discountAmount + shippingFee);
 
   const value = {
@@ -161,7 +183,8 @@ export const CartProvider = ({ children }) => {
     discountAmount,
     appliedCoupon,
     shippingFee,
-    freeShippingThreshold,
+    freeShippingThreshold: storeSettings.freeShippingThreshold,
+    freeShippingEnabled: storeSettings.freeShippingEnabled,
     remainingForFreeShipping,
     freeShippingProgress,
     finalTotal,

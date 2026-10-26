@@ -7,13 +7,15 @@ import { adminAPI, productAPI } from '../../services/api';
 
 export const AdminSettings = () => {
   const [settings, setSettings] = useState({
+    freeShippingEnabled: false,
     freeShippingThreshold: 499,
     standardShippingFee: 60,
     codEnabled: true,
-    announcementText: '🌶️ Traditional Rajasthani Handcrafted Pickles • FREE Delivery on orders above ₹499! • Use Code: DESI10 for 10% OFF',
+    announcementEnabled: true,
+    announcementText: '',
     whatsappNumber: '919782983909',
     supportPhone: '+91 97829 83909',
-    supportEmail: 'premsingodiya861@gmail.com',
+    supportEmail: 'singodia.bajranglal9@gmail.com',
     heroBannerImage: '/hero-banner.png'
   });
   const [saved, setSaved] = useState(false);
@@ -175,21 +177,75 @@ export const AdminSettings = () => {
           </div>
         </div>
 
-        {/* Shipping & COD */}
+        {/* Announcement & Offers Bar Settings */}
+        <div className="bg-amber-50/50 p-5 rounded-2xl border border-amber-200/80 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-amber-200/60">
+            <div>
+              <h3 className="font-bold text-sm text-gray-900 font-serif flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-600" />
+                <span>Top Bar Offers & Announcement Marquee (ऑफ़र और घोषणा पट्टी)</span>
+              </h3>
+              <p className="text-[11px] text-gray-500 mt-0.5">
+                Aap apne hisab se koi bhi offer ya announcement likh sakte hain. Agar khali chhodenge to normal brand slogans slide honge.
+              </p>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer font-bold text-xs text-gray-800">
+              <input
+                type="checkbox"
+                checked={settings.announcementEnabled !== false}
+                onChange={(e) => setSettings({ ...settings, announcementEnabled: e.target.checked })}
+                className="rounded text-brand-green w-4 h-4"
+              />
+              <span>Bar Visible</span>
+            </label>
+          </div>
+
+          <div>
+            <label className="font-bold block mb-1 text-gray-800">
+              Custom Offer / Announcement Text (e.g. "Diwali Special: Use Code DESI10 for 10% OFF")
+            </label>
+            <input
+              type="text"
+              placeholder="Leave empty for traditional handcrafted pickles tagline..."
+              value={settings.announcementText || ''}
+              onChange={(e) => setSettings({ ...settings, announcementText: e.target.value })}
+              className="w-full p-2.5 rounded-xl border border-gray-300 bg-white text-xs"
+            />
+          </div>
+        </div>
+
+        {/* Shipping & Delivery Rules */}
         <div>
           <h3 className="font-bold text-sm text-gray-900 font-serif pb-2 border-b border-gray-100 mb-4 flex items-center gap-2">
-            <Truck className="w-4 h-4 text-brand-green" /> Shipping & Delivery Rules
+            <Truck className="w-4 h-4 text-brand-green" /> Shipping & Delivery Rules (डिलीवरी नियम)
           </h3>
+
+          <div className="mb-4">
+            <label className="flex items-center gap-2 cursor-pointer font-bold text-xs text-gray-800">
+              <input
+                type="checkbox"
+                checked={settings.freeShippingEnabled === true}
+                onChange={(e) => setSettings({ ...settings, freeShippingEnabled: e.target.checked })}
+                className="rounded text-brand-green w-4 h-4"
+              />
+              <span>Offer Free Delivery to Customers (फ्री डिलीवरी ऑन/ऑफ़)</span>
+            </label>
+            <span className="text-[10px] text-gray-500 mt-0.5 block pl-6">
+              Agar uncheck karenge to sabhi orders par standard delivery charge lagega.
+            </span>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="font-bold block mb-1">Free Shipping Order Threshold (₹)</label>
               <input
                 type="number"
+                disabled={!settings.freeShippingEnabled}
                 value={settings.freeShippingThreshold}
                 onChange={(e) => setSettings({ ...settings, freeShippingThreshold: Number(e.target.value) })}
-                className="w-full p-2.5 rounded-xl border border-gray-300 font-bold"
+                className={`w-full p-2.5 rounded-xl border border-gray-300 font-bold ${!settings.freeShippingEnabled ? 'bg-gray-100 opacity-60' : ''}`}
               />
-              <span className="text-[10px] text-gray-500 mt-0.5 block">Orders above this qualify for free Pan-India delivery</span>
+              <span className="text-[10px] text-gray-500 mt-0.5 block">Orders above this qualify for free delivery</span>
             </div>
             <div>
               <label className="font-bold block mb-1">Standard Shipping Fee (₹)</label>
@@ -199,7 +255,7 @@ export const AdminSettings = () => {
                 onChange={(e) => setSettings({ ...settings, standardShippingFee: Number(e.target.value) })}
                 className="w-full p-2.5 rounded-xl border border-gray-300 font-bold"
               />
-              <span className="text-[10px] text-gray-500 mt-0.5 block">Applied when order total is below threshold</span>
+              <span className="text-[10px] text-gray-500 mt-0.5 block">Standard shipping charge across India</span>
             </div>
           </div>
 
@@ -216,19 +272,34 @@ export const AdminSettings = () => {
           </div>
         </div>
 
-        {/* Header Announcement Bar */}
-        <div>
-          <h3 className="font-bold text-sm text-gray-900 font-serif pb-2 border-b border-gray-100 mb-4">
-            Homepage Announcement Message
-          </h3>
-          <div>
-            <label className="font-bold block mb-1">Top Bar Marquee Text</label>
-            <input
-              type="text"
-              value={settings.announcementText}
-              onChange={(e) => setSettings({ ...settings, announcementText: e.target.value })}
-              className="w-full p-2.5 rounded-xl border border-gray-300"
-            />
+        {/* Payment & Logistics Integration Overview */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 p-4 sm:p-5 rounded-2xl border border-gray-200">
+          <div className="p-3.5 bg-white rounded-xl border border-gray-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-bold text-gray-900 flex items-center gap-1.5">
+                💳 Razorpay Payments
+              </span>
+              <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
+                Connected
+              </span>
+            </div>
+            <p className="text-[11px] text-gray-500">
+              Online checkout enabled for UPI (Google Pay, PhonePe, Paytm), Debit/Credit Cards & NetBanking.
+            </p>
+          </div>
+
+          <div className="p-3.5 bg-white rounded-xl border border-gray-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-bold text-gray-900 flex items-center gap-1.5">
+                📦 iThink Logistics
+              </span>
+              <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
+                Connected
+              </span>
+            </div>
+            <p className="text-[11px] text-gray-500">
+              AWB generation & courier booking active. Pickup Warehouse: <strong>Sujangarh (331507)</strong>.
+            </p>
           </div>
         </div>
 

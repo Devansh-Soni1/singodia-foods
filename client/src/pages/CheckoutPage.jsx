@@ -25,7 +25,7 @@ export const CheckoutPage = () => {
     city: user?.addresses?.[0]?.city || '',
     state: user?.addresses?.[0]?.state || 'Rajasthan',
     pincode: user?.addresses?.[0]?.pincode || '',
-    paymentMethod: 'cod', // 'cod' or 'razorpay'
+    paymentMethod: 'razorpay', // 'razorpay' (default) or 'cod'
     customerNotes: ''
   });
 
@@ -384,10 +384,49 @@ export const CheckoutPage = () => {
                 </div>
 
                 <div className="space-y-3">
+                  {/* Razorpay Online Option (Default & Recommended) */}
+                  <label className={`p-4 rounded-2xl border-2 cursor-pointer flex items-start gap-3 transition-all ${
+                    formData.paymentMethod === 'razorpay'
+                      ? 'border-brand-green bg-cream-50/80 shadow-xs ring-1 ring-brand-green/20'
+                      : 'border-cream-200 hover:border-cream-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="razorpay"
+                      checked={formData.paymentMethod === 'razorpay'}
+                      onChange={handleChange}
+                      className="mt-1 text-brand-green focus:ring-brand-green"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold text-charcoal font-serif flex items-center gap-2">
+                          <span>Online Payment via Razorpay</span>
+                          <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                            Fast & Secure
+                          </span>
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <CreditCard className="w-4 h-4 text-brand-green" />
+                        </div>
+                      </div>
+                      <p className="text-xs text-earth-brown mt-1">
+                        Pay with <strong>UPI (GPay, PhonePe, Paytm)</strong>, Debit/Credit Cards, or Net Banking.
+                      </p>
+                      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-cream-200/60">
+                        <span className="text-[10px] text-gray-500 font-semibold">Supported:</span>
+                        <span className="text-[10px] font-bold text-gray-700 bg-white px-1.5 py-0.5 rounded border border-gray-200">Google Pay</span>
+                        <span className="text-[10px] font-bold text-gray-700 bg-white px-1.5 py-0.5 rounded border border-gray-200">PhonePe</span>
+                        <span className="text-[10px] font-bold text-gray-700 bg-white px-1.5 py-0.5 rounded border border-gray-200">Paytm UPI</span>
+                        <span className="text-[10px] font-bold text-gray-700 bg-white px-1.5 py-0.5 rounded border border-gray-200">Cards</span>
+                      </div>
+                    </div>
+                  </label>
+
                   {/* COD Option */}
                   <label className={`p-4 rounded-2xl border-2 cursor-pointer flex items-start gap-3 transition-all ${
                     formData.paymentMethod === 'cod'
-                      ? 'border-brand-green bg-cream-50/80'
+                      ? 'border-brand-green bg-cream-50/80 shadow-xs'
                       : 'border-cream-200 hover:border-cream-300'
                   }`}>
                     <input
@@ -403,43 +442,21 @@ export const CheckoutPage = () => {
                         <span className="text-sm font-bold text-charcoal font-serif">
                           Cash on Delivery (COD)
                         </span>
-                        <Banknote className="w-5 h-5 text-brand-green" />
+                        <Banknote className="w-5 h-5 text-gray-500" />
                       </div>
                       <p className="text-xs text-earth-brown mt-0.5">
-                        Pay with cash or UPI (QR code) at your doorstep when your pickle parcel arrives.
+                        Pay with cash or scan delivery partner's QR code when parcel arrives at your address.
                       </p>
                     </div>
                   </label>
+                </div>
 
-                  {/* Razorpay Online Option */}
-                  <label className={`p-4 rounded-2xl border-2 cursor-pointer flex items-start gap-3 transition-all ${
-                    formData.paymentMethod === 'razorpay'
-                      ? 'border-brand-green bg-cream-50/80'
-                      : 'border-cream-200 hover:border-cream-300'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="razorpay"
-                      checked={formData.paymentMethod === 'razorpay'}
-                      onChange={handleChange}
-                      className="mt-1 text-brand-green focus:ring-brand-green"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-bold text-charcoal font-serif">
-                          Online Payment (Razorpay Secured)
-                        </span>
-                        <CreditCard className="w-5 h-5 text-mustard" />
-                      </div>
-                      <p className="text-xs text-earth-brown mt-0.5">
-                        UPI (GPay, PhonePe, Paytm), Credit/Debit Cards, Net Banking & Wallets.
-                      </p>
-                      <span className="inline-block mt-1 text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-bold">
-                        ⚡ Recommended for Instant Dispatch
-                      </span>
-                    </div>
-                  </label>
+                {/* Logistics Info Note */}
+                <div className="p-3 bg-blue-50/70 border border-blue-200/80 rounded-2xl flex items-center gap-2.5 text-xs text-blue-900">
+                  <Truck className="w-4 h-4 text-[#002E6E] shrink-0" />
+                  <span>
+                    Your parcel will be carefully packed in bubble wrap and dispatched via <strong>iThink Logistics Express</strong>.
+                  </span>
                 </div>
               </div>
 

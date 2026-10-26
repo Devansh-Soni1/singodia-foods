@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Eye, Truck, CheckCircle2, Clock, X, Search } from 'lucide-react';
-import { orderAPI } from '../../services/api';
+import { ShoppingBag, Eye, Truck, CheckCircle2, Clock, X, Search, ExternalLink, Loader2, PackageCheck } from 'lucide-react';
+import { orderAPI, shippingAPI } from '../../services/api';
 import { formatPrice } from '../../utils/formatCurrency';
 
 export const AdminOrders = () => {
@@ -8,11 +8,12 @@ export const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [search, setSearch] = useState('');
+  const [dispatchingOrderId, setDispatchingOrderId] = useState(null);
 
   // Status update modal
   const [newStatus, setNewStatus] = useState('Placed');
   const [trackingNumber, setTrackingNumber] = useState('');
-  const [courierPartner, setCourierPartner] = useState('Delhivery');
+  const [courierPartner, setCourierPartner] = useState('iThink Logistics Express');
 
   useEffect(() => {
     fetchOrders();
@@ -35,11 +36,36 @@ export const AdminOrders = () => {
     }
   };
 
+  const handleShipWithIThink = async (ord) => {
+    if (!window.confirm(`Generate iThink Logistics shipment and AWB for Order #${ord.orderNumber}?`)) return;
+    setDispatchingOrderId(ord._id);
+    try {
+      const res = await shippingAPI.generateAWB(ord._id);
+      if (res.success) {
+        const waybill = res.waybill || res.trackingNumber;
+        const courier = res.courier || 'iThink Logistics Express';
+        alert(`Shipment successfully booked with iThink Logistics!\n\nAWB Tracking #: ${waybill}\nCourier Partner: ${courier}`);
+        setOrders(prev => prev.map(o => o._id === ord._id ? {
+          ...o,
+          orderStatus: 'Shipped',
+          trackingNumber: waybill,
+          courierPartner: courier
+        } : o));
+      } else {
+        alert('iThink Logistics notice: ' + (res.message || 'Unable to book shipment. Check pincode or credentials.'));
+      }
+    } catch (err) {
+      alert('iThink Logistics booking error: ' + (err.message || 'Server error'));
+    } finally {
+      setDispatchingOrderId(null);
+    }
+  };
+
   const openStatusModal = (ord) => {
     setSelectedOrder(ord);
     setNewStatus(ord.orderStatus || 'Placed');
     setTrackingNumber(ord.trackingNumber || '');
-    setCourierPartner(ord.courierPartner || 'Delhivery');
+    setCourierPartner(ord.courierPartner || 'iThink Logistics Express');
   };
 
   const handleUpdateStatus = async (e) => {
@@ -60,7 +86,6 @@ export const AdminOrders = () => {
       ));
       setSelectedOrder(null);
     } catch (err) {
-      // Local UI update
       setOrders(orders.map(o => 
         (o._id === selectedOrder._id || o.orderNumber === selectedOrder.orderNumber)
           ? { ...o, orderStatus: newStatus, trackingNumber, courierPartner }
@@ -161,12 +186,49 @@ export const AdminOrders = () => {
                       </span>
                     </td>
                     <td className="p-4 text-right">
-                      <button
-                        onClick={() => openStatusModal(ord)}
-                        className="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-brand-green hover:text-white font-bold text-[11px] transition-colors"
-                      >
-                        Update Status
-                      </button>
+                      {ord.trackingNumber ? (
+                        <div className="flex flex-col items-end gap-1">
+                          <a
+                            href={`https://my.ithinklogistics.com/track/${ord.trackingNumber}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10.5px] font-bold shadow-2xs transition-colors"
+                            title="Track live shipment on iThink Logistics"
+                          >
+                            <Truck className="w-3 h-3 text-emerald-600" />
+                            <span>AWB: {ord.trackingNumber}</span>
+                            <ExternalLink className="w-2.5 h-2.5 text-gray-500" />
+                          </a>
+                          <button
+                            onClick={() => openStatusModal(ord)}
+                            className="text-[10px] text-gray-400 hover:text-brand-green font-semibold underline cursor-pointer"
+                          >
+                            Edit Status
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => handleShipWithIThink(ord)}
+                            disabled={dispatchingOrderId === ord._id}
+                            className="px-3 py-1.5 rounded-xl bg-[#002E6E] hover:bg-[#001D47] text-white text-[11px] font-bold flex items-center gap-1.5 shadow-xs cursor-pointer transition-all disabled:opacity-50"
+                            title="Generate AWB tracking code directly via iThink Logistics"
+                          >
+                            {dispatchingOrderId === ord._id ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <Truck className="w-3 h-3 text-amber-400" />
+                            )}
+                            <span>Ship with iThink</span>
+                          </button>
+                          <button
+                            onClick={() => openStatusModal(ord)}
+                            className="px-2.5 py-1.5 rounded-xl border border-gray-200 hover:bg-gray-100 text-gray-700 font-semibold text-[11px] cursor-pointer"
+                          >
+                            Manual
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -205,8 +267,34 @@ export const AdminOrders = () => {
                 </select>
               </div>
 
+              {/* Quick Auto-AWB via iThink Logistics button */}
+              <div className="bg-blue-50/70 p-3 rounded-2xl border border-blue-200/80">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="font-bold text-gray-900 text-xs flex items-center gap-1.5">
+                    <Truck className="w-4 h-4 text-[#002E6E]" /> iThink Logistics Auto-Shipment
+                  </span>
+                  <span className="text-[10px] text-blue-700 font-bold bg-blue-100 px-2 py-0.5 rounded-full">
+                    Recommended
+                  </span>
+                </div>
+                <p className="text-[11px] text-gray-600 mb-2.5">
+                  1-click me iThink Logistics API se real AWB number aur courier generate karein.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleShipWithIThink(selectedOrder);
+                    setSelectedOrder(null);
+                  }}
+                  className="w-full py-2 bg-[#002E6E] hover:bg-[#001D47] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                >
+                  <PackageCheck className="w-4 h-4 text-amber-400" />
+                  <span>Generate AWB with iThink Logistics</span>
+                </button>
+              </div>
+
               <div>
-                <label className="font-bold block mb-1">Courier Partner</label>
+                <label className="font-bold block mb-1">Manual Courier Partner</label>
                 <input
                   type="text"
                   value={courierPartner}
