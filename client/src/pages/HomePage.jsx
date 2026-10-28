@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HeroBanner } from '../components/home/HeroBanner';
 import { BestSellersSection } from '../components/home/BestSellersSection';
+import { FeaturedTrialPackBanner } from '../components/home/FeaturedTrialPackBanner';
 import { TrustBadges } from '../components/common/TrustBadges';
 import { FaqSection } from '../components/home/FaqSection';
 import { QuickViewModal } from '../components/product/QuickViewModal';
@@ -46,6 +47,9 @@ export const HomePage = () => {
           onQuickView={(p) => setQuickViewProduct(p)}
         />
       )}
+
+      {/* Featured Dadi's Special Trial Pack Interactive Banner */}
+      <FeaturedTrialPackBanner />
 
       {/* FAQ Section */}
       <FaqSection />
