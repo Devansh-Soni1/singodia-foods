@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Settings, Save, Check, Truck, MessageCircle, AlertCircle, 
-  Image, Upload, RefreshCw, Sparkles 
+  Image, Upload, RefreshCw, Sparkles, Gift, Camera 
 } from 'lucide-react';
 import { adminAPI, productAPI } from '../../services/api';
+import { compressImageFile } from '../../utils/imageUtils';
+import { DEFAULT_TRIAL_ITEMS } from '../../components/home/FeaturedTrialPackBanner';
 
 export const AdminSettings = () => {
   const [settings, setSettings] = useState({
@@ -16,11 +18,18 @@ export const AdminSettings = () => {
     whatsappNumber: '919782983909',
     supportPhone: '+91 97829 83909',
     supportEmail: 'singodia.bajranglal9@gmail.com',
-    heroBannerImage: '/hero-banner.png'
+    heroBannerImage: '/hero-banner.png',
+    trialPackItems: DEFAULT_TRIAL_ITEMS,
+    trialPackPricing: {
+      4: { price: 499, originalPrice: 599, discountPercent: 17 },
+      6: { price: 599, originalPrice: 699, discountPercent: 14 },
+      8: { price: 699, originalPrice: 799, discountPercent: 13 }
+    }
   });
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [uploadingJarIndex, setUploadingJarIndex] = useState(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -30,7 +39,11 @@ export const AdminSettings = () => {
           setSettings(prev => ({ 
             ...prev, 
             ...res.settings,
-            heroBannerImage: res.settings.heroBannerImage || '/hero-banner.png'
+            heroBannerImage: res.settings.heroBannerImage || '/hero-banner.png',
+            trialPackItems: (Array.isArray(res.settings.trialPackItems) && res.settings.trialPackItems.length === 8) 
+              ? res.settings.trialPackItems 
+              : DEFAULT_TRIAL_ITEMS,
+            trialPackPricing: res.settings.trialPackPricing || prev.trialPackPricing
           }));
         }
       } catch (err) {
@@ -59,6 +72,57 @@ export const AdminSettings = () => {
     } finally {
       setUploadingBanner(false);
     }
+  };
+
+  const handleJarImageUpload = async (index, file) => {
+    if (!file) return;
+    setUploadingJarIndex(index);
+    try {
+      const { dataUrl } = await compressImageFile(file, 500, 0.8);
+      let finalUrl = dataUrl;
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await productAPI.uploadImage(formData);
+        if (res?.url && (res.url.startsWith('https://res.cloudinary.com') || res.url.startsWith('data:image/'))) {
+          finalUrl = res.url;
+        }
+      } catch (uploadErr) {
+        console.warn('Using client dataUrl for jar:', uploadErr.message);
+      }
+
+      setSettings(prev => {
+        const items = [...(prev.trialPackItems || DEFAULT_TRIAL_ITEMS)];
+        items[index] = { ...items[index], image: finalUrl };
+        return { ...prev, trialPackItems: items };
+      });
+    } catch (err) {
+      alert('Jar image upload failed: ' + err.message);
+    } finally {
+      setUploadingJarIndex(null);
+    }
+  };
+
+  const handleJarFieldChange = (index, field, value) => {
+    setSettings(prev => {
+      const items = [...(prev.trialPackItems || DEFAULT_TRIAL_ITEMS)];
+      items[index] = { ...items[index], [field]: value };
+      return { ...prev, trialPackItems: items };
+    });
+  };
+
+  const handlePricingChange = (size, field, val) => {
+    setSettings(prev => {
+      const pricing = { ...prev.trialPackPricing };
+      pricing[size] = { ...pricing[size], [field]: Number(val) };
+      // auto calculate % off
+      if (pricing[size].originalPrice > 0 && pricing[size].price > 0) {
+        pricing[size].discountPercent = Math.round(
+          ((pricing[size].originalPrice - pricing[size].price) / pricing[size].originalPrice) * 100
+        );
+      }
+      return { ...prev, trialPackPricing: pricing };
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -211,6 +275,130 @@ export const AdminSettings = () => {
               onChange={(e) => setSettings({ ...settings, announcementText: e.target.value })}
               className="w-full p-2.5 rounded-xl border border-gray-300 bg-white text-xs"
             />
+          </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* DADI'S SPECIAL TRIAL PACK (8 BOXES / FLAVOURS & PRICING) */}
+        {/* ======================================================== */}
+        <div className="bg-gradient-to-br from-yellow-50 to-amber-50/70 p-5 sm:p-6 rounded-2xl border-2 border-amber-300 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-amber-200">
+            <div>
+              <h3 className="font-bold text-sm sm:text-base text-gray-900 font-serif flex items-center gap-2">
+                <Gift className="w-5 h-5 text-brand-green" />
+                <span>Dadi's Special Trial Pack (8 बॉक्स की फोटो और कीमतें)</span>
+              </h3>
+              <p className="text-[11px] text-gray-600 mt-0.5">
+                Homepage ke Trial Box me dikhne wale sabhi 8 achar ki photo aur naam aap yahan se change kar sakte hain.
+              </p>
+            </div>
+          </div>
+
+          {/* Pricing Controls: 4 Pack, 6 Pack, 8 Pack */}
+          <div className="bg-white p-4 rounded-xl border border-amber-200">
+            <h4 className="font-bold text-xs text-gray-900 mb-2">Trial Pack Pricing & Offers (कीमतें और छूट):</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[4, 6, 8].map((size) => {
+                const pInfo = settings.trialPackPricing?.[size] || { price: 0, originalPrice: 0, discountPercent: 0 };
+                return (
+                  <div key={size} className="p-3 bg-amber-50/50 rounded-xl border border-amber-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-gray-900">{size} Pack Trial Box</span>
+                      <span className="text-[10px] font-extrabold bg-[#D32F2F] text-white px-2 py-0.5 rounded-full">
+                        {pInfo.discountPercent}% OFF
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] text-gray-500 font-bold block">Selling Price (₹)</label>
+                        <input
+                          type="number"
+                          value={pInfo.price}
+                          onChange={(e) => handlePricingChange(size, 'price', e.target.value)}
+                          className="w-full p-1.5 rounded-lg border border-gray-300 font-black text-xs bg-white text-[#D32F2F]"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-gray-500 font-bold block">Original Price (₹)</label>
+                        <input
+                          type="number"
+                          value={pInfo.originalPrice}
+                          onChange={(e) => handlePricingChange(size, 'originalPrice', e.target.value)}
+                          className="w-full p-1.5 rounded-lg border border-gray-300 font-semibold text-xs bg-white text-gray-500 line-through"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 8 Jars Management Grid */}
+          <div>
+            <h4 className="font-bold text-xs text-gray-900 mb-2.5">
+              8 Pickle Jars / Boxes Customization (आठों अचार के फोटो व नाम):
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {(settings.trialPackItems || DEFAULT_TRIAL_ITEMS).map((jar, idx) => (
+                <div key={idx} className="bg-white p-3 rounded-xl border border-amber-200 shadow-xs flex flex-col justify-between space-y-2">
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative w-12 h-12 rounded-lg border border-gray-300 overflow-hidden shrink-0 bg-amber-50">
+                      <img 
+                        src={jar.image} 
+                        alt={jar.name} 
+                        className="w-full h-full object-cover" 
+                        onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=300&q=80'; }}
+                      />
+                      {uploadingJarIndex === idx && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-[9px] font-bold">
+                          ...
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[9px] font-black text-brand-green uppercase tracking-wider block">
+                        Flavour #{idx + 1}
+                      </span>
+                      <label className="cursor-pointer text-[10px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 mt-0.5">
+                        <Camera className="w-3 h-3" />
+                        <span>Change Photo</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleJarImageUpload(idx, e.target.files?.[0])}
+                          className="hidden"
+                          disabled={uploadingJarIndex === idx}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div>
+                      <label className="text-[9px] font-bold text-gray-500 block">Flavour Name</label>
+                      <input
+                        type="text"
+                        value={jar.name}
+                        onChange={(e) => handleJarFieldChange(idx, 'name', e.target.value)}
+                        className="w-full p-1.5 rounded-lg border border-gray-300 text-[11px] font-bold bg-white"
+                        placeholder="e.g. Kachi Keri Aam"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-bold text-gray-500 block">Taste / Tag</label>
+                      <input
+                        type="text"
+                        value={jar.taste || ''}
+                        onChange={(e) => handleJarFieldChange(idx, 'taste', e.target.value)}
+                        className="w-full p-1.5 rounded-lg border border-gray-300 text-[10px] bg-white"
+                        placeholder="e.g. Khatta, Spicy"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
