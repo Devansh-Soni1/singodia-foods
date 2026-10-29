@@ -26,6 +26,26 @@ export const CartProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
+  // Blinkit-style recent items tracker (max 2 items: when 3rd is added, 1st disappears)
+  const [recentItems, setRecentItems] = useState(() => {
+    try {
+      const saved = localStorage.getItem('singodhia_cart');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.slice(-2).map(item => ({
+            id: item.cartItemId,
+            name: item.name,
+            image: item.image
+          }));
+        }
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  });
+
   // Dynamic shipping settings from admin configuration
   const [storeSettings, setStoreSettings] = useState({
     freeShippingEnabled: false,
@@ -77,9 +97,10 @@ export const CartProvider = ({ children }) => {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const addToCart = (product, variant, quantity = 1) => {
+  const addToCart = (product, variant, quantity = 1, openDrawer = false) => {
     const selectedVariant = variant || product.variants?.[0] || { weight: '250g', price: 249 };
     const cartItemId = `${product._id || product.slug}-${selectedVariant.weight}`;
+    const itemImage = resolveProductImage(product.images?.[0] || product.image);
 
     setCartItems(prev => {
       const existing = prev.find(item => item.cartItemId === cartItemId);
@@ -98,7 +119,7 @@ export const CartProvider = ({ children }) => {
             name: product.name,
             hindiName: product.hindiName,
             slug: product.slug,
-            image: resolveProductImage(product.images?.[0]),
+            image: itemImage,
             weight: selectedVariant.weight,
             price: selectedVariant.price,
             originalPrice: selectedVariant.originalPrice || 0,
@@ -108,12 +129,40 @@ export const CartProvider = ({ children }) => {
       }
     });
 
+    // Blinkit-style recent item tracking:
+    // Exactly 2 recent photos shown. When 3rd item is added, 1st disappears!
+    const newItem = {
+      id: cartItemId,
+      name: product.name,
+      image: itemImage,
+      addedAt: Date.now()
+    };
+
+    setRecentItems(prev => {
+      const filtered = prev.filter(i => i.id !== newItem.id);
+      const updated = [...filtered, newItem];
+      return updated.slice(-2);
+    });
+
     showToast(`Added ${product.name} (${selectedVariant.weight}) to cart!`);
-    setIsCartOpen(true);
+    
+    // Only open the full drawer if explicitly requested (e.g. Buy Now button)
+    // Otherwise keep screen open so Blinkit floating bar appears seamlessly
+    if (openDrawer) {
+      setIsCartOpen(true);
+    }
   };
 
   const removeFromCart = (cartItemId) => {
-    setCartItems(prev => prev.filter(item => item.cartItemId !== cartItemId));
+    setCartItems(prev => {
+      const updated = prev.filter(item => item.cartItemId !== cartItemId);
+      if (updated.length === 0) {
+        setRecentItems([]);
+      } else {
+        setRecentItems(updated.slice(-2).map(i => ({ id: i.cartItemId, name: i.name, image: i.image })));
+      }
+      return updated;
+    });
   };
 
   const updateQuantity = (cartItemId, newQty) => {
@@ -130,6 +179,7 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => {
     setCartItems([]);
+    setRecentItems([]);
     setAppliedCoupon(null);
   };
 
@@ -192,6 +242,7 @@ export const CartProvider = ({ children }) => {
     setIsCartOpen,
     openCart: () => setIsCartOpen(true),
     closeCart: () => setIsCartOpen(false),
+    recentItems,
     addToCart,
     removeFromCart,
     updateQuantity,

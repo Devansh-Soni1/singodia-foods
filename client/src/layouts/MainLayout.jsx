@@ -7,6 +7,7 @@ import { Footer } from '../components/common/Footer';
 import { WhatsAppButton } from '../components/common/WhatsAppButton';
 import { CartDrawer } from '../components/common/CartDrawer';
 import { SearchModal } from '../components/common/SearchModal';
+import { BlinkitCartBar } from '../components/common/BlinkitCartBar';
 
 export const MainLayout = () => {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -34,6 +35,9 @@ export const MainLayout = () => {
       <CartDrawer />
       <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
       <WhatsAppButton phoneNumber="919782983909" />
+
+      {/* Blinkit-Style Floating Bottom Cart Bar */}
+      <BlinkitCartBar />
     </div>
   );
 };
