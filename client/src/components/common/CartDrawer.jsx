@@ -193,7 +193,7 @@ export const CartDrawer = () => {
                         <div className="flex items-center border border-gray-200 rounded-lg bg-gray-50/60 overflow-hidden">
                           <button
                             onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
-                            className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200/60 transition-colors cursor-pointer"
+                            className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200/60 transition-transform active:scale-75 cursor-pointer"
                             aria-label="Decrease quantity"
                           >
                             <Minus className="w-3 h-3 stroke-[2.5]" />
@@ -203,7 +203,7 @@ export const CartDrawer = () => {
                           </span>
                           <button
                             onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
-                            className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200/60 transition-colors cursor-pointer"
+                            className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200/60 transition-transform active:scale-75 cursor-pointer"
                             aria-label="Increase quantity"
                           >
                             <Plus className="w-3 h-3 stroke-[2.5]" />
@@ -363,12 +363,13 @@ export const CartDrawer = () => {
                 )}
               </div>
 
-              {/* Red Prominent "Buy Now" Button with Payment Badges */}
+              {/* Red Prominent "Buy Now" Button with Payment Badges and Micro-Interactions */}
               <button
                 onClick={handleCheckoutClick}
-                className="w-full bg-[#C00000] hover:bg-[#A50000] text-white rounded-2xl py-3 px-4 shadow-md hover:shadow-lg transition-all flex items-center justify-between group cursor-pointer"
+                className="relative overflow-hidden w-full bg-[#C00000] hover:bg-[#A50000] text-white rounded-2xl py-3 px-4 shadow-md hover:shadow-xl transition-all flex items-center justify-between group cursor-pointer active:scale-98"
               >
-                <span className="text-base sm:text-lg font-black tracking-wide font-sans">
+                <div className="absolute inset-0 w-24 h-full bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none animate-cart-shimmer" />
+                <span className="text-base sm:text-lg font-black tracking-wide font-sans relative z-10">
                   Buy Now
                 </span>
 
