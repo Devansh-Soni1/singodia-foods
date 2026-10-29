@@ -53,6 +53,33 @@ export const createOrder = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please provide complete delivery address' });
     }
 
+    // Strict stock verification before order placement
+    if (mongoose.connection.readyState === 1) {
+      for (const item of items) {
+        if (item.product && mongoose.Types.ObjectId.isValid(item.product)) {
+          const dbProduct = await Product.findById(item.product);
+          if (dbProduct && Array.isArray(dbProduct.variants)) {
+            const variant = dbProduct.variants.find(v => v.weight === item.weight) || dbProduct.variants[0];
+            if (variant) {
+              const availableStock = variant.stockCount !== undefined ? variant.stockCount : 50;
+              if (variant.inStock === false || availableStock <= 0) {
+                return res.status(400).json({
+                  success: false,
+                  message: `क्षमा करें, "${item.name} (${item.weight || ''})" फिलहाल आउट ऑफ स्टॉक (Out of Stock) है।`
+                });
+              }
+              if (item.quantity > availableStock) {
+                return res.status(400).json({
+                  success: false,
+                  message: `"${item.name} (${item.weight || ''})" का सिर्फ ${availableStock} यूनिट स्टॉक उपलब्ध है। कृपया कार्ट में संख्या घटाएं।`
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+
     const calculatedTotal = Math.max(0, Number(subtotal) - Number(discount) + Number(shippingFee));
     const orderNumber = generateOrderNumber();
 
@@ -143,6 +170,28 @@ export const createOrder = async (req, res, next) => {
     let order = null;
     if (mongoose.connection.readyState === 1) {
       order = await Order.create(orderData);
+
+      // Decrement stock in MongoDB for purchased items
+      try {
+        for (const item of items) {
+          if (item.product && mongoose.Types.ObjectId.isValid(item.product)) {
+            const dbProduct = await Product.findById(item.product);
+            if (dbProduct && Array.isArray(dbProduct.variants)) {
+              const variant = dbProduct.variants.find(v => v.weight === item.weight) || dbProduct.variants[0];
+              if (variant) {
+                const currentStock = variant.stockCount !== undefined ? variant.stockCount : 50;
+                variant.stockCount = Math.max(0, currentStock - item.quantity);
+                if (variant.stockCount <= 0) {
+                  variant.inStock = false;
+                }
+                await dbProduct.save();
+              }
+            }
+          }
+        }
+      } catch (stockErr) {
+        console.warn('Stock decrement notice:', stockErr.message);
+      }
     } else {
       order = { ...orderData, _id: new mongoose.Types.ObjectId() };
       memoryOrders.unshift(order);

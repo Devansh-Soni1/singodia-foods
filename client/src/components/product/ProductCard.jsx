@@ -16,6 +16,12 @@ export const ProductCard = ({ product, onQuickView }) => {
   const variant = product.variants?.[selectedVariantIndex] || { weight: '250g', price: 249, originalPrice: 299 };
   const inWishlist = isInWishlist(product._id || product.slug);
 
+  // Stock calculations
+  const maxStock = (variant?.stockCount !== undefined && variant?.stockCount !== null)
+    ? Number(variant.stockCount)
+    : 50;
+  const isOutOfStock = variant?.inStock === false || maxStock <= 0;
+
   // Cart item matching
   const currentCartItemId = `${product._id || product.slug}-${variant.weight}`;
   const currentCartItem = cartItems?.find(item => item.cartItemId === currentCartItemId);
@@ -24,6 +30,7 @@ export const ProductCard = ({ product, onQuickView }) => {
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isOutOfStock || currentQty >= maxStock) return;
     addToCart(product, variant, 1);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 1200);
@@ -195,8 +202,12 @@ export const ProductCard = ({ product, onQuickView }) => {
               )}
             </div>
 
-            {/* Add to Cart or Inline Quantity Controls */}
-            {currentQty > 0 ? (
+            {/* Add to Cart, Out of Stock, or Inline Quantity Controls */}
+            {isOutOfStock ? (
+              <span className="py-1 px-2.5 rounded-xl font-bold text-[10px] bg-gray-100 text-gray-400 border border-gray-200 select-none">
+                Out of Stock
+              </span>
+            ) : currentQty > 0 ? (
               <div className="flex items-center border border-amber-300 bg-amber-50/80 rounded-xl overflow-hidden shadow-2xs h-8">
                 <button
                   type="button"
@@ -219,11 +230,18 @@ export const ProductCard = ({ product, onQuickView }) => {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    updateQuantity(currentCartItemId, currentQty + 1);
+                    if (currentQty < maxStock) {
+                      updateQuantity(currentCartItemId, currentQty + 1);
+                    }
                   }}
-                  className="px-2.5 h-full text-gray-800 hover:text-brand-green hover:bg-amber-100 flex items-center justify-center transition-colors cursor-pointer"
+                  disabled={currentQty >= maxStock}
+                  className={`px-2.5 h-full flex items-center justify-center transition-colors ${
+                    currentQty >= maxStock
+                      ? 'opacity-30 cursor-not-allowed text-gray-400 bg-gray-100'
+                      : 'text-gray-800 hover:text-brand-green hover:bg-amber-100 cursor-pointer'
+                  }`}
                   aria-label="Increase quantity"
-                  title="Badhayein"
+                  title={currentQty >= maxStock ? `Stock limit reached (${maxStock})` : 'Badhayein'}
                 >
                   <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>

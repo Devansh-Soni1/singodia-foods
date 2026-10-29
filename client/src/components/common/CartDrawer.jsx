@@ -190,24 +190,39 @@ export const CartDrawer = () => {
                         </button>
 
                         {/* Inline Stepper: [-] qty [+] */}
-                        <div className="flex items-center border border-gray-200 rounded-lg bg-gray-50/60 overflow-hidden">
-                          <button
-                            onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
-                            className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200/60 transition-transform active:scale-75 cursor-pointer"
-                            aria-label="Decrease quantity"
-                          >
-                            <Minus className="w-3 h-3 stroke-[2.5]" />
-                          </button>
-                          <span className="px-2 text-xs font-bold text-gray-900 min-w-[20px] text-center select-none font-sans">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
-                            className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200/60 transition-transform active:scale-75 cursor-pointer"
-                            aria-label="Increase quantity"
-                          >
-                            <Plus className="w-3 h-3 stroke-[2.5]" />
-                          </button>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center border border-gray-200 rounded-lg bg-gray-50/60 overflow-hidden">
+                            <button
+                              onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                              className="px-2 py-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200/60 transition-transform active:scale-75 cursor-pointer"
+                              aria-label="Decrease quantity"
+                            >
+                              <Minus className="w-3 h-3 stroke-[2.5]" />
+                            </button>
+                            <span className="px-2 text-xs font-bold text-gray-900 min-w-[20px] text-center select-none font-sans">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                              disabled={item.stockCount !== undefined && item.quantity >= item.stockCount}
+                              className={`px-2 py-1 transition-transform ${
+                                item.stockCount !== undefined && item.quantity >= item.stockCount
+                                  ? 'opacity-30 cursor-not-allowed text-gray-400 bg-gray-100'
+                                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/60 active:scale-75 cursor-pointer'
+                              }`}
+                              aria-label="Increase quantity"
+                              title={item.stockCount !== undefined && item.quantity >= item.stockCount ? `Max stock (${item.stockCount}) reached` : 'Increase quantity'}
+                            >
+                              <Plus className="w-3 h-3 stroke-[2.5]" />
+                            </button>
+                          </div>
+
+                          {/* Max Stock Warning Pill */}
+                          {item.stockCount !== undefined && item.quantity >= item.stockCount && (
+                            <span className="text-[9px] font-black text-amber-800 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded-md leading-none">
+                              Max Stock ({item.stockCount})
+                            </span>
+                          )}
                         </div>
                       </div>
 

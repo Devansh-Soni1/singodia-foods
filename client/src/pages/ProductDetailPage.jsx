@@ -149,14 +149,22 @@ export const ProductDetailPage = () => {
   const discount = calculateDiscount(variant.price, variant.originalPrice);
   const inWishlist = isInWishlist(product._id || product.slug);
 
+  // Stock calculations
+  const maxAvailableStock = (variant?.stockCount !== undefined && variant?.stockCount !== null)
+    ? Number(variant.stockCount)
+    : 50;
+  const isOutOfStock = variant?.inStock === false || maxAvailableStock <= 0;
+
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     addToCart(product, variant, quantity);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
 
   const handleBuyNow = () => {
-    addToCart(product, variant, quantity);
+    if (isOutOfStock) return;
+    addToCart(product, variant, quantity, true);
     navigate('/checkout');
   };
 
@@ -317,6 +325,23 @@ export const ProductDetailPage = () => {
                   </div>
                 </div>
 
+                {/* Live Stock Indicator Badge */}
+                <div className="mb-4">
+                  {isOutOfStock ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-red-100 text-red-700 border border-red-200">
+                      ● Out of Stock (फिलहाल उपलब्ध नहीं है)
+                    </span>
+                  ) : maxAvailableStock <= 5 ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-800 border border-amber-300">
+                      ⚠️ Hurry! Only {maxAvailableStock} left in stock
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      ✓ In Stock ({maxAvailableStock} units available)
+                    </span>
+                  )}
+                </div>
+
                 {/* Quantity Controls */}
                 <div className="flex items-center gap-4 mb-6">
                   <span className="text-xs font-bold text-charcoal uppercase tracking-wider">
@@ -325,7 +350,8 @@ export const ProductDetailPage = () => {
                   <div className="flex items-center border border-cream-300 rounded-xl bg-cream-50">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-3 py-1.5 text-charcoal hover:text-brand-green font-bold text-sm"
+                      disabled={isOutOfStock || quantity <= 1}
+                      className="px-3 py-1.5 text-charcoal hover:text-brand-green font-bold text-sm disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                     >
                       -
                     </button>
@@ -333,8 +359,14 @@ export const ProductDetailPage = () => {
                       {quantity}
                     </span>
                     <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="px-3 py-1.5 text-charcoal hover:text-brand-green font-bold text-sm"
+                      onClick={() => setQuantity(Math.min(maxAvailableStock, quantity + 1))}
+                      disabled={isOutOfStock || quantity >= maxAvailableStock}
+                      className={`px-3 py-1.5 font-bold text-sm ${
+                        isOutOfStock || quantity >= maxAvailableStock
+                          ? 'opacity-30 cursor-not-allowed text-gray-400'
+                          : 'text-charcoal hover:text-brand-green cursor-pointer'
+                      }`}
+                      title={quantity >= maxAvailableStock ? `Max stock (${maxAvailableStock}) reached` : 'Increase'}
                     >
                       +
                     </button>
@@ -345,13 +377,18 @@ export const ProductDetailPage = () => {
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <button
                     onClick={handleAddToCart}
+                    disabled={isOutOfStock}
                     className={`flex-1 py-4 px-6 rounded-xl font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm ${
-                      isAdded
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-mustard hover:bg-mustard-dark text-brand-green-dark hover:shadow-md'
+                      isOutOfStock
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : isAdded
+                          ? 'bg-emerald-600 text-white cursor-pointer'
+                          : 'bg-mustard hover:bg-mustard-dark text-brand-green-dark hover:shadow-md cursor-pointer'
                     }`}
                   >
-                    {isAdded ? (
+                    {isOutOfStock ? (
+                      'Out of Stock'
+                    ) : isAdded ? (
                       <>
                         <Check className="w-5 h-5" /> Added to Cart!
                       </>
@@ -364,9 +401,14 @@ export const ProductDetailPage = () => {
 
                   <button
                     onClick={handleBuyNow}
-                    className="flex-1 py-4 px-6 rounded-xl bg-brand-green hover:bg-brand-green-light text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2"
+                    disabled={isOutOfStock}
+                    className={`flex-1 py-4 px-6 rounded-xl font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 ${
+                      isOutOfStock
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-brand-green hover:bg-brand-green-light text-white cursor-pointer'
+                    }`}
                   >
-                    Buy Now
+                    {isOutOfStock ? 'Unavailable' : 'Buy Now'}
                   </button>
 
                   <button

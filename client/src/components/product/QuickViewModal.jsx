@@ -22,7 +22,13 @@ export const QuickViewModal = ({ product, isOpen, onClose }) => {
   const discount = calculateDiscount(variant.price, variant.originalPrice);
   const inWishlist = isInWishlist(product._id || product.slug);
 
+  const maxStock = (variant?.stockCount !== undefined && variant?.stockCount !== null)
+    ? Number(variant.stockCount)
+    : 50;
+  const isOutOfStock = variant?.inStock === false || maxStock <= 0;
+
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     addToCart(product, variant, quantity);
     setIsAdded(true);
     setTimeout(() => {
@@ -160,13 +166,18 @@ export const QuickViewModal = ({ product, isOpen, onClose }) => {
               <div className="flex gap-3">
                 <button
                   onClick={handleAddToCart}
+                  disabled={isOutOfStock}
                   className={`flex-1 py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
-                    isAdded
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-mustard hover:bg-mustard-dark text-brand-green-dark shadow-sm'
+                    isOutOfStock
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : isAdded
+                        ? 'bg-emerald-600 text-white cursor-pointer'
+                        : 'bg-mustard hover:bg-mustard-dark text-brand-green-dark shadow-sm cursor-pointer'
                   }`}
                 >
-                  {isAdded ? (
+                  {isOutOfStock ? (
+                    'Out of Stock'
+                  ) : isAdded ? (
                     <>
                       <Check className="w-4 h-4" /> Added to Cart!
                     </>

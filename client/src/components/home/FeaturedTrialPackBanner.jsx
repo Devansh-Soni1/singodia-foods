@@ -27,11 +27,11 @@ export const FeaturedTrialPackBanner = () => {
   // Dynamic pricing from state or admin settings:
   // 4 pack: 599 -> 499 (17% off)
   // 6 pack: 699 -> 599 (14% off)
-  // 8 pack: 799 -> 699 (13% off)
+  // 8 pack: 799 -> 699 (10% off as requested)
   const [pricing, setPricing] = useState({
     4: { originalPrice: 599, price: 499, discountPercent: 17 },
     6: { originalPrice: 699, price: 599, discountPercent: 14 },
-    8: { originalPrice: 799, price: 699, discountPercent: 13 }
+    8: { originalPrice: 799, price: 699, discountPercent: 10 }
   });
 
   // Micro-interaction animation state
@@ -93,12 +93,17 @@ export const FeaturedTrialPackBanner = () => {
       const btnRect = event.currentTarget.getBoundingClientRect();
       const boxRect = trialBoxRef.current.getBoundingClientRect();
 
+      const startX = btnRect.left + btnRect.width / 2;
+      const startY = btnRect.top + btnRect.height / 2;
+      const targetX = boxRect.left + boxRect.width / 2;
+      const targetY = boxRect.top + boxRect.height / 2;
+
       setFlyingJar({
         image: item.image,
-        startX: btnRect.left + btnRect.width / 2,
-        startY: btnRect.top + btnRect.height / 2,
-        targetX: boxRect.left + boxRect.width / 2,
-        targetY: boxRect.top + boxRect.height / 2
+        startX,
+        startY,
+        dx: targetX - startX,
+        dy: targetY - startY
       });
 
       setTimeout(() => {
@@ -145,8 +150,9 @@ export const FeaturedTrialPackBanner = () => {
           style={{
             left: `${flyingJar.startX}px`,
             top: `${flyingJar.startY}px`,
-            transform: 'translate(-50%, -50%)',
-            animation: 'flyToBoxAnim 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) forwards'
+            '--dx': `${flyingJar.dx}px`,
+            '--dy': `${flyingJar.dy}px`,
+            animation: 'flyToBoxAnim 0.45s cubic-bezier(0.2, 0.8, 0.25, 1) forwards'
           }}
         >
           <div className="w-12 h-12 rounded-full p-1 bg-white shadow-2xl border-2 border-brand-green ring-4 ring-amber-300">
@@ -199,25 +205,45 @@ export const FeaturedTrialPackBanner = () => {
             {/* LEFT SIDE (6 cols): Trial Box Hamper + 8 Mini Pickle Jars with small '+' */}
             <div className="lg:col-span-6 flex flex-col sm:flex-row items-center gap-4 bg-white/60 p-3 sm:p-4 rounded-2xl border border-amber-200/90 shadow-inner">
               
-              {/* Visual Yellow Hamper Box with Bounce Animation */}
+              {/* Visual Yellow Hamper Box with Bounce Animation & Live Slots */}
               <div 
                 ref={trialBoxRef}
-                className={`w-36 sm:w-40 shrink-0 bg-gradient-to-b from-amber-400 via-amber-300 to-yellow-200 rounded-2xl p-3 border-2 border-amber-400 shadow-md text-center transition-all duration-300 ${
+                className={`w-36 sm:w-44 shrink-0 bg-gradient-to-b from-amber-400 via-amber-300 to-yellow-200 rounded-2xl p-2.5 sm:p-3 border-2 border-amber-400 shadow-md text-center transition-all duration-300 ${
                   boxBounce ? 'scale-108 ring-4 ring-brand-green' : ''
                 }`}
               >
-                <div className="w-10 h-10 mx-auto rounded-full bg-white p-1 border border-amber-300 mb-1 flex items-center justify-center shadow-xs">
+                <div className="w-9 h-9 mx-auto rounded-full bg-white p-1 border border-amber-300 mb-1 flex items-center justify-center shadow-xs">
                   <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                 </div>
                 <h4 className="text-xs sm:text-sm font-black text-gray-950 uppercase leading-tight font-serif">
                   Pickle Trial Box
                 </h4>
-                <span className="inline-block text-[10px] font-extrabold text-brand-green bg-white/90 px-2 py-0.5 rounded-full border border-brand-green/30 mt-1">
+                <span className="inline-block text-[10px] font-extrabold text-brand-green bg-white/90 px-2 py-0.5 rounded-full border border-brand-green/30 mt-0.5">
                   (Pack of {packSize})
                 </span>
 
+                {/* Visual miniature jar slots inside the box */}
+                <div className="grid grid-cols-4 gap-1 mt-2 p-1 bg-amber-500/20 rounded-xl border border-amber-400/40">
+                  {[...Array(packSize)].map((_, i) => {
+                    const jar = selectedJars[i];
+                    return (
+                      <div 
+                        key={i} 
+                        className="aspect-square rounded-md bg-white/80 border border-amber-300/80 flex items-center justify-center overflow-hidden p-0.5 shadow-2xs"
+                        title={jar ? jar.name : 'Empty Slot'}
+                      >
+                        {jar ? (
+                          <img src={jar.image} alt={jar.name} className="w-full h-full object-cover rounded-sm" />
+                        ) : (
+                          <span className="text-[8px] text-amber-700/60 font-bold">{i + 1}</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
                 {/* Live Jars Count Badge */}
-                <div className="mt-2 text-[10px] font-black text-gray-900 bg-amber-500/20 py-0.5 px-1.5 rounded-md">
+                <div className="mt-1.5 text-[10px] font-black text-gray-900 bg-white/90 py-0.5 px-1.5 rounded-md border border-amber-300 shadow-2xs">
                   {selectedJars.length} / {packSize} Jars in Box
                 </div>
               </div>
@@ -382,7 +408,7 @@ export const FeaturedTrialPackBanner = () => {
 
       </div>
 
-      {/* Fly Animation Keyframes */}
+      {/* Fly Animation Keyframes with dynamic offsets */}
       <style>{`
         @keyframes flyToBoxAnim {
           0% {
@@ -390,11 +416,11 @@ export const FeaturedTrialPackBanner = () => {
             opacity: 1;
           }
           50% {
-            transform: translate(calc(-50% - 60px), calc(-50% - 40px)) scale(0.85);
-            opacity: 0.9;
+            transform: translate(calc(-50% + var(--dx) * 0.5), calc(-50% + var(--dy) * 0.5 - 50px)) scale(0.9);
+            opacity: 0.95;
           }
           100% {
-            transform: translate(calc(-50% - 150px), calc(-50% + 10px)) scale(0.35);
+            transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.25);
             opacity: 0;
           }
         }

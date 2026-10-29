@@ -102,12 +102,38 @@ export const CartProvider = ({ children }) => {
     const cartItemId = `${product._id || product.slug}-${selectedVariant.weight}`;
     const itemImage = resolveProductImage(product.images?.[0] || product.image);
 
+    // Stock verification: Do not allow adding more than available in stock
+    const maxStock = (selectedVariant?.stockCount !== undefined && selectedVariant?.stockCount !== null)
+      ? Number(selectedVariant.stockCount)
+      : (product?.variants?.find(v => v.weight === selectedVariant?.weight)?.stockCount ?? 50);
+
+    const isAvailable = selectedVariant?.inStock !== false && maxStock > 0;
+    if (!isAvailable) {
+      showToast(`Sorry, ${product.name} (${selectedVariant.weight}) is Out of Stock!`);
+      return false;
+    }
+
+    let stockLimitReached = false;
+    let actualAdd = Number(quantity);
+
     setCartItems(prev => {
       const existing = prev.find(item => item.cartItemId === cartItemId);
+      const currentQty = existing ? existing.quantity : 0;
+
+      if (currentQty >= maxStock) {
+        stockLimitReached = true;
+        return prev;
+      }
+
+      if (currentQty + actualAdd > maxStock) {
+        stockLimitReached = true;
+        actualAdd = maxStock - currentQty;
+      }
+
       if (existing) {
         return prev.map(item =>
           item.cartItemId === cartItemId
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: Math.min(maxStock, item.quantity + actualAdd), stockCount: maxStock }
             : item
         );
       } else {
@@ -123,11 +149,18 @@ export const CartProvider = ({ children }) => {
             weight: selectedVariant.weight,
             price: selectedVariant.price,
             originalPrice: selectedVariant.originalPrice || 0,
-            quantity: Number(quantity)
+            quantity: Math.min(maxStock, actualAdd),
+            stockCount: maxStock
           }
         ];
       }
     });
+
+    if (stockLimitReached) {
+      showToast(`Stock limit reached! Only ${maxStock} units available in stock.`);
+    } else {
+      showToast(`Added ${product.name} (${selectedVariant.weight}) to cart!`);
+    }
 
     // Blinkit-style recent item tracking:
     // Exactly 2 recent photos shown. When 3rd item is added, 1st disappears!
@@ -143,8 +176,6 @@ export const CartProvider = ({ children }) => {
       const updated = [...filtered, newItem];
       return updated.slice(-2);
     });
-
-    showToast(`Added ${product.name} (${selectedVariant.weight}) to cart!`);
     
     // Only open the full drawer if explicitly requested (e.g. Buy Now button)
     // Otherwise keep screen open so Blinkit floating bar appears seamlessly
@@ -170,9 +201,18 @@ export const CartProvider = ({ children }) => {
       removeFromCart(cartItemId);
       return;
     }
+
+    const item = cartItems.find(i => i.cartItemId === cartItemId);
+    const maxStock = item?.stockCount !== undefined ? Number(item.stockCount) : 50;
+
+    if (newQty > maxStock) {
+      showToast(`Stock limit reached! Only ${maxStock} units available.`);
+      return;
+    }
+
     setCartItems(prev =>
-      prev.map(item =>
-        item.cartItemId === cartItemId ? { ...item, quantity: newQty } : item
+      prev.map(i =>
+        i.cartItemId === cartItemId ? { ...i, quantity: Math.min(maxStock, newQty) } : i
       )
     );
   };

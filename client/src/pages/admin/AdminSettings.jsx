@@ -23,7 +23,7 @@ export const AdminSettings = () => {
     trialPackPricing: {
       4: { price: 499, originalPrice: 599, discountPercent: 17 },
       6: { price: 599, originalPrice: 699, discountPercent: 14 },
-      8: { price: 699, originalPrice: 799, discountPercent: 13 }
+      8: { price: 699, originalPrice: 799, discountPercent: 10 }
     }
   });
   const [saved, setSaved] = useState(false);
