@@ -9,6 +9,25 @@ import { useAuth } from '../context/AuthContext';
 import { orderAPI } from '../services/api';
 import { formatPrice } from '../utils/formatCurrency';
 
+// Dynamic loader for Razorpay Checkout script if not already present in DOM
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
+    const existing = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(true));
+      existing.addEventListener('error', () => resolve(false));
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 export const CheckoutPage = () => {
   const { cartItems, subtotal, discountAmount, appliedCoupon, shippingFee, finalTotal, clearCart } = useCart();
   const { user, isAuthenticated } = useAuth();
@@ -110,19 +129,36 @@ export const CheckoutPage = () => {
       const createdOrder = res.order;
 
       // Handle Razorpay Online Payment Flow
-      if (formData.paymentMethod === 'razorpay' && window.Razorpay) {
+      if (formData.paymentMethod === 'razorpay') {
+        let isLoaded = !!window.Razorpay;
+        if (!isLoaded) {
+          isLoaded = await loadRazorpayScript();
+        }
+
+        if (!isLoaded || !window.Razorpay) {
+          setLoading(false);
+          setErrorMessage('Razorpay payment gateway load nahi ho paya. Kripya internet connection check karein ya Cash on Delivery chunein.');
+          return;
+        }
+
+        const razorpayKey = res.razorpayKeyId || import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_TtL5JmEDSmmcoo';
+
         const options = {
-          key: res.razorpayKeyId || 'rzp_test_placeholder',
+          key: razorpayKey,
           amount: Math.round(finalTotal * 100),
           currency: 'INR',
           name: 'Singodhia Foods',
           description: `Payment for Order ${createdOrder.orderNumber}`,
-          image: '/logo.png',
-          order_id: createdOrder.razorpayOrderId || undefined,
+          image: window.location.origin + '/logo.png',
+          order_id: createdOrder.razorpayOrderId || res.order?.razorpayOrderId || undefined,
           prefill: {
             name: formData.name,
             email: formData.email,
             contact: formData.phone
+          },
+          notes: {
+            orderNumber: createdOrder.orderNumber,
+            address: `${formData.addressLine1}, ${formData.city}, ${formData.pincode}`
           },
           theme: {
             color: '#1E4334'
@@ -130,14 +166,15 @@ export const CheckoutPage = () => {
           handler: async function (paymentResponse) {
             try {
               // Verify on backend
-              await orderAPI.verifyPayment({
+              const verifyRes = await orderAPI.verifyPayment({
                 orderId: createdOrder._id,
-                razorpayOrderId: paymentResponse.razorpay_order_id,
+                razorpayOrderId: paymentResponse.razorpay_order_id || createdOrder.razorpayOrderId,
                 razorpayPaymentId: paymentResponse.razorpay_payment_id,
                 razorpaySignature: paymentResponse.razorpay_signature
               });
               clearCart();
-              navigate(`/order-confirmation/${createdOrder.orderNumber}`, { state: { order: createdOrder } });
+              const confirmedOrder = verifyRes?.order || { ...createdOrder, paymentStatus: 'completed' };
+              navigate(`/order-confirmation/${createdOrder.orderNumber}`, { state: { order: confirmedOrder } });
             } catch (vErr) {
               console.warn('Payment verification notice:', vErr);
               clearCart();
@@ -147,12 +184,16 @@ export const CheckoutPage = () => {
           modal: {
             ondismiss: function () {
               setLoading(false);
-              setErrorMessage('Payment was cancelled. You can retry or switch to Cash on Delivery.');
+              setErrorMessage('Payment process cancel kar di gayi. Aap dubara prayas kar sakte hain ya Cash on Delivery chun sakte hain.');
             }
           }
         };
 
         const razorpayInstance = new window.Razorpay(options);
+        razorpayInstance.on('payment.failed', function (failResp) {
+          setLoading(false);
+          setErrorMessage(`Payment asafal rahi: ${failResp.error?.description || 'Kripya dubara prayas karein ya dusra method chunein'}`);
+        });
         razorpayInstance.open();
         return;
       }

@@ -86,7 +86,15 @@ export const createOrder = async (req, res, next) => {
     let razorpayOrderId = '';
     const razorpay = getRazorpayInstance();
 
-    if (paymentMethod === 'razorpay' && razorpay) {
+    if (paymentMethod === 'razorpay') {
+      if (!razorpay) {
+        console.error('Razorpay keys not configured on server (RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET missing)');
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Razorpay payment gateway server par configure nahi hai. Kripya Cash on Delivery chunein.' 
+        });
+      }
+
       try {
         const rzpOrder = await razorpay.orders.create({
           amount: Math.round(calculatedTotal * 100), // amount in paise
@@ -94,7 +102,8 @@ export const createOrder = async (req, res, next) => {
           receipt: orderNumber,
           notes: {
             customerName: customer.name,
-            customerPhone: customer.phone
+            customerPhone: customer.phone,
+            orderNumber: orderNumber
           }
         });
         razorpayOrderId = rzpOrder.id;
@@ -102,7 +111,7 @@ export const createOrder = async (req, res, next) => {
         console.error('Razorpay Order Creation Error:', rzpErr);
         return res.status(500).json({ 
           success: false, 
-          message: 'Failed to initiate Razorpay transaction. You may choose Cash on Delivery instead.' 
+          message: `Razorpay transaction initiate nahi ho paya: ${rzpErr.error?.description || rzpErr.message || 'Payment gateway par error aayi'}. Kripya Cash on Delivery chunein ya dubara koshish karein.` 
         });
       }
     }
@@ -259,13 +268,23 @@ export const verifyPayment = async (req, res, next) => {
     // Update order
     let order = null;
     if (mongoose.connection.readyState === 1) {
-      order = await Order.findOne({
-        $or: [{ _id: orderId }, { orderNumber: orderId }, { razorpayOrderId }]
-      });
+      const orConditions = [];
+      if (orderId && mongoose.Types.ObjectId.isValid(orderId)) {
+        orConditions.push({ _id: orderId });
+      }
+      if (orderId) {
+        orConditions.push({ orderNumber: orderId });
+      }
+      if (razorpayOrderId) {
+        orConditions.push({ razorpayOrderId: razorpayOrderId });
+      }
+
+      order = await Order.findOne(orConditions.length > 0 ? { $or: orConditions } : { _id: null });
       if (order) {
         order.paymentStatus = 'completed';
         order.razorpayPaymentId = razorpayPaymentId;
         order.razorpaySignature = razorpaySignature;
+        order.orderStatus = 'Processing';
 
         // Auto-create shipment with iThink Logistics on verified payment
         try {
