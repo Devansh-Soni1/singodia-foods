@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Phone, ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import siteLogo from '../assets/logo.png';
 
 export const RegisterPage = () => {
   const [name, setName] = useState('');
@@ -46,7 +47,7 @@ export const RegisterPage = () => {
         
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center justify-center gap-2 mb-3 group">
-            <img src="/logo.png" alt="Singodhia Foods" className="h-24 sm:h-28 w-auto mx-auto object-contain drop-shadow-sm transition-transform group-hover:scale-105" />
+            <img src={siteLogo} alt="Singodhia Foods" className="h-24 sm:h-28 w-auto mx-auto object-contain drop-shadow-sm transition-transform group-hover:scale-105" onError={(e) => { e.target.src = '/logo.png'; }} />
           </Link>
           <h1 className="text-2xl font-extrabold text-charcoal font-serif">Create Your Account</h1>
           <p className="text-xs text-earth-brown mt-1">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, MessageCircle, ShieldCheck, Heart, Sparkles } from 'lucide-react';
+import footerLogo from '../../assets/footer-logo.png';
 
 export const Footer = () => {
   return (
@@ -14,9 +15,10 @@ export const Footer = () => {
           <div className="lg:col-span-2 space-y-2.5 sm:space-y-4">
             <Link to="/" className="inline-block transition-all group">
               <img 
-                src="/logo.png" 
+                src={footerLogo} 
                 alt="Singodia Foods" 
-                className="h-16 sm:h-24 md:h-32 w-auto object-contain drop-shadow-md transition-transform group-hover:scale-105" 
+                className="h-20 sm:h-28 md:h-36 w-auto object-contain drop-shadow-md transition-transform group-hover:scale-105" 
+                onError={(e) => { e.target.src = '/footer-logo.png'; }}
               />
             </Link>
             <p className="text-xs sm:text-sm text-cream-200/90 leading-relaxed max-w-sm">

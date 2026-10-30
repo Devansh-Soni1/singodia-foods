@@ -5,6 +5,7 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { categoryAPI } from '../../services/api';
 import { INGREDIENT_CATEGORIES } from '../../constants/ingredientCategories';
+import siteLogo from '../../assets/logo.png';
 
 export const Navbar = ({ onOpenSearch }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -187,9 +188,10 @@ export const Navbar = ({ onOpenSearch }) => {
           <div className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 flex items-center z-10">
             <Link to="/" className="flex items-center flex-shrink-0 group py-1">
               <img 
-                src="/logo.png" 
+                src={siteLogo} 
                 alt="Singodia Foods" 
-                className="h-[64px] sm:h-[78px] md:h-[88px] w-auto object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105" 
+                className="h-[68px] sm:h-[84px] md:h-[96px] w-auto object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105" 
+                onError={(e) => { e.target.src = '/logo.png'; }}
               />
             </Link>
           </div>
@@ -453,7 +455,7 @@ export const Navbar = ({ onOpenSearch }) => {
             {/* Mobile Drawer Brand Logo */}
             <div className="pb-4 mb-4 border-b border-gray-100 flex items-center justify-between">
               <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center">
-                <img src="/logo.png" alt="Singodia Foods" className="h-16 w-auto object-contain drop-shadow-sm" />
+                <img src={siteLogo} alt="Singodia Foods" className="h-16 w-auto object-contain drop-shadow-sm" onError={(e) => { e.target.src = '/logo.png'; }} />
               </Link>
               <button 
                 onClick={() => setMobileMenuOpen(false)}

@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { adminAPI } from '../../services/api';
+import siteLogo from '../../assets/logo.png';
 
 // 8 Default Signature Flavours (can be customized from Admin Settings)
 export const DEFAULT_TRIAL_ITEMS = [
@@ -175,13 +176,13 @@ export const FeaturedTrialPackBanner = () => {
           {/* TOP ROW: Logo on Left & Red Discount Banner on Right */}
           {/* -------------------------------------------------------- */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-            {/* LEFT: ONLY THE OFFICIAL LOGO */}
+            {/* LEFT: ONLY THE OFFICIAL LOGO (BIGGER & PROMINENT) */}
             <div className="flex items-center">
               <img 
-                src="/logo.png" 
+                src={siteLogo} 
                 alt="Singodia Foods" 
-                className="h-12 sm:h-14 md:h-16 w-auto object-contain drop-shadow-sm" 
-                onError={(e) => { e.target.src = '/hero-banner.png'; }} 
+                className="h-20 sm:h-24 md:h-28 lg:h-32 w-auto max-w-[280px] sm:max-w-[340px] object-contain drop-shadow-md transition-transform hover:scale-105" 
+                onError={(e) => { e.target.src = '/logo.png'; }} 
               />
             </div>
 
@@ -212,7 +213,7 @@ export const FeaturedTrialPackBanner = () => {
                 }`}
               >
                 <div className="w-9 h-9 mx-auto rounded-full bg-white p-1 border border-amber-300 mb-1 flex items-center justify-center shadow-xs">
-                  <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+                  <img src={siteLogo} alt="Logo" className="w-full h-full object-contain" onError={(e) => { e.target.src = '/logo.png'; }} />
                 </div>
                 <h4 className="text-xs sm:text-sm font-black text-gray-950 uppercase leading-tight font-serif">
                   Pickle Trial Box
