@@ -21,10 +21,10 @@ export const DEFAULT_TRIAL_ITEMS = [
 
 export const FeaturedTrialPackBanner = () => {
   const { addToCart } = useCart();
-  const [packSize, setPackSize] = useState(8);
+  const [packSize, setPackSize] = useState(4);
   const [trialItems, setTrialItems] = useState(DEFAULT_TRIAL_ITEMS);
   
-  // Start with NO items pre-selected so customer selects them!
+  // Start empty for 4 or 6 pack; when 8 pack is selected, auto-select all 8!
   const [selectedJars, setSelectedJars] = useState([]);
 
   // Pricing
@@ -61,11 +61,21 @@ export const FeaturedTrialPackBanner = () => {
   const currentPricing = pricing[packSize] || pricing[8];
   const isBucketFull = selectedJars.length >= packSize;
 
-  // Handle pack size change
+  // Handle pack size change: when 8 is selected, auto-select all 8 items!
   const handlePackChange = (newSize) => {
     setPackSize(newSize);
-    if (selectedJars.length > newSize) {
-      setSelectedJars(selectedJars.slice(0, newSize));
+    if (newSize === 8) {
+      // 8 wala select kare tab hi auto select ho sabhi item!
+      setSelectedJars([...trialItems]);
+      setBucketBounce(true);
+      setBucketSparkles(true);
+      setTimeout(() => {
+        setBucketBounce(false);
+        setBucketSparkles(false);
+      }, 500);
+    } else {
+      // 4 ya 6 par empty rahega taki user khud choose kar sake
+      setSelectedJars([]);
     }
   };
 
@@ -313,34 +323,54 @@ export const FeaturedTrialPackBanner = () => {
               </div>
 
               {/* Pack Selector (4, 6, 8 Jars) & Price Row */}
-              <div className="my-2.5 flex items-center justify-between gap-2 p-2 bg-amber-50/80 rounded-xl border border-amber-200">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-black text-gray-900">Pack:</span>
-                  <div className="relative">
-                    <select
-                      value={packSize}
-                      onChange={(e) => handlePackChange(Number(e.target.value))}
-                      className="bg-white border-2 border-gray-950 text-gray-950 font-black text-xs px-2 py-0.5 rounded-lg shadow-2xs cursor-pointer pr-5 appearance-none focus:outline-none"
-                    >
-                      <option value={4}>4 Pack (₹{pricing[4].price})</option>
-                      <option value={6}>6 Pack (₹{pricing[6].price})</option>
-                      <option value={8}>8 Pack (₹{pricing[8].price})</option>
-                    </select>
-                    <ChevronDown className="w-3 h-3 text-gray-950 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="my-2.5 p-2 bg-amber-50/80 rounded-xl border border-amber-200 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-1.5">
+                  <div className="flex items-center gap-1">
+                    {[4, 6, 8].map((size) => {
+                      const isActive = packSize === size;
+                      return (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => handlePackChange(size)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center gap-1 ${
+                            isActive
+                              ? 'bg-[#832B0A] text-white shadow-xs scale-102 ring-2 ring-amber-400'
+                              : 'bg-white text-gray-800 border border-gray-200 hover:border-amber-400 hover:bg-amber-100/50'
+                          }`}
+                        >
+                          <span>{size} Pack</span>
+                          {size === 8 && (
+                            <span className={`text-[9px] font-black px-1 rounded-sm uppercase ${
+                              isActive ? 'bg-amber-300 text-amber-950' : 'bg-amber-100 text-amber-800'
+                            }`}>
+                              All 8
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex items-baseline gap-1.5 shrink-0">
+                    <span className="text-lg sm:text-xl font-black text-[#D32F2F]">
+                      ₹{currentPricing.price}
+                    </span>
+                    <span className="text-xs text-gray-400 line-through font-semibold">
+                      ₹{currentPricing.originalPrice}
+                    </span>
+                    <span className="bg-[#D32F2F] text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">
+                      {currentPricing.discountPercent}% OFF
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-lg sm:text-xl font-black text-[#D32F2F]">
-                    ₹{currentPricing.price}
-                  </span>
-                  <span className="text-xs text-gray-400 line-through font-semibold">
-                    ₹{currentPricing.originalPrice}
-                  </span>
-                  <span className="bg-[#D32F2F] text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">
-                    {currentPricing.discountPercent}% OFF
-                  </span>
-                </div>
+                {packSize === 8 && selectedJars.length === 8 && (
+                  <div className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-md flex items-center justify-between">
+                    <span>✨ All 8 flavours auto-selected in bucket!</span>
+                    <span className="text-[9px] text-emerald-900 font-extrabold uppercase">Best Value</span>
+                  </div>
+                )}
               </div>
 
               {/* ==================================================== */}
