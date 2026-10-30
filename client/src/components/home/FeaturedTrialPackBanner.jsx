@@ -120,9 +120,9 @@ export const FeaturedTrialPackBanner = () => {
   const handleAddToCart = () => {
     const trialProduct = {
       _id: `trial-pack-${packSize}`,
-      name: `Dadi's Special Trial Pack (Pack of ${packSize})`,
-      hindiName: `दादी का स्पेशल ट्रायल पैक (${packSize} का पैक)`,
-      slug: `dadi-special-trial-pack-${packSize}`,
+      name: `Singodia Foods Special Trial Pack (Pack of ${packSize})`,
+      hindiName: `सिंगोदिया स्पेशल ट्रायल पैक (${packSize} का पैक)`,
+      slug: `singodia-special-trial-pack-${packSize}`,
       images: [
         trialItems[0]?.image || 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=400&q=80'
       ],
@@ -172,28 +172,27 @@ export const FeaturedTrialPackBanner = () => {
           <div className="absolute -top-16 -right-16 w-60 h-60 bg-amber-200/40 rounded-full blur-2xl pointer-events-none" />
 
           {/* -------------------------------------------------------- */}
-          {/* TOP ROW: Red Discount Banner & Dadi Special Logo Badge */}
+          {/* TOP ROW: Logo on Left & Red Discount Banner on Right */}
           {/* -------------------------------------------------------- */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-            {/* Red Offer Tag (10-17% Off dynamically calculated) */}
-            <div className="inline-flex items-center gap-2 bg-[#D32F2F] text-white px-4 py-1.5 rounded-full shadow-xs text-xs font-black tracking-wide uppercase self-start">
+            {/* LEFT: ONLY THE OFFICIAL LOGO */}
+            <div className="flex items-center">
+              <img 
+                src="/logo.png" 
+                alt="Singodia Foods" 
+                className="h-12 sm:h-14 md:h-16 w-auto object-contain drop-shadow-sm" 
+                onError={(e) => { e.target.src = '/hero-banner.png'; }} 
+              />
+            </div>
+
+            {/* RIGHT: Red Offer Tag (10-17% Off dynamically calculated) */}
+            <div className="inline-flex items-center gap-2 bg-[#D32F2F] text-white px-4 py-1.5 rounded-full shadow-xs text-xs font-black tracking-wide uppercase self-start sm:self-auto">
               <span className="bg-white text-[#D32F2F] text-[10px] font-black px-1.5 py-0.2 rounded-full">
                 {currentPricing.discountPercent}% OFF
               </span>
               <span>
                 {packSize}x75g of Pickle Jars At <s className="opacity-75 font-normal">₹{currentPricing.originalPrice}</s> <span className="text-amber-300 font-black text-sm">₹{currentPricing.price}</span>
               </span>
-            </div>
-
-            {/* DADI'S SPECIAL PACK with Website Logo */}
-            <div className="inline-flex items-center gap-2.5 bg-white/90 border border-amber-300 px-3 py-1 rounded-2xl shadow-xs self-start sm:self-auto">
-              <div className="w-8 h-8 rounded-full border border-brand-green p-0.5 bg-amber-50 shrink-0 overflow-hidden">
-                <img src="/logo.png" alt="Singodhia Foods" className="w-full h-full object-contain" onError={(e) => { e.target.src = '/hero-banner.png'; }} />
-              </div>
-              <div className="leading-tight">
-                <span className="text-[9px] uppercase tracking-wider text-amber-800 font-bold block">100% Traditional</span>
-                <span className="text-xs font-black text-gray-900 font-serif uppercase tracking-tight">DADI'S SPECIAL PACK</span>
-              </div>
             </div>
           </div>
 
@@ -321,7 +320,7 @@ export const FeaturedTrialPackBanner = () => {
               </h2>
 
               <p className="text-xs text-gray-600 font-medium mt-1">
-                Start with <strong className="text-gray-900 font-bold">Dadi's Special Trial Pack</strong>
+                Start with <strong className="text-gray-900 font-bold">Singodia Foods Special Trial Pack</strong>
               </p>
 
               {/* ====================================================== */}
