@@ -158,7 +158,7 @@ export const Footer = () => {
             <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">GPay</span>
             <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">PhonePe</span>
             <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">Cards</span>
-            <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">Cash on Delivery</span>
+            <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">NetBanking</span>
           </div>
         </div>
 

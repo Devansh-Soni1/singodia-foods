@@ -37,9 +37,16 @@ export const createOrder = async (req, res, next) => {
       discount = 0, 
       couponCode = '', 
       shippingFee = 0, 
-      paymentMethod = 'cod',
+      paymentMethod = 'razorpay',
       customerNotes = ''
     } = req.body;
+
+    if (paymentMethod === 'cod') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cash on Delivery (COD) band kar diya gaya hai. Kripya 100% secure online payment (Razorpay / UPI) se order karein.'
+      });
+    }
 
     if (!items || items.length === 0) {
       return res.status(400).json({ success: false, message: 'Cart items cannot be empty' });
@@ -204,28 +211,6 @@ export const createOrder = async (req, res, next) => {
     } else {
       order = { ...orderData, _id: new mongoose.Types.ObjectId() };
       memoryOrders.unshift(order);
-    }
-
-    // Auto-create shipment with iThink Logistics for COD orders
-    if (order && paymentMethod === 'cod') {
-      try {
-        const shipRes = await createShipmentOrder(order);
-        if (shipRes?.success && shipRes.waybill) {
-          order.trackingNumber = shipRes.waybill;
-          order.carrier = shipRes.courierName || 'iThink Logistics Express';
-          order.shipping = {
-            carrier: shipRes.courierName || 'iThink Logistics Express',
-            trackingNumber: shipRes.waybill,
-            trackingUrl: `https://my.ithinklogistics.com/track/${shipRes.waybill}`,
-            dispatchedAt: new Date()
-          };
-          if (mongoose.connection.readyState === 1 && typeof order.save === 'function') {
-            await order.save();
-          }
-        }
-      } catch (shipErr) {
-        console.warn('Auto iThink COD shipment notice:', shipErr.message);
-      }
     }
 
     res.status(201).json({

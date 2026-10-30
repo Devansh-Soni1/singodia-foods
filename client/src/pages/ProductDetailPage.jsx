@@ -431,8 +431,8 @@ export const ProductDetailPage = () => {
                   <span>Free shipping on orders ₹499+</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-mustard flex-shrink-0" />
-                  <span>Cash on Delivery (COD) available</span>
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <span>100% Secure Online Payment (UPI / Cards)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Sun className="w-4 h-4 text-amber-500 flex-shrink-0" />

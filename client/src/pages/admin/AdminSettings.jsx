@@ -447,16 +447,12 @@ export const AdminSettings = () => {
             </div>
           </div>
 
-          <div className="mt-4">
-            <label className="flex items-center gap-2 cursor-pointer font-bold">
-              <input
-                type="checkbox"
-                checked={settings.codEnabled}
-                onChange={(e) => setSettings({ ...settings, codEnabled: e.target.checked })}
-                className="text-brand-green"
-              />
-              <span>Enable Cash on Delivery (COD) for all pin codes</span>
-            </label>
+          <div className="mt-4 p-3 bg-amber-50/80 border border-amber-200 rounded-xl text-amber-900 text-xs flex items-center justify-between">
+            <span className="font-bold flex items-center gap-1.5">
+              <span>🚫 Cash on Delivery (COD):</span>
+              <span className="text-red-700 bg-red-100 px-2 py-0.5 rounded-full font-black text-[10px]">Disabled</span>
+            </span>
+            <span className="text-gray-500 text-[11px]">Only 100% Secure Online Payment (Razorpay) active</span>
           </div>
         </div>
 

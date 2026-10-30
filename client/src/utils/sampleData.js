@@ -640,8 +640,8 @@ export const SAMPLE_FAQS = [
     a: 'We offer FREE Delivery across India on all orders above ₹499! For orders below ₹499, a nominal shipping fee of ₹60 is applied. Most orders are dispatched within 24 hours and delivered in 3 to 5 business days.'
   },
   {
-    q: 'Can I pay via Cash on Delivery (COD)?',
-    a: 'Yes, Cash on Delivery is available across 19,000+ PIN codes across India. You can also pay securely online using UPI (Google Pay, PhonePe, Paytm), Debit/Credit Cards, or Net Banking.'
+    q: 'What payment methods do you accept?',
+    a: 'We accept 100% secure online payments powered by Razorpay, including UPI (Google Pay, PhonePe, Paytm, BHIM), all Debit & Credit Cards, and Net Banking.'
   },
   {
     q: 'Can I create a custom gift hamper or corporate combo?',

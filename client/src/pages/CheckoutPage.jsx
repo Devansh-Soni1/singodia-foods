@@ -44,7 +44,7 @@ export const CheckoutPage = () => {
     city: user?.addresses?.[0]?.city || '',
     state: user?.addresses?.[0]?.state || 'Rajasthan',
     pincode: user?.addresses?.[0]?.pincode || '',
-    paymentMethod: 'razorpay', // 'razorpay' (default) or 'cod'
+    paymentMethod: 'razorpay',
     customerNotes: ''
   });
 
@@ -137,7 +137,7 @@ export const CheckoutPage = () => {
 
         if (!isLoaded || !window.Razorpay) {
           setLoading(false);
-          setErrorMessage('Razorpay payment gateway load nahi ho paya. Kripya internet connection check karein ya Cash on Delivery chunein.');
+          setErrorMessage('Razorpay payment gateway load nahi ho paya. Kripya apna internet connection check karein.');
           return;
         }
 
@@ -184,7 +184,7 @@ export const CheckoutPage = () => {
           modal: {
             ondismiss: function () {
               setLoading(false);
-              setErrorMessage('Payment process cancel kar di gayi. Aap dubara prayas kar sakte hain ya Cash on Delivery chun sakte hain.');
+              setErrorMessage('Payment process poori nahi hui. Kripya dubara prayas karein.');
             }
           }
         };
@@ -192,15 +192,14 @@ export const CheckoutPage = () => {
         const razorpayInstance = new window.Razorpay(options);
         razorpayInstance.on('payment.failed', function (failResp) {
           setLoading(false);
-          setErrorMessage(`Payment asafal rahi: ${failResp.error?.description || 'Kripya dubara prayas karein ya dusra method chunein'}`);
+          setErrorMessage(`Payment asafal rahi: ${failResp.error?.description || 'Kripya dubara prayas karein ya dusre UPI/Card se try karein'}`);
         });
         razorpayInstance.open();
         return;
       }
 
-      // Cash on Delivery flow or offline test
-      clearCart();
-      navigate(`/order-confirmation/${createdOrder.orderNumber}`, { state: { order: createdOrder } });
+      setLoading(false);
+      setErrorMessage('Online payment select karein.');
 
     } catch (err) {
       console.error('Order error:', err);
@@ -420,76 +419,41 @@ export const CheckoutPage = () => {
                     3
                   </span>
                   <h2 className="text-base font-bold text-charcoal font-serif">
-                    Select Payment Method
+                    Payment Method (100% Secure)
                   </h2>
                 </div>
 
-                <div className="space-y-3">
-                  {/* Razorpay Online Option (Default & Recommended) */}
-                  <label className={`p-4 rounded-2xl border-2 cursor-pointer flex items-start gap-3 transition-all ${
-                    formData.paymentMethod === 'razorpay'
-                      ? 'border-brand-green bg-cream-50/80 shadow-xs ring-1 ring-brand-green/20'
-                      : 'border-cream-200 hover:border-cream-300'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="razorpay"
-                      checked={formData.paymentMethod === 'razorpay'}
-                      onChange={handleChange}
-                      className="mt-1 text-brand-green focus:ring-brand-green"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
+                <div className="p-4 sm:p-5 rounded-2xl border-2 border-brand-green bg-cream-50/80 shadow-xs ring-1 ring-brand-green/20 space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-5 h-5 rounded-full bg-brand-green text-white flex items-center justify-center text-xs shrink-0 mt-0.5">
+                        ✓
+                      </div>
+                      <div>
                         <span className="text-sm font-bold text-charcoal font-serif flex items-center gap-2">
                           <span>Online Payment via Razorpay</span>
                           <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
-                            Fast & Secure
+                            Instant Confirmation
                           </span>
                         </span>
-                        <div className="flex items-center gap-1">
-                          <CreditCard className="w-4 h-4 text-brand-green" />
-                        </div>
-                      </div>
-                      <p className="text-xs text-earth-brown mt-1">
-                        Pay with <strong>UPI (GPay, PhonePe, Paytm)</strong>, Debit/Credit Cards, or Net Banking.
-                      </p>
-                      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-cream-200/60">
-                        <span className="text-[10px] text-gray-500 font-semibold">Supported:</span>
-                        <span className="text-[10px] font-bold text-gray-700 bg-white px-1.5 py-0.5 rounded border border-gray-200">Google Pay</span>
-                        <span className="text-[10px] font-bold text-gray-700 bg-white px-1.5 py-0.5 rounded border border-gray-200">PhonePe</span>
-                        <span className="text-[10px] font-bold text-gray-700 bg-white px-1.5 py-0.5 rounded border border-gray-200">Paytm UPI</span>
-                        <span className="text-[10px] font-bold text-gray-700 bg-white px-1.5 py-0.5 rounded border border-gray-200">Cards</span>
+                        <p className="text-xs text-earth-brown mt-0.5">
+                          Pay securely using <strong>UPI (GPay, PhonePe, Paytm, BHIM)</strong>, Debit/Credit Cards, or Net Banking.
+                        </p>
                       </div>
                     </div>
-                  </label>
+                    <CreditCard className="w-5 h-5 text-brand-green shrink-0" />
+                  </div>
 
-                  {/* COD Option */}
-                  <label className={`p-4 rounded-2xl border-2 cursor-pointer flex items-start gap-3 transition-all ${
-                    formData.paymentMethod === 'cod'
-                      ? 'border-brand-green bg-cream-50/80 shadow-xs'
-                      : 'border-cream-200 hover:border-cream-300'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="cod"
-                      checked={formData.paymentMethod === 'cod'}
-                      onChange={handleChange}
-                      className="mt-1 text-brand-green focus:ring-brand-green"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-bold text-charcoal font-serif">
-                          Cash on Delivery (COD)
-                        </span>
-                        <Banknote className="w-5 h-5 text-gray-500" />
-                      </div>
-                      <p className="text-xs text-earth-brown mt-0.5">
-                        Pay with cash or scan delivery partner's QR code when parcel arrives at your address.
-                      </p>
-                    </div>
-                  </label>
+                  {/* Supported Badges */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-cream-200/60">
+                    <span className="text-[10px] text-gray-500 font-semibold mr-1">Accepted:</span>
+                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">Google Pay</span>
+                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">PhonePe</span>
+                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">Paytm UPI</span>
+                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">BHIM UPI</span>
+                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">All Debit & Credit Cards</span>
+                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">Net Banking</span>
+                  </div>
                 </div>
 
                 {/* Logistics Info Note */}

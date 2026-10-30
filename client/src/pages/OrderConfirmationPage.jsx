@@ -71,7 +71,7 @@ export const OrderConfirmationPage = () => {
               Order Number: <strong className="text-brand-green font-bold">{order?.orderNumber || orderNumber}</strong>
             </div>
             <div className="bg-cream-100 px-4 py-2 rounded-xl text-xs font-semibold text-charcoal">
-              Payment: <strong className="capitalize font-bold">{order?.paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : 'Paid Online (Razorpay)'}</strong>
+              Payment: <strong className="capitalize font-bold">Paid Online (Razorpay 100% Secure)</strong>
             </div>
           </div>
         </div>
