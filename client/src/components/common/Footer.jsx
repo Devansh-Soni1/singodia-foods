@@ -56,6 +56,20 @@ export const Footer = () => {
                   </Link>
                 </li>
                 <li>
+                  <a 
+                    href="/#trial-pack" 
+                    onClick={(e) => {
+                      if (window.location.pathname === '/') {
+                        e.preventDefault();
+                        document.getElementById('trial-pack')?.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className="hover:text-mustard transition-colors text-mustard font-semibold"
+                  >
+                    Trial Pack (ट्रायल पैक)
+                  </a>
+                </li>
+                <li>
                   <Link to="/product/combo-packs/" className="hover:text-mustard transition-colors">
                     Gift Hampers
                   </Link>

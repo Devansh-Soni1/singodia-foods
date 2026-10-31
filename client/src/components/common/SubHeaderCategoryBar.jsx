@@ -3,6 +3,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { categoryAPI } from '../../services/api';
 
 const CATEGORY_VISUALS = {
+  'trial-pack': {
+    emoji: '🎁',
+    title1: 'Trial Pack',
+    title2: '(Pack of 8)',
+    hindi: 'ट्रायल पैक',
+    path: '/#trial-pack'
+  },
   'mango-pickles': {
     emoji: '🥭',
     title1: 'Mango',
@@ -79,6 +86,7 @@ const resolveVisual = (slug = '', name = '') => {
   const s = slug.toLowerCase();
   const n = name.toLowerCase();
   if (CATEGORY_VISUALS[s]) return CATEGORY_VISUALS[s];
+  if (s.includes('trial') || n.includes('trial')) return CATEGORY_VISUALS['trial-pack'];
   if (s.includes('mango') || n.includes('mango') || n.includes('aam')) return CATEGORY_VISUALS['mango-pickles'];
   if (s.includes('red') || n.includes('lal mirch') || n.includes('red chilli')) return CATEGORY_VISUALS['red-chilli-pickles'];
   if (s.includes('green') || n.includes('hari mirch') || n.includes('green chilli')) return CATEGORY_VISUALS['green-chilli-pickles'];
@@ -129,6 +137,7 @@ export const SubHeaderCategoryBar = () => {
 
   // Pre-configured list if database list is empty or complementary
   const defaultList = [
+    { slug: 'trial-pack', name: 'Trial Pack', hindiName: 'ट्रायल पैक' },
     { slug: 'mango-pickles', name: 'Mango Pickles', hindiName: 'आम का अचार' },
     { slug: 'red-chilli-pickles', name: 'Red Chilli', hindiName: 'भरवां लाल मिर्च' },
     { slug: 'green-chilli-pickles', name: 'Green Chilli', hindiName: 'तीखी हरी मिर्च' },
@@ -151,11 +160,18 @@ export const SubHeaderCategoryBar = () => {
           {categoriesToShow.map((cat) => {
             const visual = resolveVisual(cat.slug, cat.name);
             const link = visual.path || (cat.slug === 'all-products' ? '/shop/' : `/product/${(cat.slug || '').replace(/s$/, '')}/`);
+            const isHash = link.startsWith('/#');
 
             return (
               <Link
                 key={cat.slug || cat._id}
                 to={link}
+                onClick={(e) => {
+                  if (isHash && window.location.pathname === '/') {
+                    e.preventDefault();
+                    document.getElementById('trial-pack')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
                 className="flex-shrink-0 flex flex-col items-center justify-start group text-center min-w-[66px] sm:min-w-[78px] transition-transform duration-200 focus:outline-none"
               >
                 {/* Visual Icon (NO background box, NO top badges, clean transparent animated emoji) */}

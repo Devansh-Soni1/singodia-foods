@@ -362,7 +362,24 @@ export const Navbar = ({ onOpenSearch }) => {
               )}
             </div>
 
-            {/* Contact us (Our story and Blogs are removed per user request) */}
+            {/* 3. Trial Pack (Clicks directly to Home Page Trial Pack Section) */}
+            <a 
+              href="/#trial-pack" 
+              onClick={(e) => {
+                if (window.location.pathname === '/') {
+                  e.preventDefault();
+                  document.getElementById('trial-pack')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="hover:text-[#e68819] transition-colors flex items-center gap-1.5 font-bold"
+            >
+              <span>Trial Pack</span>
+              <span className="text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded-full font-black uppercase tracking-wide">
+                13% OFF
+              </span>
+            </a>
+
+            {/* 4. Contact us (Our story and Blogs are removed per user request) */}
             <Link 
               to="/contact" 
               className="hover:text-[#e68819] transition-colors"
@@ -569,6 +586,24 @@ export const Navbar = ({ onOpenSearch }) => {
                   </div>
                 )}
               </div>
+
+              {/* Trial Pack (Mobile) */}
+              <a 
+                href="/#trial-pack" 
+                className="py-2.5 px-3 rounded-lg hover:bg-cream-100 flex items-center justify-between text-[#b35400] font-bold"
+                onClick={(e) => {
+                  setMobileMenuOpen(false);
+                  if (window.location.pathname === '/') {
+                    e.preventDefault();
+                    document.getElementById('trial-pack')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
+                <span>Trial Pack (ट्रायल पैक)</span>
+                <span className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded-full font-extrabold uppercase">
+                  13% OFF
+                </span>
+              </a>
 
               {/* Contact us (Our story & blogs excluded) */}
               <Link 

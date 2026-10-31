@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { HeroBanner } from '../components/home/HeroBanner';
 import { BestSellersSection } from '../components/home/BestSellersSection';
 import { FeaturedTrialPackBanner } from '../components/home/FeaturedTrialPackBanner';
@@ -12,6 +13,18 @@ import { productAPI } from '../services/api';
 export const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash === '#trial-pack') {
+      setTimeout(() => {
+        const el = document.getElementById('trial-pack');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 150);
+    }
+  }, [location.hash]);
 
   useEffect(() => {
     const loadFeatured = async () => {

@@ -157,7 +157,7 @@ export const FeaturedTrialPackBanner = () => {
   };
 
   return (
-    <section className="py-5 sm:py-7 bg-white border-b border-cream-200 font-sans relative">
+    <section id="trial-pack" className="py-5 sm:py-7 bg-white border-b border-cream-200 font-sans relative scroll-mt-24 sm:scroll-mt-28">
       
       {/* Animated Flying Jar Portal */}
       {flyingJar && (
