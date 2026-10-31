@@ -8,7 +8,12 @@ import {
   ChevronRight, 
   Quote, 
   Sparkles,
-  Play
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Eye,
+  Heart
 } from 'lucide-react';
 
 const InstagramIcon = ({ className = "w-4 h-4" }) => (
@@ -21,6 +26,42 @@ const InstagramIcon = ({ className = "w-4 h-4" }) => (
 
 const GOOGLE_REVIEW_URL = 'https://share.google/6uEBWLjWGXSZhmBRI';
 const INSTAGRAM_URL = 'https://www.instagram.com/singodiafoods/';
+
+const SINGODIA_REELS = [
+  {
+    id: 'reel1',
+    shortcode: 'Dc3iDpFT_4p',
+    title: 'ताज़ी काचरी अचार रेसिपी',
+    subtitle: 'आज Singodia Foods लेकर आया है असली देसी काचरी अचार',
+    views: '18.4K',
+    likes: '1.2K',
+    coverImage: '/reels/reel-kachri.jpg',
+    videoSrc: '/videos/cooking-reel.webm',
+    instagramUrl: 'https://www.instagram.com/reel/Dc3iDpFT_4p/'
+  },
+  {
+    id: 'reel2',
+    shortcode: 'DcvvYLZzbTM',
+    title: 'Customer Tasting: स्वाद चखकर क्या बोले?',
+    subtitle: 'Instagram Reel देखकर आए थे… अब स्वाद चखकर क्या बोले?',
+    views: '24.1K',
+    likes: '2.8K',
+    coverImage: '/reels/reel-reaction.jpg',
+    videoSrc: '/videos/spices-reel.webm',
+    instagramUrl: 'https://www.instagram.com/reel/DcvvYLZzbTM/'
+  },
+  {
+    id: 'reel3',
+    shortcode: 'DeBPV0XT7LE',
+    title: 'पारंपरिक दादी-नानी का देसी अचार',
+    subtitle: 'कच्ची घानी सरसों का तेल और सुजानगढ़ की शुद्ध हिंग का तड़का',
+    views: '32.9K',
+    likes: '3.5K',
+    coverImage: '/reels/reel-dadi.jpg',
+    videoSrc: '/videos/cooking-reel.webm',
+    instagramUrl: 'https://www.instagram.com/reel/DeBPV0XT7LE/'
+  }
+];
 
 const GOOGLE_REVIEWS = [
   {
@@ -110,12 +151,20 @@ const GOOGLE_REVIEWS = [
 ];
 
 export const CustomerReviewsSection = () => {
+  // Left column review slider state
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [slideDirection, setSlideDirection] = useState('next');
   const [animating, setAnimating] = useState(false);
 
+  // Right column video player state
+  const [activeReelIdx, setActiveReelIdx] = useState(0);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef(null);
+
   const totalReviews = GOOGLE_REVIEWS.length;
+  const currentReel = SINGODIA_REELS[activeReelIdx];
 
   const goToNext = () => {
     if (animating) return;
@@ -141,7 +190,7 @@ export const CustomerReviewsSection = () => {
     setTimeout(() => setAnimating(false), 400);
   };
 
-  // Auto-play sliding every 5 seconds
+  // Auto-play sliding every 5 seconds for reviews
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
@@ -149,6 +198,33 @@ export const CustomerReviewsSection = () => {
     }, 5000);
     return () => clearInterval(timer);
   }, [isPaused, currentIndex, animating]);
+
+  // Video playback controls
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsVideoPlaying(true);
+    } else {
+      videoRef.current.pause();
+      setIsVideoPlaying(false);
+    }
+  };
+
+  const toggleSound = (e) => {
+    e.stopPropagation();
+    if (!videoRef.current) return;
+    videoRef.current.muted = !videoRef.current.muted;
+    setIsMuted(videoRef.current.muted);
+  };
+
+  const handleSelectReel = (idx) => {
+    setActiveReelIdx(idx);
+    if (videoRef.current) {
+      videoRef.current.load();
+      videoRef.current.play().then(() => setIsVideoPlaying(true)).catch(() => {});
+    }
+  };
 
   const currentRev = GOOGLE_REVIEWS[currentIndex];
 
@@ -165,18 +241,18 @@ export const CustomerReviewsSection = () => {
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/80 border border-amber-300 text-amber-900 text-[11px] font-bold mb-2">
             <Sparkles className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
-            <span>Community Love & Social Buzz</span>
+            <span>Customer Love & Kitchen Videos</span>
           </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-[#1F4D36] font-serif">
             Loved on Google • Trending on Instagram
           </h2>
           <p className="text-xs sm:text-sm text-gray-600 mt-2 max-w-xl mx-auto">
-            Read real 5-star customer reviews from verified pickle lovers on the left, and catch behind-the-scenes kitchen reels on the right.
+            Read verified 5-star customer reviews on the left, and watch real Singodia Foods kitchen videos & reels on the right.
           </p>
         </div>
 
-        {/* 2-COLUMN SPLIT: Left = Single Sliding Google Review | Right = Instagram Video/Reel */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+        {/* 2-COLUMN SPLIT: Left = Single Sliding Google Review | Right = Playing Reel Video */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
           
           {/* ========================================================= */}
           {/* LEFT COLUMN: Google Ratings & Single Sliding Review Card */}
@@ -379,9 +455,9 @@ export const CustomerReviewsSection = () => {
           </div>
 
           {/* ========================================================= */}
-          {/* RIGHT COLUMN: Instagram Reel / Video Showcase              */}
+          {/* RIGHT COLUMN: Real Playing Video & Reel Showcase           */}
           {/* ========================================================= */}
-          <div className="lg:col-span-5 flex flex-col items-center">
+          <div className="lg:col-span-5 flex flex-col items-center w-full">
             <div className="w-full max-w-sm">
 
               {/* Instagram Profile Header Pill */}
@@ -423,20 +499,152 @@ export const CustomerReviewsSection = () => {
                 </a>
               </div>
 
-              {/* Phone Mockup Frame with Live Reel Embed */}
-              <div className="relative rounded-[32px] border-[5px] border-neutral-900 bg-neutral-900 shadow-2xl overflow-hidden aspect-[9/16] max-h-[500px] w-full mx-auto">
+              {/* Phone Mockup Frame with Real Autoplaying Video */}
+              <div 
+                className="relative rounded-[32px] border-[5px] border-neutral-900 bg-black shadow-2xl overflow-hidden aspect-[9/16] max-h-[500px] w-full mx-auto group cursor-pointer"
+                onClick={togglePlay}
+              >
                 {/* Phone Speaker Notch */}
-                <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-neutral-900 rounded-full z-20 shadow-xs" />
+                <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-neutral-900 rounded-full z-30 shadow-xs pointer-events-none" />
 
-                {/* Embedded Instagram Reel */}
-                <iframe
-                  src="https://www.instagram.com/reel/DeBPV0XT7LE/embed/"
-                  title="Singodia Foods Instagram Reel"
-                  className="w-full h-full border-0 rounded-[26px] bg-neutral-900"
-                  scrolling="no"
-                  allowTransparency="true"
-                  allow="encrypted-media"
-                />
+                {/* Real HTML5 Playing Video */}
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  loop
+                  muted={isMuted}
+                  playsInline
+                  poster={currentReel.coverImage}
+                  className="w-full h-full object-cover rounded-[26px] bg-black"
+                >
+                  {/* Prioritizes user's custom MP4 if placed in public/videos/singodia-reel.mp4 */}
+                  <source src="/videos/singodia-reel.mp4" type="video/mp4" />
+                  <source src={currentReel.videoSrc} type="video/webm" />
+                </video>
+
+                {/* Top Overlay: Live Status & Mute/Unmute Toggle */}
+                <div className="absolute top-8 left-3 right-3 flex items-center justify-between z-20 pointer-events-none">
+                  {/* Pulsing Live Reel badge */}
+                  <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 text-white text-[10px] font-bold">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                    <span>PLAYING REEL</span>
+                  </div>
+
+                  {/* Sound Toggle Button */}
+                  <button
+                    type="button"
+                    onClick={toggleSound}
+                    className="pointer-events-auto bg-black/60 hover:bg-black/80 backdrop-blur-md text-white p-2 rounded-full border border-white/20 transition-all cursor-pointer active:scale-90"
+                    title={isMuted ? "Click to unmute sound" : "Mute sound"}
+                  >
+                    {isMuted ? (
+                      <VolumeX className="w-4 h-4 text-white/90" />
+                    ) : (
+                      <Volume2 className="w-4 h-4 text-emerald-400" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Center Play/Pause Indicator (Shown when paused) */}
+                {!isVideoPlaying && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-20 pointer-events-none">
+                    <div className="w-14 h-14 rounded-full bg-white/90 text-black flex items-center justify-center shadow-xl">
+                      <Play className="w-6 h-6 fill-black ml-1" />
+                    </div>
+                  </div>
+                )}
+
+                {/* Bottom Overlay: Reel Details & Watch on Instagram Button */}
+                <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/95 via-black/60 to-transparent z-20 text-white flex flex-col justify-end">
+                  
+                  {/* Profile info inside video */}
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <img 
+                      src="/logo.png" 
+                      alt="Singodia Foods" 
+                      className="w-6 h-6 rounded-full border border-white/40 object-cover" 
+                    />
+                    <span className="text-xs font-black text-white">@singodiafoods</span>
+                    <span className="text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded">
+                      Reel
+                    </span>
+                  </div>
+
+                  {/* Reel Hindi Title & Caption */}
+                  <h4 className="text-sm font-bold text-white leading-snug line-clamp-1 mb-1 font-serif">
+                    {currentReel.title}
+                  </h4>
+                  <p className="text-[11px] text-gray-200 line-clamp-2 leading-relaxed mb-3">
+                    {currentReel.subtitle}
+                  </p>
+
+                  {/* Equalizer Wave + Watch on Instagram CTA */}
+                  <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/15">
+                    {/* Audio Equalizer bars animation */}
+                    <div className="flex items-center gap-1">
+                      <span className={`w-1 bg-amber-400 rounded-full transition-all ${isVideoPlaying ? 'h-4 animate-pulse' : 'h-1.5'}`} />
+                      <span className={`w-1 bg-amber-400 rounded-full transition-all ${isVideoPlaying ? 'h-6 animate-pulse delay-75' : 'h-2'}`} />
+                      <span className={`w-1 bg-amber-400 rounded-full transition-all ${isVideoPlaying ? 'h-3 animate-pulse delay-150' : 'h-1.5'}`} />
+                      <span className={`w-1 bg-amber-400 rounded-full transition-all ${isVideoPlaying ? 'h-5 animate-pulse delay-100' : 'h-2'}`} />
+                      <span className="text-[9px] text-gray-300 font-medium ml-1">
+                        Original Audio
+                      </span>
+                    </div>
+
+                    {/* Direct Instagram Watch Button */}
+                    <a
+                      href={currentReel.instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#FCAF45] hover:opacity-95 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl shadow-md transition-all flex items-center gap-1 active:scale-95 cursor-pointer shrink-0"
+                    >
+                      <InstagramIcon className="w-3.5 h-3.5" />
+                      <span>Watch with Sound</span>
+                    </a>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* 3 Singodia Foods Reel Selector Tabs */}
+              <div className="mt-4">
+                <div className="flex items-center justify-between text-[11px] font-bold text-gray-500 mb-2 px-1">
+                  <span>SELECT SINGODIA FOODS REEL:</span>
+                  <span className="text-amber-800">3 Reels Available</span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  {SINGODIA_REELS.map((reel, idx) => (
+                    <button
+                      key={reel.id}
+                      type="button"
+                      onClick={() => handleSelectReel(idx)}
+                      className={`relative rounded-xl overflow-hidden border-2 transition-all p-1 text-left cursor-pointer group ${
+                        activeReelIdx === idx 
+                          ? 'border-[#1F4D36] bg-emerald-50/60 shadow-sm scale-[1.02]' 
+                          : 'border-gray-200 bg-white hover:border-gray-400'
+                      }`}
+                    >
+                      <div className="relative aspect-[9/10] rounded-lg overflow-hidden mb-1 bg-neutral-100">
+                        <img 
+                          src={reel.coverImage} 
+                          alt={reel.title} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                        />
+                        <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
+                          <Play className={`w-4 h-4 ${activeReelIdx === idx ? 'fill-emerald-400 text-emerald-400' : 'fill-white text-white'}`} />
+                        </div>
+                        <span className="absolute bottom-1 right-1 text-[8px] bg-black/70 text-white px-1 rounded font-bold">
+                          {reel.views}
+                        </span>
+                      </div>
+                      <p className="text-[10px] font-bold text-gray-800 line-clamp-1 leading-tight">
+                        {reel.title}
+                      </p>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Bottom Reel Caption & Watch More Button */}
