@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, MessageCircle, ShieldCheck, Heart, Sparkles } from 'lucide-react';
+import { MapPin, Phone, Mail, MessageCircle, ShieldCheck, Heart, Sparkles, Star, ExternalLink } from 'lucide-react';
 import footerLogo from '../../assets/footer-logo.png';
 
 export const Footer = () => {
@@ -127,7 +127,19 @@ export const Footer = () => {
                 <Mail className="w-3.5 h-3.5 text-mustard flex-shrink-0" />
                 <a href="mailto:premsingodiya861@gmail.com" className="hover:text-mustard transition-colors truncate">premsingodiya861@gmail.com</a>
               </li>
-              <li className="pt-1">
+              <li className="flex items-center gap-2">
+                <Star className="w-3.5 h-3.5 text-mustard fill-mustard flex-shrink-0" />
+                <a
+                  href="https://share.google/6uEBWLjWGXSZhmBRI"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-mustard transition-colors font-semibold flex items-center gap-1"
+                >
+                  <span>4.9★ on Google Reviews</span>
+                  <ExternalLink className="w-3 h-3 text-mustard" />
+                </a>
+              </li>
+              <li className="pt-1 flex flex-wrap gap-2">
                 <a
                   href="https://wa.me/919782983909?text=Hello%20Singodhia%20Foods%2C%20I%20have%20an%20inquiry%20regarding%20products%20and%20orders."
                   target="_blank"

@@ -3,6 +3,7 @@ import { HeroBanner } from '../components/home/HeroBanner';
 import { BestSellersSection } from '../components/home/BestSellersSection';
 import { FeaturedTrialPackBanner } from '../components/home/FeaturedTrialPackBanner';
 import { FlavoursShowcaseSection } from '../components/home/FlavoursShowcaseSection';
+import { CustomerReviewsSection } from '../components/home/CustomerReviewsSection';
 import { TrustBadges } from '../components/common/TrustBadges';
 import { FaqSection } from '../components/home/FaqSection';
 import { QuickViewModal } from '../components/product/QuickViewModal';
@@ -54,6 +55,9 @@ export const HomePage = () => {
 
       {/* Aunty Ji's Sab Flavours Showcase Section */}
       <FlavoursShowcaseSection />
+
+      {/* Verified Google Reviews Section */}
+      <CustomerReviewsSection />
 
       {/* FAQ Section */}
       <FaqSection />
