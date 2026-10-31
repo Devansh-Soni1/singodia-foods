@@ -2,6 +2,7 @@ import express from 'express';
 import { 
   createOrder, 
   verifyPayment, 
+  discardPendingOrder,
   getOrderById, 
   getUserOrders, 
   getAllOrders, 
@@ -13,6 +14,7 @@ const router = express.Router();
 
 router.post('/', createOrder);
 router.post('/verify-payment', verifyPayment);
+router.post('/discard-pending', discardPendingOrder);
 router.get('/my-orders', protect, getUserOrders);
 router.get('/:id', getOrderById);
 

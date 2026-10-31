@@ -19,15 +19,16 @@ export const getDashboardStats = async (req, res, next) => {
     if (mongoose.connection.readyState === 1) {
       totalProducts = await Product.countDocuments();
       totalCustomers = await User.countDocuments({ role: 'customer' });
-      totalOrders = await Order.countDocuments();
+      // Only count verified completed paid orders
+      totalOrders = await Order.countDocuments({ paymentStatus: 'completed' });
 
       const revenueAgg = await Order.aggregate([
-        { $match: { orderStatus: { $ne: 'Cancelled' } } },
+        { $match: { paymentStatus: 'completed', orderStatus: { $ne: 'Cancelled' } } },
         { $group: { _id: null, total: { $sum: '$totalAmount' } } }
       ]);
       totalRevenue = revenueAgg[0]?.total || 0;
 
-      recentOrders = await Order.find().sort({ createdAt: -1 }).limit(6);
+      recentOrders = await Order.find({ paymentStatus: 'completed' }).sort({ createdAt: -1 }).limit(6);
       lowStockProducts = await Product.find({ 'variants.stockCount': { $lte: 15 } }).limit(5);
     } else {
       totalProducts = sampleProducts.length;

@@ -51,7 +51,10 @@ export const AccountPage = () => {
     const fetchOrders = async () => {
       try {
         const res = await orderAPI.getMyOrders();
-        if (res.orders) setOrders(res.orders);
+        if (Array.isArray(res.orders)) {
+          // Only show successfully paid completed orders (never pending or declined)
+          setOrders(res.orders.filter(o => o.paymentStatus === 'completed'));
+        }
       } catch (err) {
         console.warn('Orders fetch note:', err);
       } finally {

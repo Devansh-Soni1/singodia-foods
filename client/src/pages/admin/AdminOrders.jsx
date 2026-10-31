@@ -25,7 +25,8 @@ export const AdminOrders = () => {
     try {
       const res = await orderAPI.getAllOrders();
       if (Array.isArray(res.orders)) {
-        setOrders(res.orders);
+        // Strictly show only verified completed paid orders (never pending or failed)
+        setOrders(res.orders.filter(o => o.paymentStatus === 'completed'));
       } else {
         setOrders([]);
       }

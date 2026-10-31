@@ -184,7 +184,9 @@ export const CheckoutPage = () => {
           modal: {
             ondismiss: function () {
               setLoading(false);
-              setErrorMessage('Payment process poori nahi hui. Kripya dubara prayas karein.');
+              // Discard pending order immediately so it is NOT saved in DB, admin, or user history
+              orderAPI.discardPendingOrder(createdOrder._id, createdOrder.razorpayOrderId);
+              setErrorMessage('Payment poori nahi hui ya radd kar di gayi. Kripya dubara prayas karein.');
             }
           }
         };
@@ -192,7 +194,9 @@ export const CheckoutPage = () => {
         const razorpayInstance = new window.Razorpay(options);
         razorpayInstance.on('payment.failed', function (failResp) {
           setLoading(false);
-          setErrorMessage(`Payment asafal rahi: ${failResp.error?.description || 'Kripya dubara prayas karein ya dusre UPI/Card se try karein'}`);
+          // Discard failed/declined order immediately
+          orderAPI.discardPendingOrder(createdOrder._id, createdOrder.razorpayOrderId);
+          setErrorMessage(`Payment decline / asafal rahi: ${failResp.error?.description || 'Kripya dusre UPI ya card se koshish karein.'}`);
         });
         razorpayInstance.open();
         return;

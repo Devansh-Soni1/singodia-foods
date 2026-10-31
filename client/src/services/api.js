@@ -248,6 +248,14 @@ export const orderAPI = {
     const res = await api.post('/orders/verify-payment', paymentData);
     return res.data;
   },
+  discardPendingOrder: async (orderId, razorpayOrderId) => {
+    try {
+      const res = await api.post('/orders/discard-pending', { orderId, razorpayOrderId });
+      return res.data;
+    } catch (e) {
+      return { success: false };
+    }
+  },
   getOrderById: async (id) => {
     try {
       const res = await api.get(`/orders/${id}`);

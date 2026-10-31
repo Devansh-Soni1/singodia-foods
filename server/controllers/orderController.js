@@ -338,13 +338,121 @@ export const getOrderById = async (req, res, next) => {
   }
 };
 
+// Auto-cleanup stale abandoned pending orders (> 15 minutes old with unpaid status)
+export const cleanupStalePendingOrders = async () => {
+  if (mongoose.connection.readyState !== 1) return;
+  try {
+    const cutoff = new Date(Date.now() - 15 * 60 * 1000);
+    const staleOrders = await Order.find({
+      paymentStatus: 'pending',
+      createdAt: { $lt: cutoff }
+    });
+
+    for (const ord of staleOrders) {
+      if (Array.isArray(ord.items)) {
+        for (const item of ord.items) {
+          if (item.product && mongoose.Types.ObjectId.isValid(item.product)) {
+            try {
+              const dbProduct = await Product.findById(item.product);
+              if (dbProduct && Array.isArray(dbProduct.variants)) {
+                const variant = dbProduct.variants.find(v => v.weight === item.weight) || dbProduct.variants[0];
+                if (variant) {
+                  variant.stockCount = (variant.stockCount || 0) + (item.quantity || 1);
+                  if (variant.stockCount > 0) variant.inStock = true;
+                  await dbProduct.save();
+                }
+              }
+            } catch (e) {}
+          }
+        }
+      }
+      await Order.deleteOne({ _id: ord._id });
+    }
+  } catch (err) {
+    console.warn('Stale order auto-cleanup notice:', err.message);
+  }
+};
+
+// Discard order immediately when payment fails, is declined, or dismissed by user
+export const discardPendingOrder = async (req, res, next) => {
+  try {
+    const { orderId, razorpayOrderId } = req.body;
+    if (!orderId && !razorpayOrderId) {
+      return res.status(400).json({ success: false, message: 'Order reference is required' });
+    }
+
+    if (mongoose.connection.readyState === 1) {
+      const orConditions = [];
+      if (orderId && mongoose.Types.ObjectId.isValid(orderId)) {
+        orConditions.push({ _id: orderId });
+      }
+      if (orderId) {
+        orConditions.push({ orderNumber: orderId });
+      }
+      if (razorpayOrderId) {
+        orConditions.push({ razorpayOrderId: razorpayOrderId });
+      }
+
+      const order = await Order.findOne({
+        $or: orConditions,
+        paymentStatus: { $ne: 'completed' } // Never delete an already paid order!
+      });
+
+      if (order) {
+        // Revert product inventory
+        if (Array.isArray(order.items)) {
+          for (const item of order.items) {
+            if (item.product && mongoose.Types.ObjectId.isValid(item.product)) {
+              try {
+                const dbProduct = await Product.findById(item.product);
+                if (dbProduct && Array.isArray(dbProduct.variants)) {
+                  const variant = dbProduct.variants.find(v => v.weight === item.weight) || dbProduct.variants[0];
+                  if (variant) {
+                    variant.stockCount = (variant.stockCount || 0) + (item.quantity || 1);
+                    if (variant.stockCount > 0) variant.inStock = true;
+                    await dbProduct.save();
+                  }
+                }
+              } catch (e) {
+                console.warn('Revert stock error:', e.message);
+              }
+            }
+          }
+        }
+
+        // Delete the order permanently from database so it never shows in admin or history
+        await Order.deleteOne({ _id: order._id });
+      }
+    } else {
+      memoryOrders = memoryOrders.filter(o => 
+        (o._id?.toString() !== orderId && o.orderNumber !== orderId && o.razorpayOrderId !== razorpayOrderId) || 
+        o.paymentStatus === 'completed'
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Unpaid pending/failed order discarded and inventory reverted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getUserOrders = async (req, res, next) => {
   try {
     let orders = [];
     if (mongoose.connection.readyState === 1) {
-      orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+      // ONLY show successfully completed paid orders in user profile history
+      orders = await Order.find({ 
+        user: req.user._id,
+        paymentStatus: 'completed'
+      }).sort({ createdAt: -1 });
     } else {
-      orders = memoryOrders.filter(o => o.user?.toString() === req.user._id.toString() || o.customer?.email === req.user.email);
+      orders = memoryOrders.filter(o => 
+        (o.user?.toString() === req.user._id.toString() || o.customer?.email === req.user.email) &&
+        o.paymentStatus === 'completed'
+      );
     }
 
     res.json({
@@ -358,8 +466,12 @@ export const getUserOrders = async (req, res, next) => {
 
 export const getAllOrders = async (req, res, next) => {
   try {
+    // Run background cleanup for any stale abandoned checkouts
+    cleanupStalePendingOrders().catch(() => {});
+
     const { status, page = 1, limit = 20 } = req.query;
-    const query = {};
+    // Strictly filter: ONLY paid completed orders show in admin panel
+    const query = { paymentStatus: 'completed' };
     if (status && status !== 'all') {
       query.orderStatus = status;
     }
@@ -374,7 +486,7 @@ export const getAllOrders = async (req, res, next) => {
         .skip((page - 1) * limit)
         .limit(Number(limit));
     } else {
-      let filtered = [...memoryOrders];
+      let filtered = memoryOrders.filter(o => o.paymentStatus === 'completed');
       if (status && status !== 'all') {
         filtered = filtered.filter(o => o.orderStatus === status);
       }
