@@ -27,24 +27,21 @@ export const HomePage = () => {
   }, [location.hash]);
 
   useEffect(() => {
+    let isMounted = true;
     const loadFeatured = async () => {
       try {
-        const res = await productAPI.getProducts({ limit: 100 });
+        const res = await productAPI.getProducts({ limit: 8 });
+        if (!isMounted) return;
         if (Array.isArray(res.products) && res.products.length > 0) {
-          // Strictly take products marked as isFeatured, max 4
           const featured = res.products.filter(p => p.isFeatured);
-          if (featured.length > 0) {
-            setFeaturedProducts(featured.slice(0, 4));
-          } else {
-            // fallback to top 4 active products if none flagged yet
-            setFeaturedProducts(res.products.slice(0, 4));
-          }
+          setFeaturedProducts(featured.length > 0 ? featured.slice(0, 4) : res.products.slice(0, 4));
         }
       } catch (err) {
         console.warn('Error loading home products:', err);
       }
     };
     loadFeatured();
+    return () => { isMounted = false; };
   }, []);
 
   return (

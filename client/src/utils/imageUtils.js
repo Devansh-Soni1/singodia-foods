@@ -1,11 +1,17 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 const BACKEND_URL = API_BASE_URL.replace(/\/api\/?$/, '');
 
-export const resolveProductImage = (imgUrl, fallback = 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80') => {
+export const resolveProductImage = (imgUrl, fallback = 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=400&q=75') => {
   if (!imgUrl) return fallback;
   // Intercept the masala spice image so it never shows to customers
   if (imgUrl.includes('photo-1596040033229-a9821ebd058d')) {
     return fallback;
+  }
+  // Optimize Unsplash images for high speed & low network bandwidth
+  if (imgUrl.includes('images.unsplash.com')) {
+    return imgUrl
+      .replace(/w=\d+/, 'w=400')
+      .replace(/q=\d+/, 'q=75');
   }
   if (imgUrl.startsWith('data:') || imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
     return imgUrl;

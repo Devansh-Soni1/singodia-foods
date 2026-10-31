@@ -446,6 +446,7 @@ export const CustomerReviewsSection = () => {
                   loop
                   muted={isMuted}
                   playsInline
+                  preload="metadata"
                   src="/videos/singodia-video.mp4"
                   className="w-full h-full object-cover rounded-[22px] bg-neutral-950"
                 />

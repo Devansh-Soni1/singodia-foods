@@ -82,11 +82,42 @@ export const authAPI = {
   }
 };
 
+// High-performance in-memory cache for instant product & category rendering
+const apiCache = new Map();
+const CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes
+
+const getCached = (key) => {
+  const item = apiCache.get(key);
+  if (!item) return null;
+  if (Date.now() - item.time > CACHE_TTL_MS) {
+    apiCache.delete(key);
+    return null;
+  }
+  return item.data;
+};
+
+const setCached = (key, data) => {
+  if (apiCache.size > 80) {
+    const oldestKey = apiCache.keys().next().value;
+    apiCache.delete(oldestKey);
+  }
+  apiCache.set(key, { time: Date.now(), data });
+};
+
+export const clearApiCache = () => apiCache.clear();
+
 // Product Services
 export const productAPI = {
   getProducts: async (params = {}) => {
+    const cacheKey = `products_${JSON.stringify(params)}`;
+    const cached = getCached(cacheKey);
+    if (cached) return cached;
+
     try {
       const res = await api.get('/products', { params });
+      if (res.data && res.data.success !== false) {
+        setCached(cacheKey, res.data);
+      }
       return res.data;
     } catch (err) {
       return {
@@ -98,8 +129,15 @@ export const productAPI = {
     }
   },
   getProductBySlug: async (slug) => {
+    const cacheKey = `product_${slug}`;
+    const cached = getCached(cacheKey);
+    if (cached) return cached;
+
     try {
       const res = await api.get(`/products/${slug}`);
+      if (res.data && res.data.success !== false) {
+        setCached(cacheKey, res.data);
+      }
       return res.data;
     } catch (err) {
       throw err.response?.data || err;
@@ -119,14 +157,17 @@ export const productAPI = {
     }
   },
   createProduct: async (productData) => {
+    clearApiCache();
     const res = await api.post('/products', productData);
     return res.data;
   },
   updateProduct: async (id, productData) => {
+    clearApiCache();
     const res = await api.put(`/products/${id}`, productData);
     return res.data;
   },
   deleteProduct: async (id) => {
+    clearApiCache();
     const res = await api.delete(`/products/${id}`);
     return res.data;
   },
@@ -148,22 +189,32 @@ export const productAPI = {
 // Category Services
 export const categoryAPI = {
   getCategories: async () => {
+    const cacheKey = 'all_categories';
+    const cached = getCached(cacheKey);
+    if (cached) return cached;
+
     try {
       const res = await api.get('/categories');
+      if (res.data && res.data.success !== false) {
+        setCached(cacheKey, res.data);
+      }
       return res.data;
     } catch (err) {
       return { success: true, categories: [] };
     }
   },
   createCategory: async (data) => {
+    clearApiCache();
     const res = await api.post('/categories', data);
     return res.data;
   },
   updateCategory: async (id, data) => {
+    clearApiCache();
     const res = await api.put(`/categories/${id}`, data);
     return res.data;
   },
   deleteCategory: async (id) => {
+    clearApiCache();
     const res = await api.delete(`/categories/${id}`);
     return res.data;
   }

@@ -112,8 +112,10 @@ export const getProducts = async (req, res, next) => {
         products = await Product.find(query)
           .sort(sortOption)
           .skip((page - 1) * limit)
-          .limit(Number(limit));
+          .limit(Number(limit))
+          .lean();
 
+        res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=180');
         return res.json({
           success: true,
           products,
