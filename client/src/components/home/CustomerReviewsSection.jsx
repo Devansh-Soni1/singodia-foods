@@ -1,7 +1,26 @@
-import React, { useState } from 'react';
-import { Star, CheckCircle, ExternalLink, MessageSquarePlus, ThumbsUp } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Star, 
+  CheckCircle, 
+  ExternalLink, 
+  MessageSquarePlus, 
+  ChevronLeft, 
+  ChevronRight, 
+  Quote, 
+  Sparkles,
+  Play
+} from 'lucide-react';
+
+const InstagramIcon = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+  </svg>
+);
 
 const GOOGLE_REVIEW_URL = 'https://share.google/6uEBWLjWGXSZhmBRI';
+const INSTAGRAM_URL = 'https://www.instagram.com/singodiafoods/';
 
 const GOOGLE_REVIEWS = [
   {
@@ -91,204 +110,354 @@ const GOOGLE_REVIEWS = [
 ];
 
 export const CustomerReviewsSection = () => {
-  const [activeFilter, setActiveFilter] = useState('ALL');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [slideDirection, setSlideDirection] = useState('next');
+  const [animating, setAnimating] = useState(false);
 
-  const filters = ['ALL', 'Mango Pickle', 'Banarasi Lal Mirch', 'Kair Sangri', '8-Jar Trial Box'];
+  const totalReviews = GOOGLE_REVIEWS.length;
 
-  const filteredReviews = activeFilter === 'ALL'
-    ? GOOGLE_REVIEWS
-    : GOOGLE_REVIEWS.filter(r => r.product.toLowerCase().includes(activeFilter.toLowerCase()) || activeFilter.toLowerCase().includes(r.product.toLowerCase()));
+  const goToNext = () => {
+    if (animating) return;
+    setAnimating(true);
+    setSlideDirection('next');
+    setCurrentIndex((prev) => (prev + 1) % totalReviews);
+    setTimeout(() => setAnimating(false), 400);
+  };
+
+  const goToPrev = () => {
+    if (animating) return;
+    setAnimating(true);
+    setSlideDirection('prev');
+    setCurrentIndex((prev) => (prev - 1 + totalReviews) % totalReviews);
+    setTimeout(() => setAnimating(false), 400);
+  };
+
+  const selectIndex = (idx) => {
+    if (animating || idx === currentIndex) return;
+    setAnimating(true);
+    setSlideDirection(idx > currentIndex ? 'next' : 'prev');
+    setCurrentIndex(idx);
+    setTimeout(() => setAnimating(false), 400);
+  };
+
+  // Auto-play sliding every 5 seconds
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      goToNext();
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [isPaused, currentIndex, animating]);
+
+  const currentRev = GOOGLE_REVIEWS[currentIndex];
 
   return (
     <section className="py-12 sm:py-16 bg-[#FDFBF7] border-y border-[#F0E2C4]/80 relative overflow-hidden">
       
-      {/* Decorative background blurs */}
-      <div className="absolute top-0 right-10 w-72 h-72 bg-amber-200/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-10 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl pointer-events-none" />
+      {/* Decorative ambient background glows */}
+      <div className="absolute top-0 right-1/4 w-80 h-80 bg-amber-200/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-10 w-80 h-80 bg-emerald-200/20 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-        {/* Top Google Rating Overview Card */}
-        <div className="bg-white rounded-3xl p-5 sm:p-7 border border-[#E8DCC4] shadow-sm mb-10 max-w-4xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            
-            {/* Left: Google Logo & Rating */}
-            <div className="flex items-center gap-4 text-center md:text-left">
-              {/* Google 4-Color Official G Icon */}
-              <div className="w-14 h-14 rounded-2xl bg-white border border-gray-200 shadow-xs flex items-center justify-center shrink-0">
-                <svg className="w-8 h-8" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
-                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z" />
-                  <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z" />
-                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
-                </svg>
-              </div>
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/80 border border-amber-300 text-amber-900 text-[11px] font-bold mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
+            <span>Community Love & Social Buzz</span>
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-[#1F4D36] font-serif">
+            Loved on Google • Trending on Instagram
+          </h2>
+          <p className="text-xs sm:text-sm text-gray-600 mt-2 max-w-xl mx-auto">
+            Read real 5-star customer reviews from verified pickle lovers on the left, and catch behind-the-scenes kitchen reels on the right.
+          </p>
+        </div>
 
-              <div>
-                <div className="flex items-center justify-center md:justify-start gap-2">
-                  <span className="text-2xl sm:text-3xl font-black text-gray-900 leading-none">4.9</span>
-                  <div className="flex items-center gap-0.5">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-[#FBBC05] text-[#FBBC05]" />
-                    ))}
+        {/* 2-COLUMN SPLIT: Left = Single Sliding Google Review | Right = Instagram Video/Reel */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+          
+          {/* ========================================================= */}
+          {/* LEFT COLUMN: Google Ratings & Single Sliding Review Card */}
+          {/* ========================================================= */}
+          <div className="lg:col-span-7 space-y-6">
+            
+            {/* Google Rating Overview Banner */}
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-[#E8DCC4] shadow-xs flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                {/* Official Google 4-Color 'G' Logo */}
+                <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 shadow-2xs flex items-center justify-center shrink-0">
+                  <svg className="w-7 h-7" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
+                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z" />
+                    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z" />
+                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl sm:text-2xl font-black text-gray-900 leading-none">4.9</span>
+                    <div className="flex items-center gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="w-4 h-4 fill-[#FBBC05] text-[#FBBC05]" />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-gray-600 font-medium mt-0.5">
+                    <span className="font-bold text-gray-900">Singodia Foods Pickles</span> • 5.0 Star Rating on Google
                   </div>
                 </div>
-                <div className="text-xs text-gray-600 font-medium mt-1">
-                  <span className="font-bold text-gray-900">Singodia Foods Pickles</span> • 5.0 Star Rating on Google
-                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href={GOOGLE_REVIEW_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#1A73E8] hover:bg-[#1557B0] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                >
+                  <MessageSquarePlus className="w-3.5 h-3.5" />
+                  <span>Write Review</span>
+                </a>
+                <a
+                  href={GOOGLE_REVIEW_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-300 text-xs font-bold px-2.5 py-2 rounded-xl transition-all flex items-center gap-1 cursor-pointer"
+                  title="View Google Reviews"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
               </div>
             </div>
 
-            {/* Middle Divider */}
-            <div className="hidden md:block h-12 w-px bg-gray-200" />
+            {/* SINGLE SLIDING REVIEW CONTAINER */}
+            <div 
+              className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#EADBCE] shadow-[0px_8px_24px_rgba(0,0,0,0.06)] relative overflow-hidden min-h-[300px] flex flex-col justify-between"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
+              {/* Subtle Giant Quote Mark Watermark */}
+              <Quote className="w-20 h-20 text-amber-500/10 absolute -top-2 right-4 pointer-events-none" />
 
-            {/* Right: Write Review & View Link Buttons */}
-            <div className="flex items-center gap-3 shrink-0 flex-wrap justify-center">
-              <a
-                href={GOOGLE_REVIEW_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#1A73E8] hover:bg-[#1557B0] text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl shadow-xs hover:shadow-md transition-all flex items-center gap-2 cursor-pointer active:scale-95"
-              >
-                <MessageSquarePlus className="w-4 h-4" />
-                <span>Write a Review on Google</span>
-              </a>
-
-              <a
-                href={GOOGLE_REVIEW_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gray-50 hover:bg-gray-100 text-gray-800 border border-gray-300 text-xs sm:text-sm font-bold px-3.5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>Google Reviews</span>
-                <ExternalLink className="w-3.5 h-3.5 text-gray-500" />
-              </a>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
-          <span className="text-xs font-bold text-amber-800 uppercase tracking-widest block mb-1">
-            Real Customer Feedback
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-[#1F4D36] font-serif">
-            Loved By Families On Google
-          </h2>
-          <p className="text-xs sm:text-sm text-gray-600 mt-2">
-            Read what verified customers have to say about our traditional homemade Rajasthani pickles.
-          </p>
-
-          {/* Quick Filter Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
-            {filters.map((f) => (
-              <button
-                key={f}
-                type="button"
-                onClick={() => setActiveFilter(f)}
-                className={`text-xs font-bold px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
-                  activeFilter === f
-                    ? 'bg-[#1F4D36] text-white shadow-xs'
-                    : 'bg-white border border-[#E8DCC4] text-gray-700 hover:bg-amber-50'
+              {/* Animated Slide Content */}
+              <div 
+                key={currentRev.id} 
+                className={`transition-all duration-300 ease-out ${
+                  animating 
+                    ? slideDirection === 'next' 
+                      ? 'opacity-0 translate-x-8' 
+                      : 'opacity-0 -translate-x-8' 
+                    : 'opacity-100 translate-x-0'
                 }`}
               >
-                {f === 'ALL' ? '⭐ All Google Reviews' : f}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Reviews Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
-          {filteredReviews.map((rev) => (
-            <div
-              key={rev.id}
-              className="bg-white rounded-2xl p-5 sm:p-6 border border-[#EADBCE] shadow-[0px_4px_12px_rgba(0,0,0,0.04)] hover:shadow-[0px_8px_20px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col justify-between relative group hover:-translate-y-1"
-            >
-              <div>
-                {/* Header: Avatar, Name & Google Badge */}
-                <div className="flex items-start justify-between gap-3 mb-3">
+                
+                {/* Header: Reviewer Avatar, Name, Location & Google Badge */}
+                <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full ${rev.avatarBg} text-white font-black text-sm flex items-center justify-center shrink-0 shadow-xs`}>
-                      {rev.avatar}
+                    <div className={`w-12 h-12 rounded-full ${currentRev.avatarBg} text-white font-black text-lg flex items-center justify-center shrink-0 shadow-md`}>
+                      {currentRev.avatar}
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-gray-900 leading-tight">
-                        {rev.name}
+                      <h4 className="text-base font-bold text-gray-900 leading-tight">
+                        {currentRev.name}
                       </h4>
-                      <p className="text-[11px] text-gray-500 font-medium mt-0.5">
-                        {rev.location}
+                      <p className="text-xs text-gray-500 font-medium mt-0.5">
+                        {currentRev.location}
                       </p>
                     </div>
                   </div>
 
-                  {/* Tiny Google G Icon */}
-                  <div className="w-5 h-5 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0 shadow-2xs" title="Google Verified Review">
-                    <svg className="w-3 h-3" viewBox="0 0 24 24">
-                      <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
-                      <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z" />
-                      <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z" />
-                      <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z" />
-                    </svg>
-                  </div>
+                  {/* Google Verified Review Badge */}
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 shadow-2xs">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{currentRev.tag}</span>
+                  </span>
                 </div>
 
-                {/* Rating & Date */}
-                <div className="flex items-center gap-2 mb-2.5">
+                {/* Star Rating & Relative Time */}
+                <div className="flex items-center gap-2 mb-3">
                   <div className="flex items-center gap-0.5">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-4 h-4 ${
-                          i < rev.rating ? 'fill-[#FBBC05] text-[#FBBC05]' : 'text-gray-200'
+                        className={`w-5 h-5 ${
+                          i < currentRev.rating ? 'fill-[#FBBC05] text-[#FBBC05]' : 'text-gray-200'
                         }`}
                       />
                     ))}
                   </div>
-                  <span className="text-[11px] text-gray-400 font-medium">
-                    • {rev.date}
+                  <span className="text-xs font-semibold text-gray-400">
+                    • Reviewed on Google • {currentRev.date}
                   </span>
                 </div>
 
-                {/* Title */}
-                <h5 className="text-xs sm:text-sm font-bold text-gray-900 mb-1.5 line-clamp-1">
-                  "{rev.title}"
+                {/* Review Title */}
+                <h5 className="text-base sm:text-lg font-bold text-gray-900 font-serif mb-2">
+                  "{currentRev.title}"
                 </h5>
 
-                {/* Comment Text */}
-                <p className="text-xs text-gray-700 leading-relaxed">
-                  "{rev.comment}"
+                {/* Review Text */}
+                <p className="text-xs sm:text-sm text-gray-700 leading-relaxed italic">
+                  "{currentRev.comment}"
                 </p>
+
+                {/* Product Tag */}
+                <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
+                  <span className="font-semibold text-amber-900 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60">
+                    Favorite: <strong>{currentRev.product}</strong>
+                  </span>
+                  <span className="text-gray-400 font-medium">
+                    Verified Customer Purchase
+                  </span>
+                </div>
+
               </div>
 
-              {/* Bottom Tag & Product Mention */}
-              <div className="pt-3 mt-4 border-t border-gray-100 flex items-center justify-between text-[11px]">
-                <span className="font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3 text-emerald-600" />
-                  {rev.tag}
-                </span>
+              {/* Slider Bottom Controls: Prev/Next Arrow Buttons & Progress Dots */}
+              <div className="pt-6 mt-6 border-t border-gray-100 flex items-center justify-between">
+                
+                {/* Dots indicator */}
+                <div className="flex items-center gap-2">
+                  {GOOGLE_REVIEWS.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => selectIndex(idx)}
+                      className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                        currentIndex === idx 
+                          ? 'w-7 bg-[#1F4D36]' 
+                          : 'w-2 bg-gray-200 hover:bg-gray-300'
+                      }`}
+                      title={`Go to review ${idx + 1}`}
+                    />
+                  ))}
+                  <span className="text-[11px] font-bold text-gray-400 ml-1">
+                    {currentIndex + 1}/{totalReviews}
+                  </span>
+                </div>
 
-                <span className="text-gray-500 font-medium">
-                  {rev.product}
-                </span>
+                {/* Prev & Next Arrows */}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={goToPrev}
+                    className="w-9 h-9 rounded-full bg-cream-100 hover:bg-[#1F4D36] hover:text-white text-gray-700 flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-xs"
+                    title="Previous Review"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={goToNext}
+                    className="w-9 h-9 rounded-full bg-cream-100 hover:bg-[#1F4D36] hover:text-white text-gray-700 flex items-center justify-center transition-all cursor-pointer active:scale-95 shadow-xs"
+                    title="Next Review"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+
               </div>
 
             </div>
-          ))}
-        </div>
 
-        {/* Bottom CTA Banner */}
-        <div className="text-center pt-4">
-          <a
-            href={GOOGLE_REVIEW_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 font-bold text-sm text-[#1A73E8] hover:text-[#1557B0] hover:underline cursor-pointer group"
-          >
-            <span>Have you tasted our pickles? Share your review on Google</span>
-            <ExternalLink className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </a>
+            {/* Bottom link to view all reviews on Google */}
+            <div className="text-center sm:text-left pl-2">
+              <a
+                href={GOOGLE_REVIEW_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1A73E8] hover:text-[#1557B0] hover:underline"
+              >
+                <span>Read all verified reviews on Google Maps profile</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+
+          </div>
+
+          {/* ========================================================= */}
+          {/* RIGHT COLUMN: Instagram Reel / Video Showcase              */}
+          {/* ========================================================= */}
+          <div className="lg:col-span-5 flex flex-col items-center">
+            <div className="w-full max-w-sm">
+
+              {/* Instagram Profile Header Pill */}
+              <div className="bg-white rounded-2xl p-3 sm:p-3.5 border border-pink-100 shadow-xs mb-3.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  {/* Instagram Gradient Ring */}
+                  <div className="p-0.5 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888]">
+                    <div className="p-0.5 bg-white rounded-full">
+                      <img 
+                        src="/logo.png" 
+                        alt="Singodia Foods" 
+                        className="w-9 h-9 rounded-full object-cover" 
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs sm:text-sm font-black text-gray-900 leading-tight">
+                        singodiafoods
+                      </span>
+                      <span className="w-3.5 h-3.5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[8px] font-bold">
+                        ✓
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-gray-500 block leading-tight">
+                      Singodia Foods • Sujangarh
+                    </span>
+                  </div>
+                </div>
+
+                <a
+                  href={INSTAGRAM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#FCAF45] hover:opacity-95 text-white text-[11px] font-bold px-3.5 py-1.5 rounded-xl shadow-xs transition-all flex items-center gap-1 active:scale-95 cursor-pointer shrink-0"
+                >
+                  <InstagramIcon className="w-3.5 h-3.5" />
+                  <span>Follow</span>
+                </a>
+              </div>
+
+              {/* Phone Mockup Frame with Live Reel Embed */}
+              <div className="relative rounded-[32px] border-[5px] border-neutral-900 bg-neutral-900 shadow-2xl overflow-hidden aspect-[9/16] max-h-[500px] w-full mx-auto">
+                {/* Phone Speaker Notch */}
+                <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-neutral-900 rounded-full z-20 shadow-xs" />
+
+                {/* Embedded Instagram Reel */}
+                <iframe
+                  src="https://www.instagram.com/reel/DeBPV0XT7LE/embed/"
+                  title="Singodia Foods Instagram Reel"
+                  className="w-full h-full border-0 rounded-[26px] bg-neutral-900"
+                  scrolling="no"
+                  allowTransparency="true"
+                  allow="encrypted-media"
+                />
+              </div>
+
+              {/* Bottom Reel Caption & Watch More Button */}
+              <div className="mt-3.5 text-center space-y-1">
+                <a
+                  href={INSTAGRAM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#E1306C] hover:text-[#C13584] hover:underline transition-colors cursor-pointer"
+                >
+                  <InstagramIcon className="w-4 h-4" />
+                  <span>Watch all recipes & reels on @singodiafoods →</span>
+                </a>
+                <p className="text-[10px] text-gray-500">
+                  Daily updates, traditional pickle making & customer unboxings
+                </p>
+              </div>
+
+            </div>
+          </div>
+
         </div>
 
       </div>
