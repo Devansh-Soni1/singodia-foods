@@ -5,13 +5,14 @@ import { ProductCard } from '../components/product/ProductCard';
 import { QuickViewModal } from '../components/product/QuickViewModal';
 import { productAPI, categoryAPI } from '../services/api';
 import { TASTE_SUBCATEGORIES, getTasteInfo } from '../constants/tasteSubCategories';
+import { INITIAL_PRODUCTS } from '../data/initialProducts';
 
 export const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { categorySlug, subCategorySlug, slug } = useParams();
   const navigate = useNavigate();
 
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(INITIAL_PRODUCTS);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedProductForQuickView, setSelectedProductForQuickView] = useState(null);

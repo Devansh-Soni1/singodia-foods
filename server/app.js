@@ -33,8 +33,9 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
-// Serve uploaded static files
+// Serve uploaded and static product files
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+app.use('/products', express.static(path.join(process.cwd(), 'uploads')));
 
 // Root & API status endpoint (prevents 404 on browser navigation)
 app.get(['/', '/api'], (req, res) => {

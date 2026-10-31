@@ -9,9 +9,10 @@ import { TrustBadges } from '../components/common/TrustBadges';
 import { FaqSection } from '../components/home/FaqSection';
 import { QuickViewModal } from '../components/product/QuickViewModal';
 import { productAPI } from '../services/api';
+import { INITIAL_PRODUCTS } from '../data/initialProducts';
 
 export const HomePage = () => {
-  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState(INITIAL_PRODUCTS.slice(0, 4));
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const location = useLocation();
 
