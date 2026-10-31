@@ -516,7 +516,7 @@ export const CheckoutPage = () => {
                     <span className="text-earth-brown">Shipping Fee:</span>
                     <span>
                       {shippingFee === 0 ? (
-                        <span className="text-brand-green font-bold uppercase text-[11px]">FREE</span>
+                        <span className="text-gray-900 font-bold uppercase text-[11px]">₹0</span>
                       ) : (
                         formatPrice(shippingFee)
                       )}

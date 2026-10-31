@@ -496,11 +496,11 @@ export const FeaturedTrialPackBanner = () => {
                   </span>
                 </button>
 
-                {/* Free Shipping & Perks */}
+                {/* Delivery & Perks */}
                 <div className="flex items-center justify-between text-[10.5px] font-bold text-gray-700 mt-2">
                   <div className="flex items-center gap-1 text-emerald-800">
                     <Truck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Free Shipping</span>
+                    <span>Express Pan-India Delivery</span>
                   </div>
                   <div className="flex items-center gap-1 text-amber-900">
                     <Zap className="w-3.5 h-3.5 text-amber-600" />

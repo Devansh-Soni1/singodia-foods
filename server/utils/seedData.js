@@ -512,9 +512,9 @@ export const sampleCoupons = [
 export const sampleSettings = [
   { key: 'freeShippingThreshold', value: 499, description: 'Minimum order value for free delivery in INR' },
   { key: 'standardShippingFee', value: 60, description: 'Standard shipping charge for orders below threshold' },
-  { key: 'codEnabled', value: true, description: 'Enable Cash on Delivery' },
+  { key: 'codEnabled', value: false, description: 'Enable Cash on Delivery' },
   { key: 'codFee', value: 0, description: 'Extra fee for COD in INR' },
-  { key: 'announcementText', value: '🌶️ Traditional Rajasthani Handcrafted Pickles • FREE Delivery on orders above ₹499! • Use Code: DESI10 for 10% OFF', description: 'Header announcement marquee' },
+  { key: 'announcementText', value: '🌶️ Traditional Rajasthani Handcrafted Pickles • Direct From Grandma\'s Barni • Use Code: DESI10 for 10% OFF', description: 'Header announcement marquee' },
   { key: 'whatsappNumber', value: '919782983909', description: 'Business WhatsApp phone number for customer queries' },
   { key: 'storeAddress', value: 'Prem Niwas, Bagreche Bass, Sujangarh, Rajasthan 331507', description: 'Physical store address' },
   { key: 'supportPhone', value: '+91 97829 83909', description: 'Support helpline phone' },

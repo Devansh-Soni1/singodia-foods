@@ -250,13 +250,6 @@ export const couponAPI = {
           coupon: { code: 'SWAD15', discountType: 'percentage', discountValue: 15, discountAmount: Math.round(subtotal * 0.15) }
         };
       }
-      if (upper === 'FREESHIP') {
-        return {
-          success: true,
-          message: 'Coupon FREESHIP applied!',
-          coupon: { code: 'FREESHIP', discountType: 'fixed', discountValue: 60, discountAmount: 60 }
-        };
-      }
       throw err.response?.data || { message: 'Invalid or ineligible coupon code' };
     }
   },
@@ -346,10 +339,10 @@ export const adminAPI = {
       return {
         success: true,
         settings: {
-          freeShippingThreshold: 499,
+          freeShippingThreshold: 9999,
           standardShippingFee: 60,
-          codEnabled: true,
-          announcementText: '🌶️ Traditional Rajasthani Handcrafted Pickles • FREE Delivery on orders above ₹499! • Use Code: DESI10 for 10% OFF',
+          codEnabled: false,
+          announcementText: '🌶️ Traditional Rajasthani Handcrafted Pickles • Direct From Grandma\'s Barni • Use Code: DESI10 for 10% OFF',
           whatsappNumber: '919782983909',
           heroBannerImage: '/hero-banner.png'
         }

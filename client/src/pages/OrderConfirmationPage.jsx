@@ -145,7 +145,7 @@ export const OrderConfirmationPage = () => {
             <div className="flex justify-between">
               <span className="text-earth-brown">Shipping:</span>
               <span className="font-bold text-brand-green">
-                {order?.shippingFee === 0 ? 'FREE' : formatPrice(order?.shippingFee)}
+                {order?.shippingFee === 0 ? '₹0' : formatPrice(order?.shippingFee)}
               </span>
             </div>
             <div className="flex justify-between text-base font-extrabold text-charcoal pt-2 border-t border-cream-200">

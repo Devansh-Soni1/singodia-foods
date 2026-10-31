@@ -108,7 +108,7 @@ export const BlinkitCartBar = () => {
                 {formatPrice(subtotal)}
               </span>
               <span className="text-[10px] text-emerald-100 font-semibold hidden xs:inline">
-                • Free Delivery Available
+                • Fast Pan-India Dispatch
               </span>
             </div>
           </div>

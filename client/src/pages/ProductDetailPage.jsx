@@ -428,7 +428,7 @@ export const ProductDetailPage = () => {
               <div className="pt-6 border-t border-cream-200 grid grid-cols-2 gap-3 text-xs text-charcoal font-medium">
                 <div className="flex items-center gap-2">
                   <Truck className="w-4 h-4 text-brand-green flex-shrink-0" />
-                  <span>Free shipping on orders ₹499+</span>
+                  <span>Pan-India Safe Packaging Delivery</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />

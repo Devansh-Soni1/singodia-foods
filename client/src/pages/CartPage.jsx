@@ -12,8 +12,6 @@ export const CartPage = () => {
     discountAmount,
     appliedCoupon,
     shippingFee,
-    remainingForFreeShipping,
-    freeShippingProgress,
     finalTotal,
     removeFromCart,
     updateQuantity,
@@ -76,26 +74,15 @@ export const CartPage = () => {
           {/* Left: Cart Items List */}
           <div className="lg:col-span-8 space-y-4">
             
-            {/* Free Shipping Alert Box */}
-            <div className="bg-white p-4 rounded-2xl border border-cream-200 shadow-card">
-              <div className="flex items-center gap-2 text-xs font-semibold text-charcoal mb-2">
+            {/* Express Delivery Banner */}
+            <div className="bg-white p-4 rounded-2xl border border-cream-200 shadow-card flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 text-xs text-charcoal font-semibold">
                 <Truck className="w-4 h-4 text-brand-green flex-shrink-0" />
-                {remainingForFreeShipping > 0 ? (
-                  <span>
-                    Add <strong className="text-chilli">{formatPrice(remainingForFreeShipping)}</strong> more to get <strong className="text-brand-green">FREE Pan-India Shipping!</strong>
-                  </span>
-                ) : (
-                  <span className="text-brand-green font-bold flex items-center gap-1">
-                    <Check className="w-4 h-4" /> You have qualified for FREE Pan-India Shipping! 🎉
-                  </span>
-                )}
+                <span>Express Pan-India Delivery via <strong>iThink Logistics</strong> • Dispatched within 24 hours</span>
               </div>
-              <div className="w-full bg-cream-200 h-2 rounded-full overflow-hidden">
-                <div 
-                  className="bg-brand-green h-full rounded-full transition-all duration-500 ease-out"
-                  style={{ width: `${freeShippingProgress}%` }}
-                />
-              </div>
+              <span className="text-[11px] font-bold text-brand-green bg-cream-100 px-2.5 py-1 rounded-full shrink-0 border border-cream-200">
+                Safe Fragile Packaging
+              </span>
             </div>
 
             {/* Cart Table */}
@@ -245,7 +232,7 @@ export const CartPage = () => {
                   <span className="text-earth-brown">Shipping Fee:</span>
                   <span>
                     {shippingFee === 0 ? (
-                      <span className="text-brand-green font-bold uppercase text-[11px]">FREE</span>
+                      <span className="text-gray-900 font-bold uppercase text-[11px]">₹0</span>
                     ) : (
                       formatPrice(shippingFee)
                     )}

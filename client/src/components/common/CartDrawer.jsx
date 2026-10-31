@@ -368,7 +368,7 @@ export const CartDrawer = () => {
                       <span>Estimated Shipping:</span>
                       <span>
                         {shippingFee === 0 ? (
-                          <span className="text-brand-green font-bold text-[11px]">FREE</span>
+                          <span className="text-gray-900 font-bold text-[11px]">₹0</span>
                         ) : (
                           formatPrice(shippingFee)
                         )}
