@@ -4,7 +4,7 @@ import { Filter, SlidersHorizontal, X, Sparkles, ChevronDown } from 'lucide-reac
 import { ProductCard } from '../components/product/ProductCard';
 import { QuickViewModal } from '../components/product/QuickViewModal';
 import { productAPI, categoryAPI } from '../services/api';
-import { TASTE_SUBCATEGORIES, getTasteInfo } from '../constants/tasteSubCategories';
+import { getTasteInfo } from '../constants/tasteSubCategories';
 import { INITIAL_PRODUCTS } from '../data/initialProducts';
 
 export const ShopPage = () => {
@@ -305,47 +305,7 @@ export const ShopPage = () => {
               </div>
             </div>
 
-            {/* Taste Profile Sub-Category Filter */}
-            <div className="bg-white rounded-2xl p-5 border border-cream-200 shadow-card">
-              <h3 className="text-sm font-bold text-charcoal font-serif mb-3 pb-2 border-b border-cream-100 flex items-center justify-between">
-                <span>Taste Profile (स्वाद अनुसार)</span>
-                {subCategoryParam !== 'all' && (
-                  <button onClick={() => updateFilter('subCategory', 'all')} className="text-[11px] text-chilli font-semibold">
-                    Reset
-                  </button>
-                )}
-              </h3>
-              <div className="space-y-1.5">
-                <button
-                  onClick={() => updateFilter('subCategory', 'all')}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center justify-between ${
-                    subCategoryParam === 'all' ? 'bg-brand-green text-white font-bold' : 'text-charcoal hover:bg-cream-100'
-                  }`}
-                >
-                  <span>All Taste Profiles</span>
-                </button>
-                {TASTE_SUBCATEGORIES.map((taste) => {
-                  const isSelected = subCategoryParam.toLowerCase() === taste.id;
-                  return (
-                    <button
-                      key={taste.id}
-                      onClick={() => updateFilter('subCategory', isSelected ? 'all' : taste.id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center justify-between ${
-                        isSelected ? 'bg-brand-green text-white font-bold' : 'text-charcoal hover:bg-cream-100'
-                      }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <span>{taste.icon}</span>
-                        <span>{taste.name}</span>
-                        <span className={`text-[10px] ${isSelected ? 'text-white/80' : 'text-earth-brown'}`}>
-                          ({taste.hindiName})
-                        </span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+
 
           </aside>
 

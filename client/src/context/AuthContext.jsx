@@ -1,7 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext(null);
+
+// 15 Minutes Inactivity Limit for Store Administrator (in milliseconds)
+const ADMIN_INACTIVITY_LIMIT_MS = 15 * 60 * 1000;
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
@@ -15,6 +19,74 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('singodhia_token') || null);
   const [loading, setLoading] = useState(!user);
 
+  const logout = () => {
+    localStorage.removeItem('singodhia_token');
+    localStorage.removeItem('singodhia_user');
+    localStorage.removeItem('singodhia_admin_last_activity');
+    setToken(null);
+    setUser(null);
+  };
+
+  // Admin Inactivity Auto-Logout Mechanism
+  useEffect(() => {
+    if (!user || user.role !== 'admin') return;
+
+    let timeoutId;
+
+    const performAutoLogout = () => {
+      logout();
+      toast.error('निष्क्रिय रहने के कारण एडमिन सेशन समाप्त हो गया है। कृपया दोबारा लॉगिन करें।', {
+        id: 'admin-session-expired',
+        duration: 5000
+      });
+      if (window.location.pathname.startsWith('/admin')) {
+        window.location.href = '/admin/login';
+      }
+    };
+
+    const resetTimer = () => {
+      localStorage.setItem('singodhia_admin_last_activity', Date.now().toString());
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(performAutoLogout, ADMIN_INACTIVITY_LIMIT_MS);
+    };
+
+    // Check if session has already expired while browser or tab was inactive/asleep
+    const lastActivity = Number(localStorage.getItem('singodhia_admin_last_activity') || Date.now());
+    if (Date.now() - lastActivity > ADMIN_INACTIVITY_LIMIT_MS) {
+      performAutoLogout();
+      return;
+    }
+
+    resetTimer();
+
+    // User activity listeners
+    const activityEvents = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
+    let lastRecorded = Date.now();
+    const handleUserActivity = () => {
+      const now = Date.now();
+      if (now - lastRecorded > 3000) { // Throttle every 3 seconds
+        lastRecorded = now;
+        resetTimer();
+      }
+    };
+
+    activityEvents.forEach(evt => window.addEventListener(evt, handleUserActivity, { passive: true }));
+
+    // Periodic check every 15 seconds (handles tab wake-up and laptop sleep)
+    const intervalId = setInterval(() => {
+      const currentLast = Number(localStorage.getItem('singodhia_admin_last_activity') || Date.now());
+      if (Date.now() - currentLast > ADMIN_INACTIVITY_LIMIT_MS) {
+        performAutoLogout();
+      }
+    }, 15000);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      clearInterval(intervalId);
+      activityEvents.forEach(evt => window.removeEventListener(evt, handleUserActivity));
+    };
+  }, [user]);
+
   useEffect(() => {
     const fetchUser = async () => {
       if (token) {
@@ -26,7 +98,6 @@ export const AuthProvider = ({ children }) => {
           }
         } catch (err) {
           console.warn('Profile fetch notice:', err.message || err);
-          // Only invalidate session on genuine 401 Unauthenticated error
           if (err?.response?.status === 401 || err?.status === 401) {
             logout();
           }
@@ -37,11 +108,14 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, [token]);
 
-  const login = async (email, password) => {
-    const res = await authAPI.login({ email, password });
+  const login = async (email, password, loginType = 'customer') => {
+    const res = await authAPI.login({ email, password, loginType });
     if (res.token) {
       localStorage.setItem('singodhia_token', res.token);
       localStorage.setItem('singodhia_user', JSON.stringify(res.user));
+      if (res.user?.role === 'admin') {
+        localStorage.setItem('singodhia_admin_last_activity', Date.now().toString());
+      }
       setToken(res.token);
       setUser(res.user);
     }
@@ -57,13 +131,6 @@ export const AuthProvider = ({ children }) => {
       setUser(res.user);
     }
     return res;
-  };
-
-  const logout = () => {
-    localStorage.removeItem('singodhia_token');
-    localStorage.removeItem('singodhia_user');
-    setToken(null);
-    setUser(null);
   };
 
   const updateProfile = async (data) => {

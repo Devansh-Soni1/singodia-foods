@@ -16,23 +16,26 @@ export const register = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please provide name, email and password' });
     }
 
-    const userExists = await User.findOne({ email: email.toLowerCase() });
+    const singleAdminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase().trim();
+    if (email.toLowerCase().trim() === singleAdminEmail) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Admin email cannot be registered as a normal customer account.' 
+      });
+    }
+
+    const userExists = await User.findOne({ email: email.toLowerCase().trim() });
     if (userExists) {
       return res.status(400).json({ success: false, message: 'An account with this email already exists' });
     }
 
-    // First user can be made admin if ADMIN_EMAIL is set or standard customer
-    const isFirstUser = (await User.countDocuments({})) === 0;
-    const role = isFirstUser || email.toLowerCase() === (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase() 
-      ? 'admin' 
-      : 'customer';
-
+    // Strictly customer role for all public registrations
     const user = await User.create({
       name,
-      email: email.toLowerCase(),
+      email: email.toLowerCase().trim(),
       password,
       phone: phone || '',
-      role
+      role: 'customer'
     });
 
     res.status(201).json({
@@ -56,39 +59,56 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, loginType = 'customer' } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
     }
 
+    const normalizedEmail = email.toLowerCase().trim();
+    const singleAdminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase().trim();
+    const isAdminEmail = normalizedEmail === singleAdminEmail;
+
+    // RULE 1: Admin email can NEVER log into customer storefront (/login)
+    if (isAdminEmail && loginType !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        isAdminBlocked: true,
+        message: 'यह एडमिन अकाउंट है। एडमिन पैनल खोलने के लिए कृपया Admin Login (/admin/login) से लॉगिन करें।'
+      });
+    }
+
+    // RULE 2: Customer accounts can NEVER log into Admin Portal (/admin/login)
+    if (loginType === 'admin' && !isAdminEmail) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access Denied: केवल अधिकृत स्टोर एडमिन ईमेल ही एडमिन पोर्टल पर लॉगिन कर सकती है।'
+      });
+    }
+
     let user = null;
     if (mongoose.connection.readyState === 1) {
       try {
-        user = await User.findOne({ email: email.toLowerCase() });
+        user = await User.findOne({ email: normalizedEmail });
       } catch (e) {
         console.warn('Mongo findOne error in login:', e.message);
       }
     }
 
     // Fallback admin login support
-    const normalizedEmail = email.toLowerCase().trim();
-    const defaultAdminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase();
-    const isAdminEmail = normalizedEmail === defaultAdminEmail || normalizedEmail === 'admin@singodiafoods.com';
     const isMasterPassword = password === (process.env.ADMIN_PASSWORD || 'Admin@Singodhia2026') || password === 'admin123';
 
     if (!user && isAdminEmail && isMasterPassword) {
       const adminId = '6ace6cc495d90d554ead66ed';
-      // Attempt to save admin to DB if connection is active
       if (mongoose.connection.readyState === 1) {
         try {
           user = await User.create({
             _id: adminId,
             name: 'Singodhia Admin',
-            email: defaultAdminEmail,
+            email: singleAdminEmail,
             password: password,
             role: 'admin',
-            phone: '+91 98765 43210',
+            phone: '+91 97829 83909',
             addresses: []
           });
         } catch (seedErr) {
@@ -100,9 +120,9 @@ export const login = async (req, res, next) => {
         _id: adminId,
         id: adminId,
         name: 'Singodhia Admin',
-        email: defaultAdminEmail,
+        email: singleAdminEmail,
         role: 'admin',
-        phone: '+91 98765 43210',
+        phone: '+91 97829 83909',
         addresses: [],
         wishlist: []
       };

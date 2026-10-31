@@ -9,19 +9,14 @@ export const protect = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'singodhia_super_secret_jwt_key_2026_rajasthan');
       
-      const adminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase();
-      const adminEmails = [
-        adminEmail,
-        'singodia.bajranglal9@gmail.com',
-        'premsingodiya861@gmail.com'
-      ];
-      const isMasterAdminId = decoded.id === 'admin-master' || decoded.id === 'admin-dev' || decoded.id === 'admin-fallback' || decoded.id === '6ace6cc495d90d554ead66ed';
-      const isConfiguredAdmin = adminEmails.includes(decoded.email?.toLowerCase());
+      const singleAdminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase().trim();
+      const isMasterAdminId = decoded.id === '6ace6cc495d90d554ead66ed';
+      const isConfiguredAdmin = decoded.email?.toLowerCase().trim() === singleAdminEmail;
 
-      if (isMasterAdminId || isConfiguredAdmin || decoded.role === 'admin') {
+      if (isMasterAdminId || (isConfiguredAdmin && decoded.role === 'admin')) {
         if (mongoose.connection.readyState === 1 && mongoose.isValidObjectId(decoded.id)) {
           const dbAdmin = await User.findById(decoded.id).select('-password');
-          if (dbAdmin) {
+          if (dbAdmin && dbAdmin.email?.toLowerCase().trim() === singleAdminEmail) {
             req.user = dbAdmin;
             req.user.role = 'admin';
             return next();
@@ -31,7 +26,7 @@ export const protect = async (req, res, next) => {
           _id: decoded.id && mongoose.isValidObjectId(decoded.id) ? decoded.id : '6ace6cc495d90d554ead66ed',
           role: 'admin',
           name: decoded.name || 'Singodhia Admin',
-          email: decoded.email || adminEmail
+          email: singleAdminEmail
         };
         return next();
       }
@@ -60,15 +55,11 @@ export const protect = async (req, res, next) => {
 };
 
 export const adminOnly = (req, res, next) => {
-  const adminEmails = [
-    (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase(),
-    'singodia.bajranglal9@gmail.com',
-    'premsingodiya861@gmail.com'
-  ];
-  if (req.user && (req.user.role === 'admin' || adminEmails.includes(req.user.email?.toLowerCase()))) {
+  const singleAdminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase().trim();
+  if (req.user && req.user.role === 'admin' && req.user.email?.toLowerCase().trim() === singleAdminEmail) {
     next();
   } else {
-    res.status(403).json({ success: false, message: 'Forbidden: Admin access required.' });
+    res.status(403).json({ success: false, message: 'Forbidden: Only the single authorized store administrator has access.' });
   }
 };
 

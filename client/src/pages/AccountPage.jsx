@@ -47,6 +47,10 @@ export const AccountPage = () => {
       navigate('/login?redirect=/account');
       return;
     }
+    if (user?.role === 'admin') {
+      navigate('/admin', { replace: true });
+      return;
+    }
 
     const fetchOrders = async () => {
       try {

@@ -18,12 +18,19 @@ export const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    const cleanEmail = email.trim().toLowerCase();
+    if (cleanEmail === 'admin@singodhiafoods.com') {
+      setError('यह स्टोर एडमिन ईमेल है। एडमिन पोर्टल खोलने के लिए कृपया नीचे दिए गए "Admin Portal Login" लिंक का उपयोग करें। यहाँ से केवल ग्राहक अकाउंट लॉगिन होते हैं।');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const res = await login(email, password);
+      const res = await login(cleanEmail, password, 'customer');
       if (res.user?.role === 'admin') {
-        navigate('/admin/products');
+        navigate('/admin');
       } else {
         navigate(redirectPath);
       }
@@ -49,9 +56,20 @@ export const LoginPage = () => {
         </div>
 
         {error && (
-          <div className="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700 text-xs font-semibold">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span>{error}</span>
+          <div className="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl flex flex-col gap-2 text-red-700 text-xs font-semibold">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-600" />
+              <span>{error}</span>
+            </div>
+            {(error.includes('एडमिन') || error.includes('Admin')) && (
+              <Link
+                to="/admin/login"
+                className="mt-1 inline-flex items-center justify-center gap-1.5 bg-brand-green hover:bg-brand-green-light text-white text-[11px] font-bold py-2 px-3.5 rounded-lg shadow-2xs self-start"
+              >
+                <span>Go to Admin Portal Login (एडमिन लॉगिन पर जाएँ)</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            )}
           </div>
         )}
 

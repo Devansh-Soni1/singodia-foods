@@ -24,20 +24,27 @@ export const AdminLoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    const cleanEmail = email.trim().toLowerCase();
+    if (cleanEmail !== 'admin@singodhiafoods.com') {
+      setError('Access Denied: केवल अधिकृत स्टोर एडमिन (admin@singodhiafoods.com) ही एडमिन पोर्टल पर लॉगिन कर सकते हैं। ग्राहक अकाउंट के लिए मुख्य वेबसाइट का उपयोग करें।');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const res = await login(email.trim(), password);
+      const res = await login(cleanEmail, password, 'admin');
       
       if (res.user?.role !== 'admin') {
-        setError('Unauthorized: This account does not have administrator privileges. Please login with an authorized admin account.');
+        setError('Unauthorized: केवल अधिकृत स्टोर एडमिन ही यहाँ से लॉगिन कर सकते हैं।');
         return;
       }
 
       // Successful admin login
       navigate('/admin', { replace: true });
     } catch (err) {
-      setError(err?.message || 'Invalid administrator email or master password. Please verify and try again.');
+      setError(err?.message || 'Invalid administrator credentials. Please verify and try again.');
     } finally {
       setLoading(false);
     }
