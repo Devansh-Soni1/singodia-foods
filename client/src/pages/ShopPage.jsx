@@ -346,21 +346,6 @@ export const ShopPage = () => {
               </div>
             </div>
 
-            {/* Quick Banner */}
-            <div className="bg-gradient-to-br from-mustard to-mustard-dark text-brand-green-dark rounded-2xl p-5 shadow-card text-center space-y-2">
-              <Sparkles className="w-6 h-6 mx-auto fill-current" />
-              <h4 className="font-bold text-sm font-serif">Custom Gift Boxes</h4>
-              <p className="text-[11px] leading-tight">
-                Curate any 3 or 4 jars of your favorite homemade pickles with custom discount!
-              </p>
-              <button
-                onClick={() => window.location.href = '/build-combo'}
-                className="mt-2 w-full py-2 bg-brand-green text-white font-bold text-xs rounded-xl shadow-xs"
-              >
-                Build Box Now
-              </button>
-            </div>
-
           </aside>
 
           {/* Products Grid */}

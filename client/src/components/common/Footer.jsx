@@ -56,11 +56,6 @@ export const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/build-combo" className="hover:text-mustard transition-colors text-mustard font-semibold">
-                    Build Combo
-                  </Link>
-                </li>
-                <li>
                   <Link to="/product/combo-packs/" className="hover:text-mustard transition-colors">
                     Gift Hampers
                   </Link>

@@ -12,7 +12,6 @@ import AdminLayout from './layouts/AdminLayout';
 import HomePage from './pages/HomePage';
 import ShopPage from './pages/ShopPage';
 import ProductDetailPage from './pages/ProductDetailPage';
-import BuildComboPage from './pages/BuildComboPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
@@ -128,7 +127,7 @@ export const App = () => {
                 <Route path="category/:categorySlug/:subCategorySlug" element={<ShopPage />} />
                 <Route path="product/:slug" element={<ProductRouteHandler />} />
                 <Route path="products/:slug" element={<ProductRouteHandler />} />
-                <Route path="build-combo" element={<BuildComboPage />} />
+                <Route path="build-combo" element={<Navigate to="/shop" replace />} />
                 <Route path="cart" element={<CartPage />} />
                 <Route path="checkout" element={<CheckoutPage />} />
                 <Route path="order-confirmation/:orderNumber" element={<OrderConfirmationPage />} />

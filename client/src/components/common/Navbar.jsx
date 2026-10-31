@@ -362,15 +362,7 @@ export const Navbar = ({ onOpenSearch }) => {
               )}
             </div>
 
-            {/* 3. Build your Combo */}
-            <Link 
-              to="/build-combo" 
-              className="hover:text-[#e68819] transition-colors flex items-center gap-1"
-            >
-              <span>Build your combo</span>
-            </Link>
-
-            {/* 4. Contact us (Our story and Blogs are removed per user request) */}
+            {/* Contact us (Our story and Blogs are removed per user request) */}
             <Link 
               to="/contact" 
               className="hover:text-[#e68819] transition-colors"
@@ -577,16 +569,6 @@ export const Navbar = ({ onOpenSearch }) => {
                   </div>
                 )}
               </div>
-
-              {/* Build your combo */}
-              <Link 
-                to="/build-combo" 
-                className="py-2.5 px-3 rounded-lg hover:bg-cream-100 flex items-center justify-between text-[#b35400]"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <span>Build your combo</span>
-                <span className="text-[10px] bg-[#f3a222] text-black px-2 py-0.5 rounded-full font-extrabold uppercase">Custom Box</span>
-              </Link>
 
               {/* Contact us (Our story & blogs excluded) */}
               <Link 
