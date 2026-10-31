@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { 
   User, Package, MapPin, Heart, LogOut, Plus, Trash2, 
   CheckCircle, Clock, Truck, ShieldAlert, ArrowRight, Eye
@@ -65,9 +66,10 @@ export const AccountPage = () => {
     try {
       await updateProfile({ name: profileName, phone: profilePhone });
       setProfileSuccess('Profile updated successfully!');
+      toast.success('Profile updated successfully!');
       setTimeout(() => setProfileSuccess(''), 3000);
     } catch (err) {
-      alert(err.message || 'Failed to update profile');
+      toast.error(err.message || 'Failed to update profile');
     }
   };
 
@@ -75,6 +77,7 @@ export const AccountPage = () => {
     e.preventDefault();
     try {
       await addAddress(newAddress);
+      toast.success('Address added successfully!');
       setShowAddressForm(false);
       setNewAddress({
         fullName: user?.name || '',
@@ -88,7 +91,7 @@ export const AccountPage = () => {
         isDefault: false
       });
     } catch (err) {
-      alert(err.message || 'Failed to add address');
+      toast.error(err.message || 'Failed to add address');
     }
   };
 

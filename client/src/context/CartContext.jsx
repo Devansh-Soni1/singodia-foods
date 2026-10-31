@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { couponAPI, adminAPI } from '../services/api';
 import { resolveProductImage } from '../utils/imageUtils';
 
@@ -92,9 +93,14 @@ export const CartProvider = ({ children }) => {
     }
   }, [appliedCoupon]);
 
-  const showToast = (msg) => {
+  const showToast = (msg, type = 'success') => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
+    if (type === 'error' || msg.toLowerCase().includes('out of stock') || msg.toLowerCase().includes('failed') || msg.toLowerCase().includes('limit')) {
+      toast.error(msg);
+    } else {
+      toast.success(msg);
+    }
   };
 
   const addToCart = (product, variant, quantity = 1, openDrawer = false) => {

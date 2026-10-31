@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { ShoppingBag, Eye, Truck, CheckCircle2, Clock, X, Search, ExternalLink, Loader2, PackageCheck } from 'lucide-react';
 import { orderAPI, shippingAPI } from '../../services/api';
 import { formatPrice } from '../../utils/formatCurrency';
@@ -44,7 +45,7 @@ export const AdminOrders = () => {
       if (res.success) {
         const waybill = res.waybill || res.trackingNumber;
         const courier = res.courier || 'iThink Logistics Express';
-        alert(`Shipment successfully booked with iThink Logistics!\n\nAWB Tracking #: ${waybill}\nCourier Partner: ${courier}`);
+        toast.success(`Shipment booked!\nAWB: ${waybill}\nCourier: ${courier}`);
         setOrders(prev => prev.map(o => o._id === ord._id ? {
           ...o,
           orderStatus: 'Shipped',
@@ -52,10 +53,10 @@ export const AdminOrders = () => {
           courierPartner: courier
         } : o));
       } else {
-        alert('iThink Logistics notice: ' + (res.message || 'Unable to book shipment. Check pincode or credentials.'));
+        toast.error('iThink Logistics notice: ' + (res.message || 'Unable to book shipment. Check pincode or credentials.'));
       }
     } catch (err) {
-      alert('iThink Logistics booking error: ' + (err.message || 'Server error'));
+      toast.error('iThink Logistics booking error: ' + (err.message || 'Server error'));
     } finally {
       setDispatchingOrderId(null);
     }

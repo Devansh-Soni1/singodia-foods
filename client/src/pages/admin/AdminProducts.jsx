@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 import { 
   Package, Plus, Edit2, Trash2, X, Check, Search, 
   Flame, Upload, ExternalLink, AlertCircle, Image as ImageIcon,
@@ -218,7 +219,7 @@ export const AdminProducts = () => {
   const addQuickVariant = (weight, price, originalPrice) => {
     const existingIndex = formData.variants.findIndex(v => v.weight.toLowerCase() === weight.toLowerCase());
     if (existingIndex >= 0) {
-      alert(`${weight} already added in variants!`);
+      toast.error(`${weight} already added in variants!`);
       return;
     }
     setFormData(prev => ({
@@ -236,7 +237,7 @@ export const AdminProducts = () => {
 
   const removeVariant = (index) => {
     if (formData.variants.length <= 1) {
-      alert('At least one weight variant is required.');
+      toast.error('At least one weight variant is required.');
       return;
     }
     setFormData(prev => ({
@@ -256,7 +257,7 @@ export const AdminProducts = () => {
     e.preventDefault();
 
     if (!formData.name.trim()) {
-      alert('Please enter product name.');
+      toast.error('Please enter product name.');
       return;
     }
 
@@ -286,19 +287,19 @@ export const AdminProducts = () => {
         const res = await productAPI.updateProduct(editingProduct._id, payload);
         const updatedObj = res.product || { ...payload, _id: editingProduct._id };
         setProducts(products.map(p => p._id === editingProduct._id ? updatedObj : p));
-        alert('Pickle product updated successfully!');
+        toast.success('Pickle product updated successfully!');
       } else {
         const res = await productAPI.createProduct(payload);
         const createdObj = res.product || { ...payload, _id: 'prod-' + Date.now() };
         setProducts([createdObj, ...products]);
-        alert('Pickle product uploaded successfully!');
+        toast.success('Pickle product uploaded successfully!');
       }
       setShowModal(false);
       fetchProducts();
     } catch (err) {
       console.error('Submit product error:', err);
       const errMsg = err.response?.data?.message || err.message || 'Operation failed';
-      alert('Upload failed: ' + errMsg);
+      toast.error('Upload failed: ' + errMsg);
     }
   };
 
@@ -307,7 +308,7 @@ export const AdminProducts = () => {
     if (willBeFeatured) {
       const currentFeaturedCount = products.filter(p => p.isFeatured && p._id !== product._id).length;
       if (currentFeaturedCount >= 4) {
-        alert('Home page par sirf 4 hi products add ho sakte hain! Kripya pehle kisi doosre product ko uncheck karein.');
+        toast.error('Home page par sirf 4 hi products add ho sakte hain! Kripya pehle kisi doosre product ko uncheck karein.');
         return;
       }
     }
@@ -315,9 +316,10 @@ export const AdminProducts = () => {
     try {
       await productAPI.updateProduct(product._id, { isFeatured: willBeFeatured });
       setProducts(prev => prev.map(p => p._id === product._id ? { ...p, isFeatured: willBeFeatured } : p));
+      toast.success(willBeFeatured ? 'Added to Home Featured!' : 'Removed from Home Featured');
     } catch (err) {
       console.error(err);
-      alert('Failed to update featured status: ' + (err?.message || 'Server error'));
+      toast.error('Failed to update featured status: ' + (err?.message || 'Server error'));
     }
   };
 
@@ -326,9 +328,10 @@ export const AdminProducts = () => {
       try {
         await productAPI.deleteProduct(id);
         setProducts(prev => prev.filter(p => p._id !== id));
+        toast.success('Product deleted successfully');
       } catch (err) {
         console.error('Delete product error:', err);
-        alert('Failed to delete product: ' + (err?.message || 'Server error. Please verify you are logged in as admin.'));
+        toast.error('Failed to delete product: ' + (err?.message || 'Server error.'));
       }
     }
   };
@@ -1117,7 +1120,7 @@ export const AdminProducts = () => {
                           p => p.isFeatured && (!editingProduct || (p._id !== editingProduct._id && p.slug !== editingProduct.slug))
                         ).length;
                         if (currentFeaturedCount >= 4) {
-                          alert('Home page par sirf 4 hi products add ho sakte hain! Kripya pehle kisi doosre product ko uncheck karein.');
+                          toast.error('Home page par sirf 4 hi products add ho sakte hain! Kripya pehle kisi doosre product ko uncheck karein.');
                           return;
                         }
                       }

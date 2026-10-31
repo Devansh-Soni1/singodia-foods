@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Link, useParams } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
@@ -111,6 +112,34 @@ const ProtectedAdminRoute = ({ children }) => {
 export const App = () => {
   return (
     <BrowserRouter>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3500,
+          style: {
+            background: '#1F4D36',
+            color: '#FFFFFF',
+            fontWeight: '600',
+            fontSize: '13px',
+            borderRadius: '14px',
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+            padding: '12px 18px',
+            border: '1px solid rgba(255, 255, 255, 0.15)'
+          },
+          success: {
+            iconTheme: {
+              primary: '#D97706',
+              secondary: '#FFFFFF',
+            },
+          },
+          error: {
+            style: {
+              background: '#991B1B',
+              color: '#FFFFFF',
+            },
+          },
+        }}
+      />
       <AuthProvider>
         <CartProvider>
           <WishlistProvider>

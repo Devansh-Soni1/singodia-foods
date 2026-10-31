@@ -93,6 +93,7 @@ export const getCustomers = async (req, res, next) => {
 
 export const getSettings = async (req, res, next) => {
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     let settings = {};
     if (mongoose.connection.readyState === 1) {
       const records = await Setting.find();

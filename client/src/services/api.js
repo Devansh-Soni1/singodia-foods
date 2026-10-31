@@ -401,6 +401,7 @@ export const adminAPI = {
     }
   },
   updateSettings: async (settings) => {
+    clearApiCache();
     const res = await api.put('/admin/settings', settings);
     return res.data;
   },

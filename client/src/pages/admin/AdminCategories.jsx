@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { FolderTree, Plus, Edit2, Trash2, X, Smile, Sparkles, Layers, Tag, ChevronRight } from 'lucide-react';
 import { categoryAPI } from '../../services/api';
 
@@ -150,7 +151,7 @@ export const AdminCategories = () => {
   const handleAddSubCategory = (e) => {
     e?.preventDefault();
     if (!newSub.name.trim()) {
-      alert('Please enter sub-category variety name');
+      toast.error('Please enter sub-category variety name');
       return;
     }
     const cleanSubSlug = (newSub.slug || newSub.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')).replace(/(^-|-$)/g, '');
@@ -214,13 +215,15 @@ export const AdminCategories = () => {
         const idOrSlug = editingCat._id || editingCat.slug;
         const res = await categoryAPI.updateCategory(idOrSlug, formData);
         setCategories(categories.map(c => ((c._id && c._id === editingCat._id) || c.slug === editingCat.slug) ? (res.category || { ...c, ...formData }) : c));
+        toast.success('Category updated successfully!');
       } else {
         const res = await categoryAPI.createCategory(formData);
         setCategories([...categories, res.category || { ...formData, _id: 'cat-' + Date.now() }]);
+        toast.success('Category created successfully!');
       }
       setShowModal(false);
     } catch (err) {
-      alert(err.message || 'Action failed');
+      toast.error(err.message || 'Action failed');
     }
   };
 

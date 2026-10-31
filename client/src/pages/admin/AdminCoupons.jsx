@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { Tag, Plus, Trash2, X, Sparkles } from 'lucide-react';
 import { couponAPI } from '../../services/api';
 import { formatPrice } from '../../utils/formatCurrency';
@@ -35,8 +36,9 @@ export const AdminCoupons = () => {
       setCoupons([...coupons, res.coupon || { ...newCoupon, _id: 'coup-' + Date.now() }]);
       setShowModal(false);
       setNewCoupon({ code: '', discountType: 'percentage', discountValue: '', minOrderValue: '', maxDiscountAmount: '', description: '' });
+      toast.success('Coupon code created successfully!');
     } catch (err) {
-      alert(err.message || 'Failed to create coupon');
+      toast.error(err.message || 'Failed to create coupon');
     }
   };
 
@@ -45,8 +47,10 @@ export const AdminCoupons = () => {
       try {
         await couponAPI.deleteCoupon(id);
         setCoupons(coupons.filter(c => c._id !== id));
+        toast.success('Coupon deleted');
       } catch (err) {
         setCoupons(coupons.filter(c => c._id !== id));
+        toast.error('Failed to delete coupon');
       }
     }
   };

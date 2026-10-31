@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { 
   Settings, Save, Check, Truck, MessageCircle, AlertCircle, 
   Image, Upload, RefreshCw, Sparkles, Gift, Camera 
@@ -66,10 +67,11 @@ export const AdminSettings = () => {
       if (res?.url) {
         setSettings(prev => ({ ...prev, heroBannerImage: res.url }));
         setSaved(true);
+        toast.success('Hero banner uploaded to Cloudinary successfully!');
         setTimeout(() => setSaved(false), 3000);
       }
     } catch (err) {
-      alert(err.message || 'Banner upload failed');
+      toast.error(err.message || 'Banner upload failed');
     } finally {
       setUploadingBanner(false);
     }
@@ -89,9 +91,10 @@ export const AdminSettings = () => {
           items[index] = { ...items[index], image: res.url };
           return { ...prev, trialPackItems: items };
         });
+        toast.success(`Jar #${index + 1} photo uploaded to Cloudinary!`);
       }
     } catch (err) {
-      alert('Jar image upload failed: ' + (err.message || 'Error'));
+      toast.error('Jar image upload failed: ' + (err.message || 'Error'));
     } finally {
       setUploadingJarIndex(null);
     }
@@ -125,9 +128,10 @@ export const AdminSettings = () => {
     try {
       await adminAPI.updateSettings(settings);
       setSaved(true);
+      toast.success('Store settings updated and applied successfully!');
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      alert(err.message || 'Failed to update settings');
+      toast.error(err.message || 'Failed to update settings');
     } finally {
       setLoading(false);
     }
@@ -370,23 +374,33 @@ export const AdminSettings = () => {
 
                   <div className="space-y-1.5">
                     <div>
-                      <label className="text-[9px] font-bold text-gray-500 block">Flavour Name</label>
+                      <label className="text-[9px] font-bold text-gray-700 block">Flavour Name (नाम)</label>
                       <input
                         type="text"
-                        value={jar.name}
+                        value={jar.name || ''}
                         onChange={(e) => handleJarFieldChange(idx, 'name', e.target.value)}
-                        className="w-full p-1.5 rounded-lg border border-gray-300 text-[11px] font-bold bg-white"
-                        placeholder="e.g. Kachi Keri Aam"
+                        className="w-full p-1.5 rounded-lg border border-gray-300 text-[11px] font-bold bg-white text-gray-900"
+                        placeholder="e.g. Aam ka Achar"
                       />
                     </div>
                     <div>
-                      <label className="text-[9px] font-bold text-gray-500 block">Taste / Tag</label>
+                      <label className="text-[9px] font-bold text-gray-700 block">Hindi Title (हिंदी नाम / उपनाम)</label>
+                      <input
+                        type="text"
+                        value={jar.hindiName || ''}
+                        onChange={(e) => handleJarFieldChange(idx, 'hindiName', e.target.value)}
+                        className="w-full p-1.5 rounded-lg border border-gray-300 text-[10px] bg-white font-medium text-gray-800"
+                        placeholder="e.g. आम का अचार"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-bold text-gray-700 block">Taste / Tag (स्वाद अनुसार)</label>
                       <input
                         type="text"
                         value={jar.taste || ''}
                         onChange={(e) => handleJarFieldChange(idx, 'taste', e.target.value)}
-                        className="w-full p-1.5 rounded-lg border border-gray-300 text-[10px] bg-white"
-                        placeholder="e.g. Khatta, Spicy"
+                        className="w-full p-1.5 rounded-lg border border-gray-300 text-[10px] bg-white text-gray-700"
+                        placeholder="e.g. Khatta Meetha, Teekha"
                       />
                     </div>
                   </div>

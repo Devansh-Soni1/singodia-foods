@@ -262,12 +262,12 @@ export const FeaturedTrialPackBanner = () => {
                       </div>
 
                       {/* Name & Flavour */}
-                      <div className="w-full mb-1.5">
-                        <span className="text-[10px] font-extrabold text-gray-900 block leading-tight truncate">
-                          {item.hindiName}
+                      <div className="w-full mb-1.5 px-0.5">
+                        <span className="text-[10px] sm:text-[11px] font-extrabold text-gray-950 block leading-tight truncate" title={item.name}>
+                          {item.name}
                         </span>
                         <span className="text-[9px] text-gray-500 font-medium block truncate">
-                          {item.name.split(' ')[0]}
+                          {item.hindiName || item.taste || 'देसी स्वाद'}
                         </span>
                       </div>
 
@@ -457,8 +457,8 @@ export const FeaturedTrialPackBanner = () => {
                             className="inline-flex items-center gap-1 bg-amber-50 border border-amber-300 rounded-lg px-1.5 py-0.5 shadow-2xs"
                           >
                             <img src={j.image} alt={j.name} className="w-3.5 h-3.5 rounded object-cover" />
-                            <span className="text-[9px] font-bold text-gray-900 truncate max-w-[65px]">
-                              {j.hindiName || j.name.split(' ')[0]}
+                            <span className="text-[9px] font-bold text-gray-900 truncate max-w-[75px]" title={j.name}>
+                              {j.name}
                             </span>
                             <button
                               type="button"
