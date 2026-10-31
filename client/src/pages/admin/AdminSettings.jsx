@@ -59,10 +59,11 @@ export const AdminSettings = () => {
 
     const formData = new FormData();
     formData.append('image', file);
+    formData.append('folder', 'banners');
     setUploadingBanner(true);
     try {
       const res = await productAPI.uploadImage(formData);
-      if (res.url) {
+      if (res?.url) {
         setSettings(prev => ({ ...prev, heroBannerImage: res.url }));
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
@@ -78,26 +79,19 @@ export const AdminSettings = () => {
     if (!file) return;
     setUploadingJarIndex(index);
     try {
-      const { dataUrl } = await compressImageFile(file, 500, 0.8);
-      let finalUrl = dataUrl;
-      try {
-        const formData = new FormData();
-        formData.append('image', file);
-        const res = await productAPI.uploadImage(formData);
-        if (res?.url && (res.url.startsWith('https://res.cloudinary.com') || res.url.startsWith('data:image/'))) {
-          finalUrl = res.url;
-        }
-      } catch (uploadErr) {
-        console.warn('Using client dataUrl for jar:', uploadErr.message);
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('folder', 'trial-pack');
+      const res = await productAPI.uploadImage(formData);
+      if (res?.url) {
+        setSettings(prev => {
+          const items = [...(prev.trialPackItems || DEFAULT_TRIAL_ITEMS)];
+          items[index] = { ...items[index], image: res.url };
+          return { ...prev, trialPackItems: items };
+        });
       }
-
-      setSettings(prev => {
-        const items = [...(prev.trialPackItems || DEFAULT_TRIAL_ITEMS)];
-        items[index] = { ...items[index], image: finalUrl };
-        return { ...prev, trialPackItems: items };
-      });
     } catch (err) {
-      alert('Jar image upload failed: ' + err.message);
+      alert('Jar image upload failed: ' + (err.message || 'Error'));
     } finally {
       setUploadingJarIndex(null);
     }

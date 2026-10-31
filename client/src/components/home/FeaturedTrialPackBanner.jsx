@@ -7,13 +7,13 @@ import { useCart } from '../../context/CartContext';
 import { adminAPI } from '../../services/api';
 import siteLogo from '../../assets/logo.png';
 
-// 8 Default Signature Flavours
+// 8 Default Signature Flavours (Pre-seeded with official Cloudinary CDN photos)
 export const DEFAULT_TRIAL_ITEMS = [
-  { id: 1, name: 'Kachi Keri Aam', hindiName: 'कच्ची केरी', image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=400&q=80', taste: 'Khatta Meetha', icon: '🥭' },
-  { id: 2, name: 'Bharwa Lal Mirch', hindiName: 'भरवां लाल मिर्च', image: 'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=400&q=80', taste: 'Banarasi Teekha', icon: '🌶️' },
-  { id: 3, name: 'Teekhi Hari Mirch', hindiName: 'हरी मिर्च', image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80', taste: 'Lemon Cured', icon: '🫑' },
-  { id: 4, name: 'Khatta Meetha Nimbu', hindiName: 'नीम्बू अचार', image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=400&q=80', taste: 'Oil-Free Sun Cured', icon: '🍋' },
-  { id: 5, name: 'Kair Sangri Shahi', hindiName: 'कैर सांगरी', image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=400&q=80', taste: 'Royal Marwadi', icon: '🏺' },
+  { id: 1, name: 'Kachi Keri Aam', hindiName: 'कच्ची केरी', image: 'https://res.cloudinary.com/pfdyike8/image/upload/v1793463626/singodia-foods/products/aam-ka-achar.jpg', taste: 'Khatta Meetha', icon: '🥭' },
+  { id: 2, name: 'Bharwa Lal Mirch', hindiName: 'भरवां लाल मिर्च', image: 'https://res.cloudinary.com/pfdyike8/image/upload/v1793463665/singodia-foods/products/lal-mirch-ka-achar.jpg', taste: 'Banarasi Teekha', icon: '🌶️' },
+  { id: 3, name: 'Teekhi Hari Mirch', hindiName: 'हरी मिर्च', image: 'https://res.cloudinary.com/pfdyike8/image/upload/v1793463669/singodia-foods/products/hari-mirch-ka-achar.jpg', taste: 'Lemon Cured', icon: '🫑' },
+  { id: 4, name: 'Khatta Meetha Nimbu', hindiName: 'नीम्बू अचार', image: 'https://res.cloudinary.com/pfdyike8/image/upload/v1793463668/singodia-foods/products/nimbu-ka-achar.jpg', taste: 'Oil-Free Sun Cured', icon: '🍋' },
+  { id: 5, name: 'Kair Sangri Shahi', hindiName: 'कैर सांगरी', image: 'https://res.cloudinary.com/pfdyike8/image/upload/v1793463667/singodia-foods/products/ker-sangri-ka-achar.jpg', taste: 'Royal Marwadi', icon: '🏺' },
   { id: 6, name: 'Desi Lasun Methi', hindiName: 'लहसुन मेथी', image: 'https://images.unsplash.com/photo-1590502593747-42a996133562?auto=format&fit=crop&w=400&q=80', taste: 'Desi Garlic', icon: '🧄' },
   { id: 7, name: 'Hathras Hing Aam', hindiName: 'हींग आम', image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=400&q=80', taste: 'Hing Flavour', icon: '🌸' },
   { id: 8, name: 'Winter Mix Veg', hindiName: 'मिक्स अचार', image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=400&q=80', taste: 'Crunchy Veg', icon: '🥕' }

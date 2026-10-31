@@ -1,6 +1,42 @@
 import mongoose from 'mongoose';
+import { v2 as cloudinary } from 'cloudinary';
 import Product from '../models/Product.js';
 import { getLocalProducts, saveLocalProducts } from '../utils/productStore.js';
+
+// Helper to ensure any base64 images are uploaded to Cloudinary
+const ensureCloudinaryImages = async (images = []) => {
+  if (!Array.isArray(images) || images.length === 0) return images;
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    return images;
+  }
+  try {
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+    const newImages = [];
+    for (const img of images) {
+      if (typeof img === 'string' && img.startsWith('data:image/')) {
+        try {
+          const uploadRes = await cloudinary.uploader.upload(img, {
+            folder: 'singodia-foods/products'
+          });
+          newImages.push(uploadRes.secure_url);
+        } catch (err) {
+          console.warn('Cloudinary product image upload warning:', err.message);
+          newImages.push(img);
+        }
+      } else {
+        newImages.push(img);
+      }
+    }
+    return newImages;
+  } catch (err) {
+    console.warn('ensureCloudinaryImages error:', err.message);
+    return images;
+  }
+};
 
 export const getProducts = async (req, res, next) => {
   try {
@@ -375,6 +411,8 @@ export const createProduct = async (req, res, next) => {
     }
     if (!productData.images || productData.images.length === 0) {
       productData.images = ['https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80'];
+    } else {
+      productData.images = await ensureCloudinaryImages(productData.images);
     }
     if (!productData.spiceLevel) productData.spiceLevel = 'Medium';
     if (!productData.shelfLife) productData.shelfLife = '12 Months from packaging date';
@@ -417,6 +455,10 @@ export const updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
     let updated = null;
+
+    if (req.body.images && Array.isArray(req.body.images)) {
+      req.body.images = await ensureCloudinaryImages(req.body.images);
+    }
 
     if (mongoose.connection.readyState === 1) {
       try {

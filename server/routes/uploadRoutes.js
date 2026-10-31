@@ -15,6 +15,9 @@ router.post('/', (req, res) => {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
+    const requestedFolder = req.body?.folder || req.query?.folder || 'products';
+    const targetFolder = `singodia-foods/${requestedFolder}`;
+
     // 1. Try Cloudinary Signed Upload
     if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
       try {
@@ -25,7 +28,7 @@ router.post('/', (req, res) => {
         });
         const uploadPromises = req.files.map(file => {
           return cloudinary.uploader.upload(file.path, {
-            folder: 'singodia-foods/products'
+            folder: targetFolder
           });
         });
         const results = await Promise.all(uploadPromises);

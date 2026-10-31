@@ -115,6 +115,41 @@ export const getSettings = async (req, res, next) => {
 export const updateSettings = async (req, res, next) => {
   try {
     const updates = req.body;
+
+    // Helper to upload base64 image data URI to Cloudinary if found in settings
+    const uploadBase64ToCloudinary = async (dataUri, folder) => {
+      if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+        try {
+          cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET
+          });
+          const result = await cloudinary.uploader.upload(dataUri, {
+            folder: `singodia-foods/${folder}`
+          });
+          return result.secure_url;
+        } catch (e) {
+          console.warn(`Cloudinary upload failed for ${folder}:`, e.message);
+        }
+      }
+      return dataUri;
+    };
+
+    // Auto-upload Hero Banner image to Cloudinary if it is Base64
+    if (updates.heroBannerImage && typeof updates.heroBannerImage === 'string' && updates.heroBannerImage.startsWith('data:image/')) {
+      updates.heroBannerImage = await uploadBase64ToCloudinary(updates.heroBannerImage, 'banners');
+    }
+
+    // Auto-upload Trial Pack items to Cloudinary if any item has Base64
+    if (Array.isArray(updates.trialPackItems)) {
+      for (const item of updates.trialPackItems) {
+        if (item.image && typeof item.image === 'string' && item.image.startsWith('data:image/')) {
+          item.image = await uploadBase64ToCloudinary(item.image, 'trial-pack');
+        }
+      }
+    }
+
     for (const [key, value] of Object.entries(updates)) {
       if (mongoose.connection.readyState === 1) {
         await Setting.findOneAndUpdate(
@@ -135,6 +170,9 @@ export const uploadImage = async (req, res) => {
     return res.status(400).json({ success: false, message: 'No file uploaded' });
   }
 
+  const requestedFolder = req.body?.folder || req.query?.folder || 'admin';
+  const targetFolder = `singodia-foods/${requestedFolder}`;
+
   try {
     if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
       cloudinary.config({
@@ -143,7 +181,7 @@ export const uploadImage = async (req, res) => {
         api_secret: process.env.CLOUDINARY_API_SECRET
       });
       const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'singodia-foods/admin'
+        folder: targetFolder
       });
       return res.json({
         success: true,

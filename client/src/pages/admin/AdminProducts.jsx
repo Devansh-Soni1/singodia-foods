@@ -147,6 +147,7 @@ export const AdminProducts = () => {
         try {
           const uploadData = new FormData();
           uploadData.append('image', compressedFile);
+          uploadData.append('folder', 'products');
           const res = await productAPI.uploadImage(uploadData);
           // Only trust uploaded URL if it is a persistent cloud storage CDN or persistent Data URL.
           // Never use ephemeral /uploads/ paths that get wiped on server reboot!
