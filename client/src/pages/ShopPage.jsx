@@ -365,59 +365,6 @@ export const ShopPage = () => {
 
           {/* Products Grid */}
           <main className="lg:col-span-3">
-            {/* Quick Taste Sub-Category Chips Bar */}
-            <div className="bg-white rounded-2xl p-3.5 border border-cream-200 shadow-card mb-6">
-              <div className="flex items-center justify-between mb-2 px-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-charcoal">Sub-Category (स्वाद अनुसार):</span>
-                  {categoryParam !== 'all' && (
-                    <span className="text-[11px] font-semibold text-brand-green bg-brand-green/10 px-2 py-0.5 rounded-full capitalize">
-                      {categoryParam.replace(/-/g, ' ')}
-                    </span>
-                  )}
-                </div>
-                {subCategoryParam !== 'all' && (
-                  <button 
-                    onClick={() => updateFilter('subCategory', 'all')}
-                    className="text-[11px] text-chilli font-bold hover:underline"
-                  >
-                    Clear Taste Filter
-                  </button>
-                )}
-              </div>
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-                <button
-                  onClick={() => updateFilter('subCategory', 'all')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                    subCategoryParam === 'all'
-                      ? 'bg-charcoal text-white shadow-xs'
-                      : 'bg-cream-100 text-charcoal hover:bg-cream-200'
-                  }`}
-                >
-                  All
-                </button>
-                {TASTE_SUBCATEGORIES.map((taste) => {
-                  const isSelected = subCategoryParam.toLowerCase() === taste.id;
-                  return (
-                    <button
-                      key={taste.id}
-                      onClick={() => updateFilter('subCategory', isSelected ? 'all' : taste.id)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
-                        isSelected
-                          ? 'bg-brand-green text-white border-brand-green shadow-xs ring-2 ring-brand-green/20'
-                          : 'bg-white text-charcoal border-cream-200 hover:border-amber-400 hover:bg-amber-50/50'
-                      }`}
-                    >
-                      <span>{taste.icon}</span>
-                      <span>{taste.name}</span>
-                      <span className={`text-[10px] font-normal ${isSelected ? 'text-white/80' : 'text-earth-brown'}`}>
-                        ({taste.hindiName})
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
