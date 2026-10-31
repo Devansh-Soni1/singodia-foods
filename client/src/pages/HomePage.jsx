@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { HeroBanner } from '../components/home/HeroBanner';
 import { BestSellersSection } from '../components/home/BestSellersSection';
 import { FeaturedTrialPackBanner } from '../components/home/FeaturedTrialPackBanner';
+import { FlavoursShowcaseSection } from '../components/home/FlavoursShowcaseSection';
 import { TrustBadges } from '../components/common/TrustBadges';
 import { FaqSection } from '../components/home/FaqSection';
 import { QuickViewModal } from '../components/product/QuickViewModal';
@@ -50,6 +51,9 @@ export const HomePage = () => {
 
       {/* Featured Dadi's Special Trial Pack Interactive Banner */}
       <FeaturedTrialPackBanner />
+
+      {/* Aunty Ji's Sab Flavours Showcase Section */}
+      <FlavoursShowcaseSection />
 
       {/* FAQ Section */}
       <FaqSection />
