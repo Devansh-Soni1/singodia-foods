@@ -103,11 +103,15 @@ export const login = async (req, res, next) => {
 
     // Send welcome email if customer hasn't received it yet
     if (user.role === 'customer' && !user.welcomeEmailSent) {
-      user.welcomeEmailSent = true;
-      user.save().catch(() => {});
-      sendWelcomeEmail(user).catch(emailErr => {
-        console.warn('[Login] Welcome email notice:', emailErr.message);
-      });
+      sendWelcomeEmail(user)
+        .then(async (res) => {
+          if (res && res.success) {
+            await User.findByIdAndUpdate(user._id, { welcomeEmailSent: true });
+          }
+        })
+        .catch(emailErr => {
+          console.warn('[Login] Welcome email notice:', emailErr.message);
+        });
     }
 
     res.json({
@@ -337,20 +341,31 @@ export const googleLogin = async (req, res, next) => {
           role: 'customer',
           avatar: picture || '',
           googleId: googleId || '',
-          welcomeEmailSent: true
+          welcomeEmailSent: false
         });
 
-        // Send Welcome Email asynchronously
-        sendWelcomeEmail(user).catch(err => {
-          console.warn('[GoogleLogin] Welcome email notice:', err.message);
-        });
+        // Send Welcome Email asynchronously - mark true only on successful delivery
+        sendWelcomeEmail(user)
+          .then(async (sendRes) => {
+            if (sendRes && sendRes.success) {
+              await User.findByIdAndUpdate(user._id, { welcomeEmailSent: true });
+            }
+          })
+          .catch(err => {
+            console.warn('[GoogleLogin] Welcome email notice:', err.message);
+          });
       } else {
         // Update avatar / googleId if missing
         if (!user.avatar && picture) user.avatar = picture;
         if (!user.googleId && googleId) user.googleId = googleId;
         if (!user.welcomeEmailSent) {
-          user.welcomeEmailSent = true;
-          sendWelcomeEmail(user).catch(() => {});
+          sendWelcomeEmail(user)
+            .then(async (sendRes) => {
+              if (sendRes && sendRes.success) {
+                await User.findByIdAndUpdate(user._id, { welcomeEmailSent: true });
+              }
+            })
+            .catch(() => {});
         }
         await user.save().catch(() => {});
       }
