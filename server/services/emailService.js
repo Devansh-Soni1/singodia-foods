@@ -1,5 +1,6 @@
 // server/services/emailService.js
 // Automated Email Notifications via Resend API for Singodhia Foods
+// Aesthetic: Royal Rajasthani Heritage • Refined English with Authentic Marwadi Touches
 
 const RESEND_API_URL = 'https://api.resend.com/emails';
 const STORE_NAME = 'Singodhia Foods';
@@ -12,7 +13,7 @@ const STORE_PHONE = '+91 97829 83909';
 export const sendEmail = async ({ to, subject, html, text }) => {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    console.warn('[EmailService] RESEND_API_KEY is not configured. Email not sent.');
+    console.warn('[EmailService] RESEND_API_KEY is not configured in process.env. Email not sent.');
     return { success: false, message: 'Missing API key' };
   }
 
@@ -49,7 +50,7 @@ export const sendEmail = async ({ to, subject, html, text }) => {
   try {
     let result = await attemptSend(primaryFrom);
 
-    // If custom domain is not yet verified on Resend (HTTP 403), fallback to onboarding@resend.dev
+    // Fallback if custom domain is still pending verification in Resend
     if (!result.ok && result.status === 403 && primaryFrom !== fallbackFrom) {
       console.warn(`[EmailService] Custom sender "${primaryFrom}" not verified yet on Resend. Falling back to "${fallbackFrom}"...`);
       result = await attemptSend(fallbackFrom);
@@ -69,48 +70,60 @@ export const sendEmail = async ({ to, subject, html, text }) => {
 };
 
 /**
- * Common HTML Wrapper with Singodhia Foods Rajasthani Theme
+ * Royal Rajasthani Heritage HTML Template Wrapper
+ * Combines warm terracotta, royal gold, and parchment cream with refined English typography.
  */
 const wrapTemplate = (contentHtml, previewText = '') => {
   return `
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Singodhia Foods</title>
+  <title>Singodhia Foods — Royal Rajasthani Heritage</title>
   <style>
-    body { margin: 0; padding: 0; background-color: #FAF6EF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #2D2721; }
-    .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #EFE6D8; box-shadow: 0 4px 16px rgba(179,84,0,0.06); }
-    .header { background: linear-gradient(135deg, #b35400 0%, #8c3e00 100%); padding: 32px 24px; text-align: center; color: #ffffff; }
-    .header h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 0.5px; }
-    .header p { margin: 6px 0 0; font-size: 13px; color: #FCEFD9; letter-spacing: 0.3px; }
-    .body { padding: 32px 28px; line-height: 1.6; }
-    .btn { display: inline-block; background: #b35400; color: #ffffff !important; text-decoration: none; padding: 13px 28px; border-radius: 999px; font-weight: 700; font-size: 14px; margin: 18px 0; text-align: center; }
-    .order-box { background: #FAF6EF; border: 1px solid #EAE0CE; border-radius: 12px; padding: 16px; margin: 20px 0; }
-    .table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
-    .table th { text-align: left; padding: 8px 6px; border-bottom: 2px solid #EAE0CE; color: #6E5A44; font-size: 11px; text-transform: uppercase; }
-    .table td { padding: 10px 6px; border-bottom: 1px solid #F2EBE0; }
-    .footer { background: #FAF6EF; padding: 24px; text-align: center; font-size: 12px; color: #8A7761; border-top: 1px solid #EFE6D8; }
-    .footer a { color: #b35400; text-decoration: none; font-weight: 600; }
-    .badge { display: inline-block; background: #EAF7EC; color: #166534; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+    body { margin: 0; padding: 0; background-color: #FAF5EB; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #2B2118; -webkit-font-smoothing: antialiased; }
+    .wrapper { max-width: 600px; margin: 30px auto; background: #FFFFFF; border-radius: 20px; overflow: hidden; border: 1px solid #EADBCA; box-shadow: 0 10px 30px rgba(135,43,0,0.08); }
+    .royal-header { background: linear-gradient(135deg, #7A2600 0%, #4D1800 100%); padding: 36px 24px; text-align: center; color: #FFFFFF; position: relative; border-bottom: 3px solid #D4AF37; }
+    .heritage-badge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #EAD098; border: 1px solid rgba(212,175,55,0.4); padding: 4px 14px; border-radius: 999px; margin-bottom: 12px; }
+    .brand-title { margin: 0; font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; font-size: 30px; font-weight: 800; letter-spacing: 1px; color: #FFFBF5; }
+    .brand-subtitle { margin: 6px 0 0; font-size: 13px; color: #E8D5BF; letter-spacing: 1px; text-transform: uppercase; }
+    .content-body { padding: 36px 32px; line-height: 1.65; color: #382E25; }
+    .greeting { font-family: 'Playfair Display', Georgia, serif; font-size: 22px; font-weight: 700; color: #7A2600; margin: 0 0 14px; }
+    .parchment-card { background: #FAF5EB; border: 1px solid #EADCC8; border-radius: 14px; padding: 20px; margin: 24px 0; }
+    .btn-royal { display: inline-block; background: #7A2600; color: #FFFFFF !important; text-decoration: none; padding: 14px 34px; border-radius: 999px; font-weight: 700; font-size: 13px; letter-spacing: 0.8px; text-transform: uppercase; border: 1px solid #D4AF37; box-shadow: 0 4px 14px rgba(122,38,0,0.25); text-align: center; }
+    .table-order { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
+    .table-order th { text-align: left; padding: 10px 8px; border-bottom: 2px solid #E2D2BC; color: #7A2600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; }
+    .table-order td { padding: 12px 8px; border-bottom: 1px solid #EFE4D4; }
+    .royal-divider { height: 1px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); margin: 26px 0; }
+    .royal-footer { background: #FAF5EB; padding: 28px 24px; text-align: center; font-size: 12px; color: #7D6B5A; border-top: 1px solid #EADBCA; }
+    .royal-footer a { color: #7A2600; text-decoration: none; font-weight: 700; }
+    .seal-text { font-size: 11px; color: #8F7660; letter-spacing: 1px; text-transform: uppercase; margin-top: 6px; }
   </style>
 </head>
 <body>
   ${previewText ? `<div style="display:none;font-size:1px;color:#fff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">${previewText}</div>` : ''}
-  <div class="container">
-    <div class="header">
-      <div style="font-size: 38px; margin-bottom: 6px;">🏺</div>
-      <h1>Singodhia Foods</h1>
-      <p>स्वाद घर जैसा, परंपरा राजस्थान की</p>
+  <div class="wrapper">
+    <!-- Royal Header with Marwari Aesthetics -->
+    <div class="royal-header">
+      <div class="heritage-badge">Authentic Marwari Heritage</div>
+      <div style="font-size: 32px; line-height: 1; margin-bottom: 6px;">🏺</div>
+      <h1 class="brand-title">Singodhia Foods</h1>
+      <p class="brand-subtitle">Handcrafted Artisanal Pickles • Rajasthan</p>
     </div>
-    <div class="body">
+
+    <!-- Main Content -->
+    <div class="content-body">
       ${contentHtml}
     </div>
-    <div class="footer">
-      <p style="margin: 0 0 8px;"><strong>Singodhia Foods — पारंपरिक राजस्थानी देसी आचार</strong></p>
-      <p style="margin: 0 0 8px;">सुजानगढ़, चूरू, राजस्थान (331507) | हेल्पलाइन: <a href="tel:${STORE_PHONE}">${STORE_PHONE}</a></p>
-      <p style="margin: 0;"><a href="${STORE_URL}">${STORE_URL}</a></p>
+
+    <!-- Royal Footer -->
+    <div class="royal-footer">
+      <div style="font-size: 16px; margin-bottom: 4px;">✦ ✦ ✦</div>
+      <p style="margin: 0 0 6px; font-weight: 700; color: #4D1800; font-size: 13px;">Singodhia Foods — Traditional Pickles Handcrafted in Sujangarh</p>
+      <p style="margin: 0 0 10px; color: #6E5A47;">Sun-cured in ceramic martabans • Pure cold-pressed mustard oil • Zero chemical preservatives</p>
+      <div class="seal-text">Sujangarh, Churu, Rajasthan (331507) • Customer Care: <a href="tel:${STORE_PHONE}">${STORE_PHONE}</a></div>
+      <p style="margin: 12px 0 0;"><a href="${STORE_URL}">${STORE_URL}</a></p>
     </div>
   </div>
 </body>
@@ -119,54 +132,68 @@ const wrapTemplate = (contentHtml, previewText = '') => {
 };
 
 /**
- * 1. Send Welcome Email upon new user registration / first login
+ * 1. Welcome Email
+ * Aesthetic: Royal welcoming tone with Khamma Ghani Sa, minimal Hindi script, clean English presentation.
  */
 export const sendWelcomeEmail = async (user) => {
   if (!user?.email) return;
 
-  const userName = user.name || 'आदरणीय ग्राहक';
+  const userName = user.name || 'Connoisseur of Tradition';
+
   const html = wrapTemplate(`
-    <h2 style="color: #2D2721; margin-top: 0; font-size: 20px;">नमस्ते ${userName} जी! 🙏</h2>
-    <p><strong>Singodhia Foods</strong> परिवार में आपका हार्दिक स्वागत है!</p>
-    
-    <p>हम आपके लिए लाते हैं राजस्थान के सुजानगढ़ का 100% असली, पारंपरिक और घर जैसा आचार। हमारी विशेषताएँ:</p>
-    
-    <div style="background: #FFF9ED; border-left: 4px solid #b35400; padding: 12px 16px; margin: 18px 0; border-radius: 4px;">
-      <ul style="margin: 0; padding-left: 18px; color: #5B472A; font-size: 13px;">
-        <li style="margin-bottom: 6px;"><strong>कच्ची घानी शुद्ध सरसों का तेल</strong> में तैयार।</li>
-        <li style="margin-bottom: 6px;"><strong>पारंपरिक चीनी-मिट्टी की बरनी</strong> में धूप में प्राकृतिक रूप से पकाया गया।</li>
-        <li style="margin-bottom: 6px;">बिना किसी कृत्रिम रंग या हानिकारक केमिकल प्रीजर्वेटिव के।</li>
-        <li>दादी-नानी की पारंपरिक मारवाड़ी रेसिपी से बना असली स्वाद।</li>
-      </ul>
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div class="greeting">Khamma Ghani ${userName} Sa! 🙏</div>
+      <p style="margin: 0; color: #6E5A47; font-size: 14px;">A warm royal welcome to the Singodhia Foods family.</p>
     </div>
 
-    <div style="background: #FDF3E5; border: 1px dashed #b35400; border-radius: 12px; padding: 14px; text-align: center; margin: 22px 0;">
-      <span style="font-size: 12px; color: #8A4000; font-weight: 600; text-transform: uppercase;">आपके पहले ऑर्डर पर 10% की विशेष छूट</span>
-      <div style="font-size: 20px; font-weight: 800; color: #b35400; letter-spacing: 2px; margin: 6px 0;">WELCOME10</div>
-      <span style="font-size: 11px; color: #6E5A44;">चेकआउट के समय इस कूपन कोड का उपयोग करें</span>
+    <p style="font-size: 14px; margin-bottom: 18px;">
+      We are delighted to bring the authentic flavors of royal Rajasthan right to your dining table. In the historic sands of <strong>Sujangarh, Rajasthan</strong>, our family preserves age-old Marwari recipes passed down through generations.
+    </p>
+
+    <!-- Heritage Highlights -->
+    <div class="parchment-card" style="padding: 22px 24px;">
+      <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 15px; font-weight: 700; color: #7A2600; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px;">
+        The Singodhia Heritage Promise:
+      </div>
+      <div style="font-size: 13px; color: #4A3A2C; line-height: 1.8;">
+        <div style="margin-bottom: 8px;">✦ <strong>Sun-Cured in Ceramic Barnis:</strong> Slowly cured under the warm desert sun in authentic glazed earthen martabans.</div>
+        <div style="margin-bottom: 8px;">✦ <strong>Cold-Pressed Kachi Ghani Mustard Oil:</strong> Cured exclusively in 100% pure, unadulterated cold-pressed mustard oil.</div>
+        <div style="margin-bottom: 8px;">✦ <strong>Zero Chemical Preservatives:</strong> No artificial vinegar, no synthetic food colors, no compromises.</div>
+        <div>✦ <strong>Artisanal Small Batches:</strong> Hand-crafted by local women artisans using heritage whole spices.</div>
+      </div>
     </div>
 
-    <div style="text-align: center;">
-      <a href="${STORE_URL}/shop/" class="btn">अभी आचार देखें और ऑर्डर करें ➔</a>
+    <!-- Welcome Royal Gift Card -->
+    <div style="background: linear-gradient(135deg, #FFF9F0 0%, #F5E8D4 100%); border: 1px dashed #D4AF37; border-radius: 14px; padding: 20px; text-align: center; margin: 26px 0;">
+      <span style="font-size: 11px; color: #7A2600; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;">A Royal Gift On Your First Jar</span>
+      <div style="font-size: 24px; font-weight: 800; color: #7A2600; letter-spacing: 3px; margin: 8px 0; font-family: 'Playfair Display', Georgia, serif;">WELCOME10</div>
+      <span style="font-size: 12px; color: #6E5A47;">Apply this code at checkout to enjoy <strong>Flat 10% OFF</strong></span>
     </div>
 
-    <p style="font-size: 13px; color: #6E5A44; margin-top: 24px;">यदि आपको आचार के चयन में कोई सहायता चाहिए, तो आप हमें सीधे व्हाट्सएप या कॉल पर <a href="tel:${STORE_PHONE}" style="color: #b35400; font-weight: 700;">${STORE_PHONE}</a> पर संपर्क कर सकते हैं।</p>
-  `, 'Singodhia Foods में आपका हार्दिक स्वागत है!');
+    <div style="text-align: center; margin: 30px 0 10px;">
+      <a href="${STORE_URL}/shop/" class="btn-royal">Explore Artisanal Pickles ➔</a>
+    </div>
+
+    <p style="font-size: 12px; color: #8F7660; text-align: center; margin-top: 24px;">
+      Need personal flavor recommendations? Call or WhatsApp our artisanal kitchen directly at <a href="tel:${STORE_PHONE}" style="color: #7A2600; font-weight: 700;">${STORE_PHONE}</a>.
+    </p>
+  `, 'Khamma Ghani Sa! Welcome to Singodhia Foods — Authentic Rajasthani Pickles.');
 
   return sendEmail({
     to: user.email,
-    subject: `🫙 Singodhia Foods परिवार में आपका स्वागत है! (फ्लैट 10% छूट कूपन अंदर)`,
+    subject: `Khamma Ghani Sa! Welcome to Singodhia Foods (10% Royal Welcome Inside 🏺)`,
     html
   });
 };
 
 /**
- * 2. Send Order Confirmation Email when an order is placed and confirmed
+ * 2. Order Confirmation Email
+ * Aesthetic: Regal order receipt with clean English tables, clear totals, and delivery info.
  */
 export const sendOrderConfirmationEmail = async (order) => {
   if (!order?.customer?.email) return;
 
-  const customerName = order.customer.name || 'ग्राहक';
+  const customerName = order.customer.name || 'Valued Patron';
   const orderNumber = order.orderNumber || order._id;
   const totalAmount = order.totalAmount || order.subtotal || 0;
   const items = Array.isArray(order.items) ? order.items : [];
@@ -175,38 +202,41 @@ export const sendOrderConfirmationEmail = async (order) => {
   const itemsRows = items.map(item => `
     <tr>
       <td>
-        <strong>${item.name}</strong><br>
-        <span style="font-size: 11px; color: #8A7761;">वज़न: ${item.weight || '500g'}</span>
+        <strong style="color: #2B2118; font-size: 13px;">${item.name}</strong><br>
+        <span style="font-size: 11px; color: #8F7660;">Pack Size: ${item.weight || '500g'}</span>
       </td>
-      <td style="text-align: center;">${item.quantity}</td>
-      <td style="text-align: right;">₹${item.price}</td>
-      <td style="text-align: right; font-weight: bold;">₹${item.itemTotal || (item.price * item.quantity)}</td>
+      <td style="text-align: center; color: #4A3A2C;">${item.quantity}</td>
+      <td style="text-align: right; color: #4A3A2C;">₹${item.price}</td>
+      <td style="text-align: right; font-weight: 700; color: #7A2600;">₹${item.itemTotal || (item.price * item.quantity)}</td>
     </tr>
   `).join('');
 
   const html = wrapTemplate(`
-    <div style="text-align: center; margin-bottom: 20px;">
-      <span class="badge" style="background: #E8F5E9; color: #2E7D32; font-size: 12px; padding: 6px 14px;">✅ ऑर्डर कन्फर्म हो गया</span>
-      <h2 style="color: #2D2721; margin: 12px 0 4px; font-size: 20px;">धन्यवाद ${customerName} जी!</h2>
-      <p style="margin: 0; color: #6E5A44; font-size: 13px;">आपका आचार ऑर्डर सफलतापूर्वक दर्ज हो चुका है।</p>
+    <div style="text-align: center; margin-bottom: 24px;">
+      <span style="display: inline-block; background: #EAF7EC; color: #166534; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 5px 14px; border-radius: 999px; border: 1px solid #BBF7D0;">
+        ✓ Order Confirmed
+      </span>
+      <div class="greeting" style="margin-top: 12px; margin-bottom: 6px;">Thank You, ${customerName} Sa!</div>
+      <p style="margin: 0; color: #6E5A47; font-size: 13px;">Your authentic Rajasthani pickles are being freshly prepared and packed.</p>
     </div>
 
-    <div class="order-box">
+    <!-- Order Receipt Card -->
+    <div class="parchment-card">
       <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
         <span><strong>Order ID:</strong> #${orderNumber}</span>
-        <span style="color: #166534; font-weight: 700;">पेमेंट: ${order.paymentStatus === 'completed' ? 'Paid (ऑनलाइन)' : 'Cash on Delivery'}</span>
+        <span style="color: #166534; font-weight: 700;">Payment: ${order.paymentStatus === 'completed' ? 'Paid (Verified)' : 'Pending'}</span>
       </div>
-      <div style="font-size: 12px; color: #8A7761;">
-        दिनांक: ${new Date(order.createdAt || Date.now()).toLocaleDateString('hi-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+      <div style="font-size: 12px; color: #8F7660;">
+        Order Date: ${new Date(order.createdAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
       </div>
 
-      <table class="table">
+      <table class="table-order">
         <thead>
           <tr>
-            <th>आचार</th>
-            <th style="text-align: center;">मात्रा</th>
-            <th style="text-align: right;">दर</th>
-            <th style="text-align: right;">कुल</th>
+            <th>Pickle Variety</th>
+            <th style="text-align: center;">Qty</th>
+            <th style="text-align: right;">Price</th>
+            <th style="text-align: right;">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -214,92 +244,106 @@ export const sendOrderConfirmationEmail = async (order) => {
         </tbody>
       </table>
 
-      <div style="margin-top: 14px; padding-top: 10px; border-top: 2px dashed #E0D3C1; font-size: 13px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-          <span>सब-टोटल:</span>
+      <!-- Order Summary Totals -->
+      <div style="margin-top: 16px; padding-top: 12px; border-top: 2px dashed #DCCDB8; font-size: 13px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+          <span style="color: #6E5A47;">Subtotal:</span>
           <span>₹${order.subtotal || totalAmount}</span>
         </div>
         ${order.discount ? `
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: #166534;">
-            <span>छूट (Discount):</span>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #166534;">
+            <span>Discount Applied:</span>
             <span>-₹${order.discount}</span>
           </div>
         ` : ''}
-        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-          <span>डिलीवरी शुल्क:</span>
-          <span>${order.shippingFee ? `₹${order.shippingFee}` : 'मुफ़्त (FREE)'}</span>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+          <span style="color: #6E5A47;">Heritage Shipping:</span>
+          <span style="color: #166534; font-weight: 600;">${order.shippingFee ? `₹${order.shippingFee}` : 'FREE (Complimentary)'}</span>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 8px; padding-top: 6px; border-top: 1px solid #EAE0CE; font-size: 16px; font-weight: 800; color: #b35400;">
-          <span>कुल भुगतान:</span>
+        <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid #E4D5C2; font-size: 16px; font-weight: 800; color: #7A2600;">
+          <span>Grand Total:</span>
           <span>₹${totalAmount}</span>
         </div>
       </div>
     </div>
 
-    <div style="background: #FAF6EF; border: 1px solid #EAE0CE; border-radius: 12px; padding: 14px; margin-bottom: 20px; font-size: 12px; line-height: 1.5;">
-      <strong style="color: #6E5A44; text-transform: uppercase; font-size: 11px;">डिलीवरी का पता:</strong><br>
-      <strong>${address.fullName || customerName}</strong> (${order.customer.phone || address.phone})<br>
+    <!-- Shipping Destination Card -->
+    <div style="background: #FFFFFF; border: 1px solid #EADBCA; border-radius: 12px; padding: 16px; margin: 20px 0; font-size: 13px; line-height: 1.5;">
+      <div style="font-size: 10px; font-weight: 700; color: #7A2600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px;">Shipping Destination:</div>
+      <strong>${address.fullName || customerName}</strong> • ${order.customer.phone || address.phone || ''}<br>
       ${address.addressLine1 || ''} ${address.addressLine2 || ''}<br>
-      ${address.city || ''}, ${address.state || ''} - <strong>${address.pincode || ''}</strong>
+      ${address.city || ''}, ${address.state || ''} — <strong>${address.pincode || ''}</strong>
     </div>
 
-    <div style="text-align: center;">
-      <a href="${STORE_URL}/account" class="btn">ऑर्डर ट्रैक करें (View in Account) ➔</a>
+    <div style="text-align: center; margin: 28px 0 10px;">
+      <a href="${STORE_URL}/account" class="btn-royal">Track Order Status ➔</a>
     </div>
 
-    <p style="font-size: 12px; color: #8A7761; text-align: center; margin-top: 20px;">
-      हम आपका आचार सुरक्षित रूप से पैक करके 24-48 घंटे में कूरियर द्वारा रवाना कर देंगे। कूरियर ट्रैकिंग नंबर आपको ईमेल और व्हाट्सएप पर प्राप्त होगा।
+    <p style="font-size: 12px; color: #8F7660; text-align: center; margin-top: 22px;">
+      Each jar is securely packed in shockproof bubble packaging to ensure it reaches you in pristine condition. You will receive courier dispatch updates once the parcel departs our Sujangarh kitchen.
     </p>
-  `, `ऑर्डर #${orderNumber} सफलतापूर्वक कन्फर्म हो चुका है!`);
+  `, `Order #${orderNumber} Confirmed — Handcrafted with love in Sujangarh, Rajasthan.`);
 
   return sendEmail({
     to: order.customer.email,
-    subject: `🎉 ऑर्डर कन्फर्म! ऑर्डर #${orderNumber} | Singodhia Foods`,
+    subject: `Order Confirmed #${orderNumber} | Singodhia Foods (Handcrafted in Rajasthan)`,
     html
   });
 };
 
 /**
- * 3. Send Order Delivered Email when an order is marked as Delivered
+ * 3. Order Delivered Email
+ * Aesthetic: Royal celebratory notification, artisanal care tips, and review request in refined English.
  */
 export const sendOrderDeliveredEmail = async (order) => {
   if (!order?.customer?.email) return;
 
-  const customerName = order.customer.name || 'ग्राहक';
+  const customerName = order.customer.name || 'Valued Patron';
   const orderNumber = order.orderNumber || order._id;
 
   const html = wrapTemplate(`
-    <div style="text-align: center; margin-bottom: 22px;">
-      <span class="badge" style="background: #E8F5E9; color: #2E7D32; font-size: 13px; padding: 6px 16px;">📦 डिलीवर हो गया</span>
-      <h2 style="color: #2D2721; margin: 12px 0 4px; font-size: 22px;">आपका आचार पहुँच गया है!</h2>
-      <p style="margin: 0; color: #6E5A44; font-size: 13px;">ऑर्डर <strong>#${orderNumber}</strong> आपके पते पर सफलतापूर्वक डिलीवर कर दिया गया है।</p>
+    <div style="text-align: center; margin-bottom: 24px;">
+      <span style="display: inline-block; background: #EAF7EC; color: #166534; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 5px 14px; border-radius: 999px; border: 1px solid #BBF7D0;">
+        📦 Delivered Successfully
+      </span>
+      <div class="greeting" style="margin-top: 12px; margin-bottom: 6px;">Padharo Sa! Your Pickles Have Arrived 🏺</div>
+      <p style="margin: 0; color: #6E5A47; font-size: 13px;">Order <strong>#${orderNumber}</strong> has been safely delivered to your doorstep.</p>
     </div>
 
-    <p>नमस्ते <strong>${customerName} जी</strong>,</p>
-    <p>हमें उम्मीद है कि शुद्ध सरसों के तेल और पारंपरिक मसालों में धूप में पके हमारे देसी आचार का स्वाद आपके पूरे परिवार को बहुत पसंद आएगा!</p>
+    <p style="font-size: 14px; line-height: 1.6;">
+      Dear <strong>${customerName} Sa</strong>,
+    </p>
+    <p style="font-size: 14px; line-height: 1.6; color: #4A3A2C;">
+      Your handcrafted Rajasthani pickles have completed their journey from our sunlit courtyards in Sujangarh to your home. We truly hope you and your family enjoy the rich, authentic Marwari flavors!
+    </p>
 
-    <div style="background: #FFF9ED; border: 1px solid #F0DFBF; border-radius: 12px; padding: 16px; margin: 20px 0;">
-      <h4 style="margin: 0 0 8px; color: #8A4000; font-size: 13px;">🏺 आचार को सालों-साल ताज़ा रखने के महत्वपूर्ण टिप्स:</h4>
-      <ul style="margin: 0; padding-left: 18px; color: #5B472A; font-size: 12px; line-height: 1.6;">
-        <li>आचार निकालने के लिए हमेशा <strong>सूखे और साफ़ चम्मच</strong> का ही इस्तेमाल करें।</li>
-        <li>आचार के ऊपर तेल की हल्की परत रहने दें, जिससे आचार कभी खराब नहीं होता।</li>
-        <li>महीने में 1-2 बार बरनी को 1-2 घंटे हल्की धूप में ज़रूर रखें।</li>
+    <!-- Artisanal Pickle Care Guide -->
+    <div class="parchment-card" style="padding: 20px 22px;">
+      <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 14px; font-weight: 700; color: #7A2600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+        🏺 Traditional Care Rituals (To Keep Fresh for Years):
+      </div>
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #4A3A2C; line-height: 1.7;">
+        <li style="margin-bottom: 6px;">Always use a <strong>clean, completely dry spoon</strong> when scooping out pickle.</li>
+        <li style="margin-bottom: 6px;">Ensure the cold-pressed mustard oil layer stays gently above the pickles to seal in freshness naturally.</li>
+        <li>Treat the jar to 1-2 hours of gentle afternoon sunshine once a month to let the spices breathe.</li>
       </ul>
     </div>
 
-    <div style="text-align: center; margin: 28px 0;">
-      <p style="font-size: 14px; font-weight: 700; color: #2D2721; margin-bottom: 8px;">कैसा लगा आचार का स्वाद? कृपया अपना रिव्यू दें ⭐</p>
-      <a href="${STORE_URL}/account" class="btn" style="background: #166534;">अपना अनुभव साझा करें (Leave Review) ➔</a>
+    <!-- Review Callout -->
+    <div style="text-align: center; margin: 30px 0 10px;">
+      <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 700; color: #2B2118; margin-bottom: 6px;">How Did It Taste On Your Thali? ⭐</div>
+      <p style="font-size: 13px; color: #6E5A47; margin: 0 0 18px;">Your review helps our heritage artisans continue their craft with pride.</p>
+      <a href="${STORE_URL}/account" class="btn-royal">Share Your Review & Rating ➔</a>
     </div>
 
-    <p style="font-size: 12px; color: #8A7761; text-align: center;">
-      यदि आपको ऑर्डर से संबंधित कोई भी समस्या हो, तो कृपया हमें <a href="tel:${STORE_PHONE}" style="color: #b35400; font-weight: 700;">${STORE_PHONE}</a> पर संपर्क करें। हम आपकी सेवा के लिए सदैव तत्पर हैं।
+    <p style="font-size: 12px; color: #8F7660; text-align: center; margin-top: 24px;">
+      Have queries about your order or need culinary pairing tips? We are always happy to assist at <a href="tel:${STORE_PHONE}" style="color: #7A2600; font-weight: 700;">${STORE_PHONE}</a>.
     </p>
-  `, `आपका आचार ऑर्डर #${orderNumber} सफलतापूर्वक डिलीवर हो गया है!`);
+  `, `Order #${orderNumber} Delivered — Enjoy the royal taste of Rajasthan!`);
 
   return sendEmail({
     to: order.customer.email,
-    subject: `📦 आपका आचार डिलीवर हो गया! (#${orderNumber}) — Singodhia Foods`,
+    subject: `Padharo Sa! Your Pickles Have Arrived (#${orderNumber}) — Singodhia Foods`,
     html
   });
 };
