@@ -5,7 +5,7 @@
 const RESEND_API_URL = 'https://api.resend.com/emails';
 const STORE_NAME = 'Singodhia Foods';
 const STORE_URL = 'https://singodiafoodstore.in';
-const STORE_PHONE = '+91 97829 83909';
+const STORE_PHONE = '+91 75979 66707';
 
 /**
  * Base email dispatcher calling Resend HTTP API

@@ -55,7 +55,7 @@ export const ContactPage = () => {
                   <div>
                     <h4 className="font-bold">Helpline (10 AM - 7 PM IST)</h4>
                     <p className="text-earth-brown mt-0.5">
-                      <a href="tel:+919782983909" className="hover:text-brand-green font-semibold">+91 97829 83909</a>
+                      <a href="tel:+917597966707" className="hover:text-brand-green font-semibold">+91 75979 66707</a>
                     </p>
                   </div>
                 </div>
@@ -76,7 +76,7 @@ export const ContactPage = () => {
               {/* Direct WhatsApp CTA */}
               <div className="pt-4 border-t border-cream-100">
                 <a
-                  href="https://wa.me/919782983909?text=Hello%20Singodhia%20Foods%2C%20I%20have%20an%20inquiry%20regarding%20products%20and%20orders."
+                  href="https://wa.me/917597966707?text=Hello%20Singodhia%20Foods%2C%20I%20have%20an%20inquiry%20regarding%20products%20and%20orders."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full py-3.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"

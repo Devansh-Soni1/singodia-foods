@@ -130,7 +130,7 @@ export const Footer = () => {
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-mustard flex-shrink-0" />
-                <a href="tel:+919782983909" className="hover:text-mustard transition-colors">+91 97829 83909</a>
+                <a href="tel:+917597966707" className="hover:text-mustard transition-colors">+91 75979 66707</a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-mustard flex-shrink-0" />
@@ -150,7 +150,7 @@ export const Footer = () => {
               </li>
               <li className="pt-1 flex flex-wrap gap-2">
                 <a
-                  href="https://wa.me/919782983909?text=Hello%20Singodhia%20Foods%2C%20I%20have%20an%20inquiry%20regarding%20products%20and%20orders."
+                  href="https://wa.me/917597966707?text=Hello%20Singodhia%20Foods%2C%20I%20have%20an%20inquiry%20regarding%20products%20and%20orders."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366] text-white font-bold text-xs hover:bg-[#20ba5a] transition-colors"

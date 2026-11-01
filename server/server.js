@@ -31,7 +31,7 @@ const startServer = async () => {
             email: adminEmail,
             password: process.env.ADMIN_PASSWORD || 'Admin@Singodhia2026',
             role: 'admin',
-            phone: '+91 98765 43210',
+            phone: '+91 75979 66707',
             addresses: []
           });
         }

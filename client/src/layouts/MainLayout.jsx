@@ -34,7 +34,7 @@ export const MainLayout = () => {
       {/* Interactive Global Drawers & Modals */}
       <CartDrawer />
       <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
-      <WhatsAppButton phoneNumber="919782983909" />
+      <WhatsAppButton phoneNumber="917597966707" />
 
       {/* Blinkit-Style Floating Bottom Cart Bar */}
       <BlinkitCartBar />

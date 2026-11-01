@@ -66,7 +66,7 @@ export const login = async (req, res, next) => {
             email: singleAdminEmail,
             password: password,
             role: 'admin',
-            phone: '+91 97829 83909',
+            phone: '+91 75979 66707',
             addresses: []
           });
         } catch (seedErr) {
@@ -80,7 +80,7 @@ export const login = async (req, res, next) => {
         name: 'Singodhia Admin',
         email: singleAdminEmail,
         role: 'admin',
-        phone: '+91 97829 83909',
+        phone: '+91 75979 66707',
         addresses: [],
         wishlist: []
       };
@@ -156,7 +156,7 @@ export const getProfile = async (req, res, next) => {
             name: req.user.name || 'Singodhia Admin',
             email: req.user.email || 'admin@singodhiafoods.com',
             role: 'admin',
-            phone: '+91 98765 43210',
+            phone: '+91 75979 66707',
             addresses: [],
             wishlist: []
           }

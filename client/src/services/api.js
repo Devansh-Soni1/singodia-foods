@@ -414,7 +414,7 @@ export const adminAPI = {
           standardShippingFee: 60,
           codEnabled: false,
           announcementText: '🌶️ Traditional Rajasthani Handcrafted Pickles • Direct From Grandma\'s Barni • Use Code: DESI10 for 10% OFF',
-          whatsappNumber: '919782983909',
+          whatsappNumber: '917597966707',
           heroBannerImage: '/hero-banner.png'
         }
       };
