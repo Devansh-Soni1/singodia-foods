@@ -1,138 +1,67 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { ShieldCheck, Zap, Package, ArrowRight } from 'lucide-react';
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 import siteLogo from '../assets/logo.png';
 
 export const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
-
   const redirectPath = new URLSearchParams(location.search).get('redirect') || '/account';
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    const cleanEmail = email.trim().toLowerCase();
-    if (cleanEmail === 'admin@singodhiafoods.com') {
-      setError('यह स्टोर एडमिन ईमेल है। एडमिन पोर्टल खोलने के लिए कृपया नीचे दिए गए "Admin Portal Login" लिंक का उपयोग करें। यहाँ से केवल ग्राहक अकाउंट लॉगिन होते हैं।');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const res = await login(cleanEmail, password, 'customer');
-      if (res.user?.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate(redirectPath);
-      }
-    } catch (err) {
-      setError(err.message || 'Invalid email or password. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="py-14 sm:py-20 bg-[#FAF6EF] min-h-[75vh] flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-10 border border-cream-200 shadow-card">
+      <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-10 border border-cream-200 shadow-card text-center">
         
-        <div className="text-center mb-8">
+        {/* Brand Logo & Welcome Title */}
+        <div className="mb-6">
           <Link to="/" className="inline-flex items-center justify-center gap-2 mb-3 group">
-            <img src={siteLogo} alt="Singodhia Foods" className="h-24 sm:h-28 w-auto mx-auto object-contain drop-shadow-sm transition-transform group-hover:scale-105" onError={(e) => { e.target.src = '/logo.png'; }} />
+            <img 
+              src={siteLogo} 
+              alt="Singodhia Foods" 
+              className="h-24 sm:h-28 w-auto mx-auto object-contain drop-shadow-sm transition-transform group-hover:scale-105" 
+              onError={(e) => { e.target.src = '/logo.png'; }} 
+            />
           </Link>
-          <h1 className="text-2xl font-extrabold text-charcoal font-serif">Welcome Back</h1>
+          <h1 className="text-2xl font-extrabold text-charcoal font-serif">Customer Sign In</h1>
           <p className="text-xs text-earth-brown mt-1">
-            Sign in to track orders, saved addresses, and favorite pickles.
+            Sign in with your verified Google Account for instant access.
           </p>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl flex flex-col gap-2 text-red-700 text-xs font-semibold">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-600" />
-              <span>{error}</span>
-            </div>
-            {(error.includes('एडमिन') || error.includes('Admin')) && (
-              <Link
-                to="/admin/login"
-                className="mt-1 inline-flex items-center justify-center gap-1.5 bg-brand-green hover:bg-brand-green-light text-white text-[11px] font-bold py-2 px-3.5 rounded-lg shadow-2xs self-start"
-              >
-                <span>Go to Admin Portal Login (एडमिन लॉगिन पर जाएँ)</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            )}
-          </div>
-        )}
-
-        {/* 1-Click Google Sign In */}
-        <div className="mb-5">
+        {/* 1-Click Google Authentication Button & One-Tap Floating Prompt */}
+        <div className="my-6 p-4 bg-cream-50/70 border border-cream-200 rounded-2xl">
+          <p className="text-xs font-bold text-gray-700 mb-3">
+            Click below to continue:
+          </p>
           <GoogleAuthButton redirectPath={redirectPath} promptOneTap={true} />
         </div>
 
-        <div className="relative flex py-1 items-center mb-5">
-          <div className="flex-grow border-t border-cream-200"></div>
-          <span className="flex-shrink mx-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">or continue with email</span>
-          <div className="flex-grow border-t border-cream-200"></div>
+        {/* Security & Benefits Badges */}
+        <div className="space-y-2.5 text-left bg-[#FFFDF9] p-4 rounded-2xl border border-cream-200 text-xs text-gray-700">
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="font-semibold">100% Genuine & Verified Google Profile</span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <Zap className="w-4 h-4 text-amber-600 shrink-0" />
+            <span className="font-semibold">Instant 1-Click Login — No passwords needed</span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <Package className="w-4 h-4 text-blue-600 shrink-0" />
+            <span className="font-semibold">Seamless Order Tracking & Address Book</span>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-xs font-bold text-charcoal block mb-1">Email Address</label>
-            <div className="relative">
-              <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-bold text-charcoal block mb-1">Password</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-brand-green hover:bg-brand-green-light disabled:opacity-50 text-white text-xs font-bold py-3.5 px-4 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2"
+        {/* Admin Portal Redirect Notice */}
+        <div className="mt-8 pt-6 border-t border-cream-200 text-center text-xs text-earth-brown">
+          <p className="text-[11px] text-gray-400 mb-1.5">Are you a store administrator?</p>
+          <Link 
+            to="/admin/login" 
+            className="inline-flex items-center gap-1.5 font-bold text-brand-green hover:underline text-xs"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </form>
-
-        <div className="mt-6 pt-6 border-t border-cream-200 text-center text-xs text-earth-brown space-y-2">
-          <p>
-            Don't have an account yet?{' '}
-            <Link to="/register" className="font-bold text-brand-green hover:underline">
-              Create an account
-            </Link>
-          </p>
+            <span>Admin Portal Login (एडमिन लॉगिन)</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
         </div>
 
       </div>
@@ -141,4 +70,3 @@ export const LoginPage = () => {
 };
 
 export default LoginPage;
-

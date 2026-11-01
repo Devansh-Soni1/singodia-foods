@@ -398,6 +398,10 @@ export const adminAPI = {
     const res = await api.get('/admin/customers');
     return res.data;
   },
+  deleteCustomer: async (id) => {
+    const res = await api.delete(`/admin/customers/${id}`);
+    return res.data;
+  },
   getSettings: async () => {
     try {
       const res = await api.get('/admin/settings/public');

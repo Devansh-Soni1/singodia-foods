@@ -1,169 +1,62 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, Phone, ArrowRight, AlertCircle } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ShieldCheck, Zap, Package, ArrowRight } from 'lucide-react';
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 import siteLogo from '../assets/logo.png';
 
 export const RegisterPage = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
-  const navigate = useNavigate();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      await register(name, email, password, phone);
-      navigate('/account');
-    } catch (err) {
-      setError(err.message || 'Registration failed. Please check your information.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="py-14 sm:py-20 bg-[#FAF6EF] min-h-[75vh] flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-10 border border-cream-200 shadow-card">
+      <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-10 border border-cream-200 shadow-card text-center">
         
-        <div className="text-center mb-8">
+        {/* Brand Logo & Title */}
+        <div className="mb-6">
           <Link to="/" className="inline-flex items-center justify-center gap-2 mb-3 group">
-            <img src={siteLogo} alt="Singodhia Foods" className="h-24 sm:h-28 w-auto mx-auto object-contain drop-shadow-sm transition-transform group-hover:scale-105" onError={(e) => { e.target.src = '/logo.png'; }} />
+            <img 
+              src={siteLogo} 
+              alt="Singodhia Foods" 
+              className="h-24 sm:h-28 w-auto mx-auto object-contain drop-shadow-sm transition-transform group-hover:scale-105" 
+              onError={(e) => { e.target.src = '/logo.png'; }} 
+            />
           </Link>
           <h1 className="text-2xl font-extrabold text-charcoal font-serif">Create Your Account</h1>
           <p className="text-xs text-earth-brown mt-1">
-            Join the Singodhia Foods community for exclusive offers and easy order tracking.
+            Sign up in 1-click with your Google account. Zero passwords required.
           </p>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700 text-xs font-semibold">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        {/* 1-Click Google Sign Up */}
-        <div className="mb-5">
+        {/* 1-Click Google Sign Up Button & One-Tap Prompt */}
+        <div className="my-6 p-4 bg-cream-50/70 border border-cream-200 rounded-2xl">
+          <p className="text-xs font-bold text-gray-700 mb-3">
+            Quick Registration with Google:
+          </p>
           <GoogleAuthButton redirectPath="/account" promptOneTap={true} />
         </div>
 
-        <div className="relative flex py-1 items-center mb-5">
-          <div className="flex-grow border-t border-cream-200"></div>
-          <span className="flex-shrink mx-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">or sign up with email</span>
-          <div className="flex-grow border-t border-cream-200"></div>
+        {/* Value Proposition Badges */}
+        <div className="space-y-2.5 text-left bg-[#FFFDF9] p-4 rounded-2xl border border-cream-200 text-xs text-gray-700">
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="font-semibold">Safe, Verified & Instant Account Setup</span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <Zap className="w-4 h-4 text-amber-600 shrink-0" />
+            <span className="font-semibold">Zero Spam — No tedious form filling</span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <Package className="w-4 h-4 text-blue-600 shrink-0" />
+            <span className="font-semibold">Instant Order Tracking & Delivery Alerts</span>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-xs font-bold text-charcoal block mb-1">Full Name</label>
-            <div className="relative">
-              <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Meenakshi Sharma"
-                className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-bold text-charcoal block mb-1">Email Address</label>
-            <div className="relative">
-              <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-bold text-charcoal block mb-1">Mobile Phone (Optional)</label>
-            <div className="relative">
-              <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+91 98765 43210"
-                className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-bold text-charcoal block mb-1">Password</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Minimum 6 characters"
-                className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-bold text-charcoal block mb-1">Confirm Password</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Re-enter password"
-                className="w-full pl-10 pr-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-brand-green hover:bg-brand-green-light disabled:opacity-50 text-white text-xs font-bold py-3.5 px-4 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2"
-          >
-            {loading ? 'Creating Account...' : 'Register Account'}
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </form>
-
-        <div className="mt-6 pt-6 border-t border-cream-200 text-center text-xs text-earth-brown">
-          Already have an account?{' '}
-          <Link to="/login" className="font-bold text-brand-green hover:underline">
-            Sign In here
-          </Link>
+        {/* Link to Login */}
+        <div className="mt-8 pt-6 border-t border-cream-200 text-center text-xs text-earth-brown">
+          <p>
+            Already have an account?{' '}
+            <Link to="/login" className="font-bold text-brand-green hover:underline">
+              Sign In with Google
+            </Link>
+          </p>
         </div>
 
       </div>
@@ -172,4 +65,3 @@ export const RegisterPage = () => {
 };
 
 export default RegisterPage;
-

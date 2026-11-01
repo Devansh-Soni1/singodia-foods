@@ -10,58 +10,10 @@ const generateToken = (id) => {
 };
 
 export const register = async (req, res, next) => {
-  try {
-    const { name, email, password, phone } = req.body;
-
-    if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: 'Please provide name, email and password' });
-    }
-
-    const singleAdminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase().trim();
-    if (email.toLowerCase().trim() === singleAdminEmail) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Admin email cannot be registered as a normal customer account.' 
-      });
-    }
-
-    const userExists = await User.findOne({ email: email.toLowerCase().trim() });
-    if (userExists) {
-      return res.status(400).json({ success: false, message: 'An account with this email already exists' });
-    }
-
-    // Strictly customer role for all public registrations
-    const user = await User.create({
-      name,
-      email: email.toLowerCase().trim(),
-      password,
-      phone: phone || '',
-      role: 'customer',
-      welcomeEmailSent: true
-    });
-
-    // Send Welcome Email asynchronously
-    sendWelcomeEmail(user).catch(emailErr => {
-      console.warn('[Register] Welcome email notice:', emailErr.message);
-    });
-
-    res.status(201).json({
-      success: true,
-      message: 'Account created successfully',
-      token: generateToken(user._id),
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        phone: user.phone,
-        addresses: user.addresses,
-        wishlist: user.wishlist
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
+  return res.status(403).json({ 
+    success: false, 
+    message: 'मैन्युअल पासवर्ड रजिस्ट्रेशन बंद कर दिया गया है। कृपया असली और सुरक्षित अनुभव के लिए 1-क्लिक "Continue with Google" का उपयोग करें।' 
+  });
 };
 
 export const login = async (req, res, next) => {
@@ -76,16 +28,15 @@ export const login = async (req, res, next) => {
     const singleAdminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase().trim();
     const isAdminEmail = normalizedEmail === singleAdminEmail;
 
-    // RULE 1: Admin email can NEVER log into customer storefront (/login)
-    if (isAdminEmail && loginType !== 'admin') {
+    // RULE 1: Customer accounts must authenticate using Google Sign-In
+    if (loginType !== 'admin') {
       return res.status(403).json({
         success: false,
-        isAdminBlocked: true,
-        message: 'यह एडमिन अकाउंट है। एडमिन पैनल खोलने के लिए कृपया Admin Login (/admin/login) से लॉगिन करें।'
+        message: 'ग्राहक लॉगिन केवल Google Account से समर्थित है। कृपया मुख्य वेबसाइट पर "Continue with Google" का उपयोग करें।'
       });
     }
 
-    // RULE 2: Customer accounts can NEVER log into Admin Portal (/admin/login)
+    // RULE 2: Admin Portal (/admin/login) accepts ONLY the single designated admin email
     if (loginType === 'admin' && !isAdminEmail) {
       return res.status(403).json({
         success: false,

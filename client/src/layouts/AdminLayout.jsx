@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Package, ShoppingBag, FolderTree, Tag, 
-  MessageSquare, Settings, ArrowLeft, LogOut, Menu, X, Shield 
+  MessageSquare, Settings, ArrowLeft, LogOut, Menu, X, Shield, Users 
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -16,6 +16,7 @@ export const AdminLayout = () => {
     { path: '/admin', label: 'Dashboard Overview', icon: LayoutDashboard },
     { path: '/admin/products', label: 'Pickle Products', icon: Package },
     { path: '/admin/orders', label: 'Orders & Shipments', icon: ShoppingBag },
+    { path: '/admin/users', label: 'Customers & Users', icon: Users },
     { path: '/admin/categories', label: 'Categories', icon: FolderTree },
     { path: '/admin/coupons', label: 'Discount Coupons', icon: Tag },
     { path: '/admin/reviews', label: 'Review Moderation', icon: MessageSquare },

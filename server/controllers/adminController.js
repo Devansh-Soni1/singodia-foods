@@ -79,14 +79,67 @@ export const getCustomers = async (req, res, next) => {
   try {
     let customers = [];
     if (mongoose.connection.readyState === 1) {
-      customers = await User.find({ role: 'customer' }).select('-password').sort({ createdAt: -1 });
+      const users = await User.find({ role: 'customer' }).select('-password').sort({ createdAt: -1 });
+
+      // Compute order statistics per customer
+      const userIds = users.map(u => u._id);
+      const orderCounts = await Order.aggregate([
+        { $match: { user: { $in: userIds }, paymentStatus: 'completed' } },
+        { $group: { _id: '$user', count: { $sum: 1 }, totalSpent: { $sum: '$totalAmount' } } }
+      ]);
+
+      const orderMap = {};
+      orderCounts.forEach(o => {
+        if (o._id) {
+          orderMap[o._id.toString()] = { count: o.count, totalSpent: o.totalSpent };
+        }
+      });
+
+      customers = users.map(u => {
+        const stats = orderMap[u._id.toString()] || { count: 0, totalSpent: 0 };
+        return {
+          ...u.toObject(),
+          orderCount: stats.count,
+          totalSpent: stats.totalSpent
+        };
+      });
     } else {
       customers = [
-        { _id: 'cust-1', name: 'Aarav Sharma', email: 'customer@example.com', phone: '+91 98765 12345', createdAt: new Date() },
-        { _id: 'cust-2', name: 'Pooja Agarwal', email: 'pooja@example.com', phone: '+91 98221 54321', createdAt: new Date() }
+        { _id: 'cust-1', name: 'Aarav Sharma', email: 'customer@example.com', phone: '+91 98765 12345', createdAt: new Date(), orderCount: 2, totalSpent: 990 },
+        { _id: 'cust-2', name: 'Pooja Agarwal', email: 'pooja@example.com', phone: '+91 98221 54321', createdAt: new Date(), orderCount: 1, totalSpent: 450 }
       ];
     }
     res.json({ success: true, customers });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteCustomer = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ success: false, message: 'User ID is required' });
+    }
+
+    if (mongoose.connection.readyState === 1) {
+      const user = await User.findById(id);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      const singleAdminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase().trim();
+      if (user.role === 'admin' || user.email?.toLowerCase().trim() === singleAdminEmail) {
+        return res.status(403).json({ success: false, message: 'Cannot delete the store administrator account.' });
+      }
+
+      await User.findByIdAndDelete(id);
+    }
+
+    res.json({
+      success: true,
+      message: 'Customer account deleted successfully'
+    });
   } catch (error) {
     next(error);
   }
