@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
   phone: { type: String, default: '' },
   addresses: [addressSchema],
   wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+  welcomeEmailSent: { type: Boolean, default: false }
 }, { timestamps: true });
 
 // Hash password before saving

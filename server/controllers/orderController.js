@@ -5,6 +5,7 @@ import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
 import { createShipmentOrder } from '../services/ithinkLogisticsService.js';
+import { sendOrderConfirmationEmail, sendOrderDeliveredEmail } from '../services/emailService.js';
 
 // In-memory fallback for orders when Mongo is not connected
 let memoryOrders = [];
@@ -290,12 +291,18 @@ export const verifyPayment = async (req, res, next) => {
         }
 
         await order.save();
+
+        // Send Order Confirmation Email asynchronously
+        sendOrderConfirmationEmail(order).catch(emailErr => {
+          console.warn('[VerifyPayment] Order confirmation email notice:', emailErr.message);
+        });
       }
     } else {
       order = memoryOrders.find(o => o.orderNumber === orderId || o.razorpayOrderId === razorpayOrderId);
       if (order) {
         order.paymentStatus = 'completed';
         order.razorpayPaymentId = razorpayPaymentId;
+        sendOrderConfirmationEmail(order).catch(() => {});
       }
     }
 
@@ -515,17 +522,30 @@ export const updateOrderStatus = async (req, res, next) => {
     if (mongoose.connection.readyState === 1) {
       order = await Order.findById(id);
       if (order) {
+        const previousStatus = order.orderStatus;
         if (orderStatus) order.orderStatus = orderStatus;
         if (trackingNumber !== undefined) order.trackingNumber = trackingNumber;
         if (courierPartner !== undefined) order.courierPartner = courierPartner;
         await order.save();
+
+        // If newly marked as Delivered, send Order Delivered Email
+        if (orderStatus && orderStatus.toLowerCase() === 'delivered' && previousStatus?.toLowerCase() !== 'delivered') {
+          sendOrderDeliveredEmail(order).catch(emailErr => {
+            console.warn('[UpdateOrderStatus] Delivered email notice:', emailErr.message);
+          });
+        }
       }
     } else {
       order = memoryOrders.find(o => o._id?.toString() === id || o.orderNumber === id);
       if (order) {
+        const previousStatus = order.orderStatus;
         if (orderStatus) order.orderStatus = orderStatus;
         if (trackingNumber !== undefined) order.trackingNumber = trackingNumber;
         if (courierPartner !== undefined) order.courierPartner = courierPartner;
+
+        if (orderStatus && orderStatus.toLowerCase() === 'delivered' && previousStatus?.toLowerCase() !== 'delivered') {
+          sendOrderDeliveredEmail(order).catch(() => {});
+        }
       }
     }
 

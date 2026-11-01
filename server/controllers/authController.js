@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { sendWelcomeEmail } from '../services/emailService.js';
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'singodhia_super_secret_jwt_key_2026_rajasthan', {
@@ -35,7 +36,13 @@ export const register = async (req, res, next) => {
       email: email.toLowerCase().trim(),
       password,
       phone: phone || '',
-      role: 'customer'
+      role: 'customer',
+      welcomeEmailSent: true
+    });
+
+    // Send Welcome Email asynchronously
+    sendWelcomeEmail(user).catch(emailErr => {
+      console.warn('[Register] Welcome email notice:', emailErr.message);
     });
 
     res.status(201).json({
@@ -141,6 +148,15 @@ export const login = async (req, res, next) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
+
+    // Send welcome email if customer hasn't received it yet
+    if (user.role === 'customer' && !user.welcomeEmailSent) {
+      user.welcomeEmailSent = true;
+      user.save().catch(() => {});
+      sendWelcomeEmail(user).catch(emailErr => {
+        console.warn('[Login] Welcome email notice:', emailErr.message);
+      });
     }
 
     res.json({
