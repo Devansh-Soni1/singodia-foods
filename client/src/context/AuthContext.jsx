@@ -133,6 +133,17 @@ export const AuthProvider = ({ children }) => {
     return res;
   };
 
+  const googleLogin = async (credential) => {
+    const res = await authAPI.googleLogin({ credential });
+    if (res.token) {
+      localStorage.setItem('singodhia_token', res.token);
+      localStorage.setItem('singodhia_user', JSON.stringify(res.user));
+      setToken(res.token);
+      setUser(res.user);
+    }
+    return res;
+  };
+
   const updateProfile = async (data) => {
     const res = await authAPI.updateProfile(data);
     if (res.user) {
@@ -166,6 +177,7 @@ export const AuthProvider = ({ children }) => {
     isAdmin: user?.role === 'admin',
     login,
     register,
+    googleLogin,
     logout,
     updateProfile,
     addAddress,

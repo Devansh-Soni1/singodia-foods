@@ -40,6 +40,14 @@ export const authAPI = {
       throw err.response?.data || err;
     }
   },
+  googleLogin: async ({ credential }) => {
+    try {
+      const res = await api.post('/auth/google', { credential });
+      return res.data;
+    } catch (err) {
+      throw err.response?.data || err;
+    }
+  },
   getProfile: async () => {
     try {
       const res = await api.get('/auth/profile');

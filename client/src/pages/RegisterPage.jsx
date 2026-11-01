@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Phone, ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 import siteLogo from '../assets/logo.png';
 
 export const RegisterPage = () => {
@@ -61,6 +62,17 @@ export const RegisterPage = () => {
             <span>{error}</span>
           </div>
         )}
+
+        {/* 1-Click Google Sign Up */}
+        <div className="mb-5">
+          <GoogleAuthButton redirectPath="/account" promptOneTap={true} />
+        </div>
+
+        <div className="relative flex py-1 items-center mb-5">
+          <div className="flex-grow border-t border-cream-200"></div>
+          <span className="flex-shrink mx-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">or sign up with email</span>
+          <div className="flex-grow border-t border-cream-200"></div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

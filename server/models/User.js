@@ -19,6 +19,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
   phone: { type: String, default: '' },
+  avatar: { type: String, default: '' },
+  googleId: { type: String, default: '' },
   addresses: [addressSchema],
   wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   welcomeEmailSent: { type: Boolean, default: false }

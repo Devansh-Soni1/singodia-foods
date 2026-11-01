@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 import siteLogo from '../assets/logo.png';
 
 export const LoginPage = () => {
@@ -72,6 +73,17 @@ export const LoginPage = () => {
             )}
           </div>
         )}
+
+        {/* 1-Click Google Sign In */}
+        <div className="mb-5">
+          <GoogleAuthButton redirectPath={redirectPath} promptOneTap={true} />
+        </div>
+
+        <div className="relative flex py-1 items-center mb-5">
+          <div className="flex-grow border-t border-cream-200"></div>
+          <span className="flex-shrink mx-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">or continue with email</span>
+          <div className="flex-grow border-t border-cream-200"></div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

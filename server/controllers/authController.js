@@ -333,3 +333,113 @@ export const toggleWishlist = async (req, res, next) => {
   }
 };
 
+export const googleLogin = async (req, res, next) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ success: false, message: 'Google credential token is required' });
+    }
+
+    // Verify token with Google's official endpoint
+    const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
+    const payload = await verifyRes.json();
+
+    if (!verifyRes.ok || !payload || !payload.email) {
+      return res.status(401).json({
+        success: false,
+        message: payload?.error_description || 'Invalid or expired Google token. Verification failed.'
+      });
+    }
+
+    const expectedClientId = process.env.GOOGLE_CLIENT_ID || '208404157999-c4bua2va504tlvpj4qnc2udcj4iho6ud.apps.googleusercontent.com';
+    if (payload.aud !== expectedClientId) {
+      console.warn('[GoogleAuth] Audience mismatch. Received:', payload.aud, 'Expected:', expectedClientId);
+      return res.status(401).json({ success: false, message: 'Google token audience mismatch.' });
+    }
+
+    const { email, name, picture, sub: googleId } = payload;
+    const normalizedEmail = email.toLowerCase().trim();
+    const singleAdminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase().trim();
+
+    // Prevent admin email from logging in as normal customer via Google
+    if (normalizedEmail === singleAdminEmail) {
+      return res.status(403).json({
+        success: false,
+        isAdminBlocked: true,
+        message: 'यह स्टोर एडमिन ईमेल है। एडमिन पोर्टल खोलने के लिए कृपया /admin/login का उपयोग करें।'
+      });
+    }
+
+    let user = null;
+    let isNewUser = false;
+
+    if (mongoose.connection.readyState === 1) {
+      user = await User.findOne({ email: normalizedEmail });
+      if (!user) {
+        // Create new customer account automatically
+        isNewUser = true;
+        const randomPassword = 'Gg_' + Math.random().toString(36).slice(-10) + 'A1!';
+        user = await User.create({
+          name: name || 'Google Customer',
+          email: normalizedEmail,
+          password: randomPassword,
+          role: 'customer',
+          avatar: picture || '',
+          googleId: googleId || '',
+          welcomeEmailSent: true
+        });
+
+        // Send Welcome Email asynchronously
+        sendWelcomeEmail(user).catch(err => {
+          console.warn('[GoogleLogin] Welcome email notice:', err.message);
+        });
+      } else {
+        // Update avatar / googleId if missing
+        if (!user.avatar && picture) user.avatar = picture;
+        if (!user.googleId && googleId) user.googleId = googleId;
+        if (!user.welcomeEmailSent) {
+          user.welcomeEmailSent = true;
+          sendWelcomeEmail(user).catch(() => {});
+        }
+        await user.save().catch(() => {});
+      }
+    } else {
+      user = {
+        _id: 'g_' + (googleId || 'user'),
+        id: 'g_' + (googleId || 'user'),
+        name: name || 'Google Customer',
+        email: normalizedEmail,
+        role: 'customer',
+        avatar: picture || '',
+        addresses: [],
+        wishlist: []
+      };
+    }
+
+    const token = generateToken(user._id);
+
+    res.json({
+      success: true,
+      message: isNewUser ? 'Google account created and logged in successfully!' : 'Logged in with Google successfully!',
+      token,
+      user: {
+        id: user._id,
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone || '',
+        avatar: user.avatar || picture || '',
+        addresses: user.addresses || [],
+        wishlist: user.wishlist || []
+      }
+    });
+  } catch (error) {
+    console.error('Google Auth Controller Error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Internal server error verifying Google login'
+    });
+  }
+};
+
