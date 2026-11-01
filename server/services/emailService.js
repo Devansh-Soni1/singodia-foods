@@ -163,11 +163,10 @@ export const sendWelcomeEmail = async (user) => {
       </div>
     </div>
 
-    <!-- Welcome Royal Gift Card -->
-    <div style="background: linear-gradient(135deg, #FFF9F0 0%, #F5E8D4 100%); border: 1px dashed #D4AF37; border-radius: 14px; padding: 20px; text-align: center; margin: 26px 0;">
-      <span style="font-size: 11px; color: #7A2600; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;">A Royal Gift On Your First Jar</span>
-      <div style="font-size: 24px; font-weight: 800; color: #7A2600; letter-spacing: 3px; margin: 8px 0; font-family: 'Playfair Display', Georgia, serif;">WELCOME10</div>
-      <span style="font-size: 12px; color: #6E5A47;">Apply this code at checkout to enjoy <strong>Flat 10% OFF</strong></span>
+    <!-- Heritage Quality & Seal Assurance -->
+    <div style="background: #FFFFFF; border: 1px solid #EADBCA; border-radius: 12px; padding: 16px 20px; margin: 24px 0; font-size: 12px; color: #6E5A47; line-height: 1.6;">
+      <div style="font-weight: 700; color: #7A2600; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 4px;">Purity & Freshness Guaranteed:</div>
+      Each jar is filled fresh from traditional barnis and double-sealed before dispatch, bringing you uncompromised hygiene and rich Rajasthani flavor.
     </div>
 
     <div style="text-align: center; margin: 30px 0 10px;">
@@ -181,7 +180,7 @@ export const sendWelcomeEmail = async (user) => {
 
   return sendEmail({
     to: user.email,
-    subject: `Khamma Ghani Sa! Welcome to Singodhia Foods (10% Royal Welcome Inside 🏺)`,
+    subject: `Khamma Ghani Sa! Welcome to Singodhia Foods 🏺 (Authentic Rajasthani Heritage)`,
     html
   });
 };
@@ -273,6 +272,11 @@ export const sendOrderConfirmationEmail = async (order) => {
       <strong>${address.fullName || customerName}</strong> • ${order.customer.phone || address.phone || ''}<br>
       ${address.addressLine1 || ''} ${address.addressLine2 || ''}<br>
       ${address.city || ''}, ${address.state || ''} — <strong>${address.pincode || ''}</strong>
+    </div>
+
+    <!-- Food Safety & Policy Notice -->
+    <div style="background: #FDFBF7; border: 1px solid #EADCC8; border-radius: 10px; padding: 12px 16px; margin: 18px 0; font-size: 11px; color: #8F7660; line-height: 1.5;">
+      <strong>Food Safety & Return Policy:</strong> As our pickles are pure consumable food products freshly sealed for you, orders are non-returnable and non-refundable once delivered to guarantee complete seal integrity and hygiene for every customer.
     </div>
 
     <div style="text-align: center; margin: 28px 0 10px;">

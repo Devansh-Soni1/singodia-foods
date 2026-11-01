@@ -102,3 +102,4 @@ export const GoogleAuthButton = ({ redirectPath = '/account', promptOneTap = tru
 };
 
 export default GoogleAuthButton;
+
