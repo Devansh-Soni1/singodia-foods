@@ -5,7 +5,8 @@ import {
   deleteCustomer,
   getSettings, 
   updateSettings,
-  uploadImage 
+  uploadImage,
+  testTelegramAlert 
 } from '../controllers/adminController.js';
 import { protect, adminOnly } from '../middleware/auth.js';
 import { upload } from '../middleware/upload.js';
@@ -22,6 +23,7 @@ router.delete('/customers/:id', protect, adminOnly, deleteCustomer);
 router.get('/settings', protect, adminOnly, getSettings);
 router.put('/settings', protect, adminOnly, updateSettings);
 router.post('/upload', protect, adminOnly, upload.single('image'), uploadImage);
+router.post('/test-telegram', protect, adminOnly, testTelegramAlert);
 
 export default router;
 

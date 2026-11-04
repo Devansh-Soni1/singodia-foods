@@ -6,6 +6,7 @@ import Product from '../models/Product.js';
 import User from '../models/User.js';
 import { createShipmentOrder } from '../services/ithinkLogisticsService.js';
 import { sendOrderConfirmationEmail, sendOrderDeliveredEmail } from '../services/emailService.js';
+import { notifyNewOrder } from '../services/telegramService.js';
 
 // In-memory fallback for orders when Mongo is not connected
 let memoryOrders = [];
@@ -292,9 +293,12 @@ export const verifyPayment = async (req, res, next) => {
 
         await order.save();
 
-        // Send Order Confirmation Email asynchronously
+        // Send Order Confirmation Email & Telegram Alert asynchronously
         sendOrderConfirmationEmail(order).catch(emailErr => {
           console.warn('[VerifyPayment] Order confirmation email notice:', emailErr.message);
+        });
+        notifyNewOrder(order).catch(tgErr => {
+          console.warn('[VerifyPayment] Telegram new order alert notice:', tgErr.message);
         });
       }
     } else {
@@ -303,6 +307,7 @@ export const verifyPayment = async (req, res, next) => {
         order.paymentStatus = 'completed';
         order.razorpayPaymentId = razorpayPaymentId;
         sendOrderConfirmationEmail(order).catch(() => {});
+        notifyNewOrder(order).catch(() => {});
       }
     }
 

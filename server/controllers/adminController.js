@@ -271,3 +271,24 @@ export const uploadImage = async (req, res) => {
   }
 };
 
+export const testTelegramAlert = async (req, res) => {
+  try {
+    const { sendTelegramMessage } = await import('../services/telegramService.js');
+    const testMsg = `
+🔔 <b>Singodhia Foods — Telegram Alert Test</b>
+━━━━━━━━━━━━━━━━━━
+✅ आपका Telegram Bot सफलतापूर्वक कनेक्ट हो चुका है!
+अब सभी नए ऑर्डर और ग्राहकों के लाइव अलर्ट्स आपको तुरंत इस चैट में प्राप्त होंगे।
+━━━━━━━━━━━━━━━━━━
+🌐 <a href="https://singodiafoodstore.in">Storefront Live</a>
+`.trim();
+    const result = await sendTelegramMessage(testMsg);
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.error || result.message || 'Telegram alert test failed' });
+    }
+    res.json({ success: true, message: 'Test message sent to Telegram successfully!' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+

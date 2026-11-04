@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { sendWelcomeEmail } from '../services/emailService.js';
+import { notifyNewCustomer } from '../services/telegramService.js';
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'singodhia_super_secret_jwt_key_2026_rajasthan', {
@@ -354,6 +355,11 @@ export const googleLogin = async (req, res, next) => {
           .catch(err => {
             console.warn('[GoogleLogin] Welcome email notice:', err.message);
           });
+
+        // Instant Telegram Alert on new customer
+        notifyNewCustomer(user).catch(tgErr => {
+          console.warn('[GoogleLogin] Telegram new customer alert notice:', tgErr.message);
+        });
       } else {
         // Update avatar / googleId if missing
         if (!user.avatar && picture) user.avatar = picture;
