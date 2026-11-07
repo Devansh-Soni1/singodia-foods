@@ -25,7 +25,7 @@ export const HeroBanner = ({ customHeroImage }) => {
   }, [customHeroImage]);
 
   return (
-    <section className="relative bg-gradient-to-b from-[#F5EEDB] via-[#FAF6EF] to-[#FAF6EF] pt-3 pb-4 sm:pt-4 sm:pb-6 border-b border-cream-200">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#F5EEDB] via-[#FAF6EF] to-[#FAF6EF] pt-2.5 pb-3 sm:pt-4 sm:pb-6 border-b border-cream-200">
       
       {/* Background warm ambient glows */}
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />

@@ -156,7 +156,7 @@ export const FeaturedTrialPackBanner = () => {
   };
 
   return (
-    <section id="trial-pack" className="py-5 sm:py-7 bg-white border-b border-cream-200 font-sans relative scroll-mt-24 sm:scroll-mt-28">
+    <section id="trial-pack" className="py-5 sm:py-7 bg-white border-b border-cream-200 font-sans relative overflow-hidden scroll-mt-24 sm:scroll-mt-28">
       
       {/* Animated Flying Jar Portal */}
       {flyingJar && (
@@ -232,8 +232,8 @@ export const FeaturedTrialPackBanner = () => {
                 </span>
               </div>
 
-              {/* 4x2 Compact Cards Grid */}
-              <div className="grid grid-cols-4 gap-2 sm:gap-2.5">
+              {/* 4x2 Compact Cards Grid (2 cols on small mobile, 4 cols on tablet/desktop) */}
+              <div className="grid grid-cols-2 xs:grid-cols-4 gap-2 sm:gap-2.5">
                 {trialItems.map((item) => {
                   const isSelected = selectedJars.some(j => j.id === item.id);
                   const isFull = isBucketFull && !isSelected;

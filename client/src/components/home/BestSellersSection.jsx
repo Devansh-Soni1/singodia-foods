@@ -21,8 +21,8 @@ export const BestSellersSection = ({ products = [], onQuickView }) => {
           </p>
         </div>
 
-        {/* 4 Product Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {/* 4 Product Cards Grid - 2 per row on mobile */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6">
           {displayProducts.map((product) => (
             <ProductCard
               key={product._id || product.slug}

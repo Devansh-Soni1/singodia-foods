@@ -57,21 +57,21 @@ export const TrustBadges = ({ layout = 'row' }) => {
   }
 
   return (
-    <div className="bg-cream-50/80 border-y border-cream-200 py-6 sm:py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+    <div className="bg-cream-50/80 border-y border-cream-200 py-4 sm:py-8 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-6">
           {badges.map((badge, idx) => {
             const Icon = badge.icon;
             return (
               <div 
                 key={idx} 
-                className="flex flex-col items-center text-center p-4 rounded-xl bg-white border border-cream-200/80 shadow-xs hover:shadow-card transition-shadow duration-200"
+                className="flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl bg-white border border-cream-200/80 shadow-xs hover:shadow-card transition-shadow duration-200"
               >
-                <div className={`w-12 h-12 rounded-full ${badge.color} flex items-center justify-center mb-3 shadow-inner`}>
-                  <Icon className="w-6 h-6" />
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${badge.color} flex items-center justify-center mb-2 sm:mb-3 shadow-inner`}>
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <h4 className="text-sm font-bold text-charcoal mb-1 font-sans">{badge.title}</h4>
-                <p className="text-xs text-earth-brown leading-relaxed">{badge.desc}</p>
+                <h4 className="text-xs sm:text-sm font-bold text-charcoal mb-0.5 sm:mb-1 font-sans leading-snug">{badge.title}</h4>
+                <p className="text-[10px] sm:text-xs text-earth-brown leading-snug">{badge.desc}</p>
               </div>
             );
           })}

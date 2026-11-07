@@ -155,8 +155,11 @@ export const SubHeaderCategoryBar = () => {
     <section className="bg-white border-t border-b border-amber-200/80 shadow-[0_2px_8px_rgba(243,162,34,0.06)] select-none">
       
       {/* 1. Animated Category Emoji Strip (Pure transparent emoji, no background box, no badges) */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pt-3 pb-3">
-        <div className="flex items-start justify-start md:justify-center gap-3 sm:gap-6 lg:gap-8 overflow-x-auto scrollbar-none pb-1 pt-1.5 px-1">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pt-2.5 pb-2.5 overflow-hidden">
+        <div 
+          className="flex items-start justify-start md:justify-center gap-3 sm:gap-6 lg:gap-8 overflow-x-auto scrollbar-none pb-1 pt-1 px-1 select-none"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
           {categoriesToShow.map((cat) => {
             const visual = resolveVisual(cat.slug, cat.name);
             const link = visual.path || (cat.slug === 'all-products' ? '/shop/' : `/product/${(cat.slug || '').replace(/s$/, '')}/`);
@@ -197,34 +200,38 @@ export const SubHeaderCategoryBar = () => {
       </div>
 
       {/* 2. Trust Guarantee Strip */}
-      <div className="border-t border-amber-300/70 bg-[#FFFDF9] py-2 px-4">
-        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-xs sm:text-[13.5px] font-bold text-gray-800">
+      <div className="border-t border-amber-300/70 bg-[#FFFDF9] py-1.5 px-3 sm:px-4 overflow-hidden">
+        <div className="max-w-5xl mx-auto flex items-center justify-center gap-2.5 sm:gap-6 text-[10.5px] sm:text-[13px] font-bold text-gray-800 flex-nowrap overflow-x-auto scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           
           {/* Trust Item 1: NO Chemical Preservatives */}
-          <div className="flex items-center gap-2">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#2E7D32] flex-shrink-0" fill="currentColor">
+          <div className="flex items-center gap-1 shrink-0">
+            <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#2E7D32] flex-shrink-0" fill="currentColor">
               <path d="M12 2l2.4 2.2 3.2-.6 1.4 2.9 3.2 1-.2 3.3 2.1 2.5-1.7 2.8.9 3.2-3 1.4-1 3.2-3.3-.3-2.3 2.3-2.3-2.3-3.3.3-1-3.2-3-1.4.9-3.2-1.7-2.8 2.1-2.5-.2-3.3 3.2-1 1.4-2.9 3.2.6L12 2z"/>
               <path d="M9.5 12l2 2 4-4" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="tracking-tight text-gray-900">NO Chemical Preservatives</span>
+            <span className="tracking-tight text-gray-900 whitespace-nowrap">NO Chemical Preservatives</span>
           </div>
+
+          <span className="text-gray-300 text-xs shrink-0 select-none">•</span>
 
           {/* Trust Item 2: Homemade Pickles */}
-          <div className="flex items-center gap-2">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#2E7D32] flex-shrink-0" fill="currentColor">
+          <div className="flex items-center gap-1 shrink-0">
+            <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#2E7D32] flex-shrink-0" fill="currentColor">
               <path d="M12 2l2.4 2.2 3.2-.6 1.4 2.9 3.2 1-.2 3.3 2.1 2.5-1.7 2.8.9 3.2-3 1.4-1 3.2-3.3-.3-2.3 2.3-2.3-2.3-3.3.3-1-3.2-3-1.4.9-3.2-1.7-2.8 2.1-2.5-.2-3.3 3.2-1 1.4-2.9 3.2.6L12 2z"/>
               <path d="M9.5 12l2 2 4-4" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="tracking-tight text-gray-900">100% Homemade Pickles</span>
+            <span className="tracking-tight text-gray-900 whitespace-nowrap">100% Homemade Pickles</span>
           </div>
 
+          <span className="text-gray-300 text-xs shrink-0 select-none hidden md:inline">•</span>
+
           {/* Trust Item 3: Sun-Cured In Ceramic Barnis */}
-          <div className="hidden md:flex items-center gap-2">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#2E7D32] flex-shrink-0" fill="currentColor">
+          <div className="hidden md:flex items-center gap-1.5 shrink-0">
+            <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#2E7D32] flex-shrink-0" fill="currentColor">
               <path d="M12 2l2.4 2.2 3.2-.6 1.4 2.9 3.2 1-.2 3.3 2.1 2.5-1.7 2.8.9 3.2-3 1.4-1 3.2-3.3-.3-2.3 2.3-2.3-2.3-3.3.3-1-3.2-3-1.4.9-3.2-1.7-2.8 2.1-2.5-.2-3.3 3.2-1 1.4-2.9 3.2.6L12 2z"/>
               <path d="M9.5 12l2 2 4-4" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="tracking-tight text-gray-900">Sun-Cured in Traditional Martabans</span>
+            <span className="tracking-tight text-gray-900 whitespace-nowrap">Sun-Cured in Martabans</span>
           </div>
 
         </div>

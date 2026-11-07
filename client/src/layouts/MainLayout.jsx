@@ -13,7 +13,7 @@ export const MainLayout = () => {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF6EF] text-[#22201D]">
+    <div className="min-h-screen flex flex-col bg-[#FAF6EF] text-[#22201D] overflow-x-hidden max-w-full w-full">
       {/* 1. Announcement Bar */}
       <AnnouncementBar />
 
