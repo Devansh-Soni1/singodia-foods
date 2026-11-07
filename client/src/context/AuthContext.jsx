@@ -122,6 +122,24 @@ export const AuthProvider = ({ children }) => {
     return res;
   };
 
+  const adminRequestOtp = async (password) => {
+    return await authAPI.adminRequestOtp({ password });
+  };
+
+  const adminVerifyOtp = async (password, otp) => {
+    const res = await authAPI.adminVerifyOtp({ password, otp });
+    if (res.token) {
+      localStorage.setItem('singodhia_token', res.token);
+      localStorage.setItem('singodhia_user', JSON.stringify(res.user));
+      if (res.user?.role === 'admin') {
+        localStorage.setItem('singodhia_admin_last_activity', Date.now().toString());
+      }
+      setToken(res.token);
+      setUser(res.user);
+    }
+    return res;
+  };
+
   const register = async (name, email, password, phone) => {
     const res = await authAPI.register({ name, email, password, phone });
     if (res.token) {
@@ -184,6 +202,8 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
     login,
+    adminRequestOtp,
+    adminVerifyOtp,
     register,
     googleLogin,
     logout,

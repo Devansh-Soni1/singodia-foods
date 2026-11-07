@@ -2,7 +2,9 @@ import express from 'express';
 import { 
   register, 
   login, 
-  googleLogin,
+  adminRequestOtp,
+  adminVerifyOtp,
+  googleLogin, 
   getProfile, 
   updateProfile, 
   addAddress, 
@@ -16,6 +18,8 @@ const router = express.Router();
 
 router.post('/register', register);
 router.post('/login', login);
+router.post('/admin/request-otp', adminRequestOtp);
+router.post('/admin/verify-otp', adminVerifyOtp);
 router.post('/google', googleLogin);
 router.get('/profile', protect, getProfile);
 router.put('/profile', protect, updateProfile);
@@ -25,4 +29,3 @@ router.delete('/address/:addressId', protect, deleteAddress);
 router.post('/wishlist/toggle', protect, toggleWishlist);
 
 export default router;
-

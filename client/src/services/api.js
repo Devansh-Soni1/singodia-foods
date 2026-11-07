@@ -40,6 +40,22 @@ export const authAPI = {
       throw err.response?.data || err;
     }
   },
+  adminRequestOtp: async ({ password }) => {
+    try {
+      const res = await api.post('/auth/admin/request-otp', { password });
+      return res.data;
+    } catch (err) {
+      throw err.response?.data || err;
+    }
+  },
+  adminVerifyOtp: async ({ password, otp }) => {
+    try {
+      const res = await api.post('/auth/admin/verify-otp', { password, otp });
+      return res.data;
+    } catch (err) {
+      throw err.response?.data || err;
+    }
+  },
   googleLogin: async ({ credential }) => {
     try {
       const res = await api.post('/auth/google', { credential });
