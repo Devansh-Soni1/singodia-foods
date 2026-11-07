@@ -24,13 +24,12 @@ export const FeaturedTrialPackBanner = () => {
   const [packSize, setPackSize] = useState(4);
   const [trialItems, setTrialItems] = useState(DEFAULT_TRIAL_ITEMS);
   
-  // Start empty for 4 or 6 pack; when 8 pack is selected, auto-select all 8!
+  // Start empty for 4 pack; when 8 pack is selected, auto-select all 8!
   const [selectedJars, setSelectedJars] = useState([]);
 
-  // Pricing
+  // Pricing (Only 4 and 8 Pack)
   const [pricing, setPricing] = useState({
     4: { originalPrice: 599, price: 499, discountPercent: 17 },
-    6: { originalPrice: 699, price: 599, discountPercent: 14 },
     8: { originalPrice: 799, price: 699, discountPercent: 10 }
   });
 
@@ -74,7 +73,7 @@ export const FeaturedTrialPackBanner = () => {
         setBucketSparkles(false);
       }, 500);
     } else {
-      // 4 ya 6 par empty rahega taki user khud choose kar sake
+      // 4 pack par empty rahega taki user khud choose kar sake
       setSelectedJars([]);
     }
   };
@@ -322,26 +321,26 @@ export const FeaturedTrialPackBanner = () => {
                 </p>
               </div>
 
-              {/* Pack Selector (4, 6, 8 Jars) & Price Row */}
+              {/* Pack Selector (4, 8 Jars) & Price Row */}
               <div className="my-2.5 p-2 bg-amber-50/80 rounded-xl border border-amber-200 space-y-2">
                 <div className="flex flex-wrap items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1">
-                    {[4, 6, 8].map((size) => {
+                  <div className="flex items-center gap-1.5">
+                    {[4, 8].map((size) => {
                       const isActive = packSize === size;
                       return (
                         <button
                           key={size}
                           type="button"
                           onClick={() => handlePackChange(size)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center gap-1 ${
+                          className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
                             isActive
                               ? 'bg-[#832B0A] text-white shadow-xs scale-102 ring-2 ring-amber-400'
                               : 'bg-white text-gray-800 border border-gray-200 hover:border-amber-400 hover:bg-amber-100/50'
                           }`}
                         >
-                          <span>{size} Pack</span>
+                          <span>{size} Pack Box</span>
                           {size === 8 && (
-                            <span className={`text-[9px] font-black px-1 rounded-sm uppercase ${
+                            <span className={`text-[9px] font-black px-1.5 py-0.2 rounded uppercase ${
                               isActive ? 'bg-amber-300 text-amber-950' : 'bg-amber-100 text-amber-800'
                             }`}>
                               All 8

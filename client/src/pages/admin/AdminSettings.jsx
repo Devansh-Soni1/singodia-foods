@@ -23,7 +23,6 @@ export const AdminSettings = () => {
     trialPackItems: DEFAULT_TRIAL_ITEMS,
     trialPackPricing: {
       4: { price: 499, originalPrice: 599, discountPercent: 17 },
-      6: { price: 599, originalPrice: 699, discountPercent: 14 },
       8: { price: 699, originalPrice: 799, discountPercent: 10 }
     }
   });
@@ -295,8 +294,8 @@ export const AdminSettings = () => {
           {/* Pricing Controls: 4 Pack, 6 Pack, 8 Pack */}
           <div className="bg-white p-4 rounded-xl border border-amber-200">
             <h4 className="font-bold text-xs text-gray-900 mb-2">Trial Pack Pricing & Offers (कीमतें और छूट):</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {[4, 6, 8].map((size) => {
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[4, 8].map((size) => {
                 const pInfo = settings.trialPackPricing?.[size] || { price: 0, originalPrice: 0, discountPercent: 0 };
                 return (
                   <div key={size} className="p-3 bg-amber-50/50 rounded-xl border border-amber-200 space-y-2">
