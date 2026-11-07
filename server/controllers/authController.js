@@ -266,6 +266,29 @@ export const deleteAddress = async (req, res, next) => {
   }
 };
 
+export const setDefaultAddress = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const { addressId } = req.params;
+    user.addresses.forEach(addr => {
+      addr.isDefault = addr._id.toString() === addressId;
+    });
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Default address set successfully',
+      addresses: user.addresses
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const toggleWishlist = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);

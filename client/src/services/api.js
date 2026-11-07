@@ -80,6 +80,14 @@ export const authAPI = {
       throw err.response?.data || err;
     }
   },
+  setDefaultAddress: async (addressId) => {
+    try {
+      const res = await api.put(`/auth/address/${addressId}/default`);
+      return res.data;
+    } catch (err) {
+      throw err.response?.data || err;
+    }
+  },
   toggleWishlist: async (productId) => {
     try {
       const res = await api.post('/auth/wishlist/toggle', { productId });
@@ -431,6 +439,26 @@ export const shippingAPI = {
       return res.data;
     } catch (err) {
       return { success: true, serviceable: true, estimatedCost: 60 };
+    }
+  },
+  lookupPincode: async (pincode) => {
+    try {
+      const cleanPin = String(pincode).trim();
+      if (!/^\d{6}$/.test(cleanPin)) return null;
+      const res = await fetch(`https://api.postalpincode.in/pincode/${cleanPin}`);
+      const data = await res.json();
+      if (Array.isArray(data) && data[0]?.Status === 'Success' && data[0]?.PostOffice?.length > 0) {
+        const po = data[0].PostOffice[0];
+        return {
+          district: po.District || '',
+          state: po.State || '',
+          area: po.Name || '',
+          pincode: cleanPin
+        };
+      }
+      return null;
+    } catch {
+      return null;
     }
   },
   generateAwb: async (orderId) => {

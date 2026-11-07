@@ -230,20 +230,14 @@ export const CartPage = () => {
                   </div>
                 )}
 
-                <div className="flex justify-between">
-                  <span className="text-earth-brown">Shipping Fee:</span>
-                  <span>
-                    {shippingFee === 0 ? (
-                      <span className="text-gray-900 font-bold uppercase text-[11px]">₹0</span>
-                    ) : (
-                      formatPrice(shippingFee)
-                    )}
-                  </span>
+                <div className="flex justify-between items-center">
+                  <span className="text-earth-brown">Delivery (iThink Logistics):</span>
+                  <span className="text-brand-green font-bold text-[11px]">Calculated at checkout</span>
                 </div>
 
                 <div className="flex justify-between text-lg font-extrabold text-charcoal pt-3 border-t border-cream-200">
-                  <span>Payable Total:</span>
-                  <span className="text-brand-green">{formatPrice(finalTotal)}</span>
+                  <span>Subtotal:</span>
+                  <span className="text-brand-green">{formatPrice(Math.max(0, subtotal - discountAmount))}</span>
                 </div>
               </div>
 

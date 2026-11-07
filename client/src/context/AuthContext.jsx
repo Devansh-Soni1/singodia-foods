@@ -169,6 +169,14 @@ export const AuthProvider = ({ children }) => {
     return res;
   };
 
+  const setDefaultAddress = async (addrId) => {
+    const res = await authAPI.setDefaultAddress(addrId);
+    if (res.addresses) {
+      setUser(prev => ({ ...prev, addresses: res.addresses }));
+    }
+    return res;
+  };
+
   const value = {
     user,
     token,
@@ -181,7 +189,8 @@ export const AuthProvider = ({ children }) => {
     logout,
     updateProfile,
     addAddress,
-    deleteAddress
+    deleteAddress,
+    setDefaultAddress
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

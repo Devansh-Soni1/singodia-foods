@@ -352,7 +352,7 @@ export const CartDrawer = () => {
 
                   <div className="text-right">
                     <span className="text-base sm:text-lg font-black text-gray-900 font-sans">
-                      {formatPrice(finalTotal)}
+                      {formatPrice(Math.max(0, subtotal - discountAmount))}
                     </span>
                   </div>
                 </div>
@@ -370,14 +370,10 @@ export const CartDrawer = () => {
                         <span>-{formatPrice(discountAmount)}</span>
                       </div>
                     )}
-                    <div className="flex justify-between">
-                      <span>Estimated Shipping:</span>
-                      <span>
-                        {shippingFee === 0 ? (
-                          <span className="text-gray-900 font-bold text-[11px]">₹0</span>
-                        ) : (
-                          formatPrice(shippingFee)
-                        )}
+                    <div className="flex justify-between items-center">
+                      <span>Delivery (iThink Logistics):</span>
+                      <span className="text-brand-green font-bold text-[11px]">
+                        Calculated at checkout
                       </span>
                     </div>
                   </div>

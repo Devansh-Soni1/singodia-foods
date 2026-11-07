@@ -6,7 +6,8 @@ import {
   getProfile, 
   updateProfile, 
   addAddress, 
-  deleteAddress, 
+  deleteAddress,
+  setDefaultAddress, 
   toggleWishlist 
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
@@ -19,6 +20,7 @@ router.post('/google', googleLogin);
 router.get('/profile', protect, getProfile);
 router.put('/profile', protect, updateProfile);
 router.post('/address', protect, addAddress);
+router.put('/address/:addressId/default', protect, setDefaultAddress);
 router.delete('/address/:addressId', protect, deleteAddress);
 router.post('/wishlist/toggle', protect, toggleWishlist);
 

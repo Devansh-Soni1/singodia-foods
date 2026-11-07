@@ -168,7 +168,7 @@ export const createOrder = async (req, res, next) => {
       createdAt: new Date()
     };
 
-    // Auto-save customer details into MongoDB database if not already existing
+    // Auto-save customer details & default delivery address into MongoDB database
     if (mongoose.connection.readyState === 1 && customer?.email) {
       try {
         let existingUser = await User.findOne({ email: customer.email.toLowerCase().trim() });
@@ -192,12 +192,56 @@ export const createOrder = async (req, res, next) => {
               isDefault: true
             }]
           });
+        } else {
+          // If user exists, ensure address is saved and updated as default if first or selected
+          const addrList = existingUser.addresses || [];
+          const existingAddrIndex = addrList.findIndex(a => 
+            String(a.pincode).trim() === String(shippingAddress.pincode).trim() &&
+            a.addressLine1?.toLowerCase().trim() === shippingAddress.addressLine1?.toLowerCase().trim()
+          );
+
+          const isFirstAddress = addrList.length === 0;
+          const makeDefault = isFirstAddress || shippingAddress.isDefault !== false;
+
+          if (makeDefault) {
+            addrList.forEach(a => { a.isDefault = false; });
+          }
+
+          if (existingAddrIndex >= 0) {
+            // Update existing address fields
+            addrList[existingAddrIndex].fullName = customer.name;
+            addrList[existingAddrIndex].phone = customer.phone;
+            addrList[existingAddrIndex].addressLine2 = shippingAddress.addressLine2 || addrList[existingAddrIndex].addressLine2 || '';
+            addrList[existingAddrIndex].landmark = shippingAddress.landmark || addrList[existingAddrIndex].landmark || '';
+            addrList[existingAddrIndex].city = shippingAddress.city;
+            addrList[existingAddrIndex].state = shippingAddress.state;
+            if (makeDefault) addrList[existingAddrIndex].isDefault = true;
+          } else {
+            // Add new address
+            addrList.push({
+              fullName: customer.name,
+              phone: customer.phone,
+              addressLine1: shippingAddress.addressLine1,
+              addressLine2: shippingAddress.addressLine2 || '',
+              landmark: shippingAddress.landmark || '',
+              city: shippingAddress.city,
+              state: shippingAddress.state,
+              pincode: shippingAddress.pincode,
+              isDefault: makeDefault
+            });
+          }
+
+          if (customer.phone && (!existingUser.phone || existingUser.phone !== customer.phone)) {
+            existingUser.phone = customer.phone;
+          }
+          existingUser.addresses = addrList;
+          await existingUser.save();
         }
         if (existingUser && !orderData.user) {
           orderData.user = existingUser._id;
         }
       } catch (custErr) {
-        console.warn('Customer auto-save in database notice:', custErr.message);
+        console.warn('Customer address auto-save notice:', custErr.message);
       }
     }
 

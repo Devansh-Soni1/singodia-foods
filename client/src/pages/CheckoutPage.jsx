@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   ShieldCheck, Truck, CreditCard, Banknote, ArrowRight, 
-  CheckCircle, AlertCircle, ShoppingBag, Lock, UserCheck, CheckCircle2
+  CheckCircle, AlertCircle, ShoppingBag, Lock, UserCheck, CheckCircle2,
+  MapPin, Plus, Loader2, Sparkles, Home, Building2, Phone, Edit3
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { orderAPI, authAPI } from '../services/api';
+import { orderAPI, authAPI, shippingAPI } from '../services/api';
 import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 import { formatPrice } from '../utils/formatCurrency';
+import { AddressSelectModal } from '../components/checkout/AddressSelectModal';
 
 // Dynamic loader for Razorpay Checkout script if not already present in DOM
 const loadRazorpayScript = () => {
@@ -30,45 +32,209 @@ const loadRazorpayScript = () => {
 };
 
 export const CheckoutPage = () => {
-  const { cartItems, subtotal, discountAmount, appliedCoupon, shippingFee, finalTotal, clearCart } = useCart();
-  const { user, isAuthenticated } = useAuth();
+  const { cartItems, subtotal, discountAmount, appliedCoupon, clearCart } = useCart();
+  const { user, isAuthenticated, addAddress, setDefaultAddress } = useAuth();
   const navigate = useNavigate();
 
-  // Form states
+  // Address selection modal state
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+
+  // Form states - All 8 address fields are mandatory
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
-    phone: user?.phone || '',
-    addressLine1: user?.addresses?.[0]?.addressLine1 || '',
-    addressLine2: user?.addresses?.[0]?.addressLine2 || '',
-    landmark: user?.addresses?.[0]?.landmark || '',
-    city: user?.addresses?.[0]?.city || '',
-    state: user?.addresses?.[0]?.state || 'Rajasthan',
-    pincode: user?.addresses?.[0]?.pincode || '',
+    phone: user?.phone ? String(user.phone).replace(/^(\+91|91|0)/, '').replace(/\D/g, '').slice(-10) : '',
+    pincode: '',
+    addressLine1: '',
+    addressLine2: '',
+    landmark: '',
+    city: '',
+    state: 'Rajasthan',
     paymentMethod: 'razorpay',
     customerNotes: ''
   });
 
-  // Auto-sync form when user logs in with Google
-  useEffect(() => {
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        name: user.name || prev.name,
-        email: user.email || prev.email,
-        phone: user.phone ? String(user.phone).replace(/^(\+91|91|0)/, '').replace(/\D/g, '') : prev.phone,
-        addressLine1: user.addresses?.[0]?.addressLine1 || prev.addressLine1,
-        addressLine2: user.addresses?.[0]?.addressLine2 || prev.addressLine2,
-        landmark: user.addresses?.[0]?.landmark || prev.landmark,
-        city: user.addresses?.[0]?.city || prev.city,
-        state: user.addresses?.[0]?.state || prev.state,
-        pincode: user.addresses?.[0]?.pincode || prev.pincode
-      }));
-    }
-  }, [user]);
-
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // PIN Code Auto-fetch state
+  const [pincodeLoading, setPincodeLoading] = useState(false);
+  const [pincodeStatus, setPincodeStatus] = useState('');
+
+  // Dynamic iThink Logistics rate state
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [shippingRateInfo, setShippingRateInfo] = useState(null);
+  const [dynamicShippingFee, setDynamicShippingFee] = useState(null);
+
+  // Calculate total cart weight in Kg
+  const totalCartWeightKg = useMemo(() => {
+    return cartItems.reduce((acc, item) => {
+      const wStr = String(item.weight || '').toLowerCase();
+      let itemWeightKg = 0.5;
+      if (wStr.includes('kg')) {
+        const num = parseFloat(wStr);
+        itemWeightKg = isNaN(num) ? 1.0 : num;
+      } else if (wStr.includes('g') || wStr.includes('gm')) {
+        const num = parseFloat(wStr);
+        itemWeightKg = isNaN(num) ? 0.5 : num / 1000;
+      }
+      return acc + (itemWeightKg * (item.quantity || 1));
+    }, 0);
+  }, [cartItems]);
+
+  // Fetch live iThink Logistics shipping rate for destination pincode
+  const calculateIThinkRate = useCallback(async (destinationPincode) => {
+    const cleanPin = String(destinationPincode || '').trim();
+    if (!/^\d{6}$/.test(cleanPin)) return;
+
+    setShippingLoading(true);
+    try {
+      const res = await shippingAPI.calculateRate({
+        toPincode: cleanPin,
+        weight: totalCartWeightKg || 0.5,
+        paymentMethod: 'Prepaid'
+      });
+
+      if (res && res.success) {
+        const cost = Number(res.rate || res.estimatedCost) || 50;
+        setDynamicShippingFee(cost);
+        setShippingRateInfo(res);
+      } else {
+        // Fallback default
+        setDynamicShippingFee(60);
+      }
+    } catch (err) {
+      console.warn('Shipping rate calculation notice:', err);
+      setDynamicShippingFee(60);
+    } finally {
+      setShippingLoading(false);
+    }
+  }, [totalCartWeightKg]);
+
+  // Auto-populate default address on load
+  useEffect(() => {
+    if (user) {
+      const addresses = user.addresses || [];
+      const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
+
+      if (defaultAddr) {
+        setSelectedAddressId(defaultAddr._id);
+        const cleanPhone = defaultAddr.phone || user.phone || '';
+        const formattedPhone = String(cleanPhone).replace(/^(\+91|91|0)/, '').replace(/\D/g, '').slice(-10);
+
+        setFormData(prev => ({
+          ...prev,
+          name: defaultAddr.fullName || user.name || prev.name,
+          email: user.email || prev.email,
+          phone: formattedPhone || prev.phone,
+          pincode: defaultAddr.pincode || prev.pincode,
+          addressLine1: defaultAddr.addressLine1 || prev.addressLine1,
+          addressLine2: defaultAddr.addressLine2 || prev.addressLine2,
+          landmark: defaultAddr.landmark || prev.landmark,
+          city: defaultAddr.city || prev.city,
+          state: defaultAddr.state || prev.state || 'Rajasthan'
+        }));
+
+        if (defaultAddr.pincode && /^\d{6}$/.test(defaultAddr.pincode)) {
+          calculateIThinkRate(defaultAddr.pincode);
+        }
+      } else {
+        // First time customer: prefill name & email
+        setFormData(prev => ({
+          ...prev,
+          name: user.name || prev.name,
+          email: user.email || prev.email,
+          phone: user.phone ? String(user.phone).replace(/^(\+91|91|0)/, '').replace(/\D/g, '').slice(-10) : prev.phone
+        }));
+      }
+    }
+  }, [user, calculateIThinkRate]);
+
+  // Handle address selected from modal
+  const handleSelectAddressFromModal = (addr) => {
+    setSelectedAddressId(addr._id);
+    const cleanPhone = String(addr.phone || '').replace(/^(\+91|91|0)/, '').replace(/\D/g, '').slice(-10);
+
+    setFormData(prev => ({
+      ...prev,
+      name: addr.fullName || prev.name,
+      phone: cleanPhone || prev.phone,
+      pincode: addr.pincode,
+      addressLine1: addr.addressLine1,
+      addressLine2: addr.addressLine2 || '',
+      landmark: addr.landmark || '',
+      city: addr.city,
+      state: addr.state
+    }));
+
+    setIsAddressModalOpen(false);
+    setPincodeStatus(`✓ चुना गया पता: ${addr.city}, ${addr.state} (${addr.pincode})`);
+    calculateIThinkRate(addr.pincode);
+  };
+
+  // Handle new address saved inside modal
+  const handleSaveNewAddressFromModal = async (newAddrPayload) => {
+    if (addAddress) {
+      const res = await addAddress(newAddrPayload);
+      const savedAddresses = res?.addresses || [];
+      const newest = savedAddresses[savedAddresses.length - 1] || newAddrPayload;
+
+      handleSelectAddressFromModal({
+        ...newAddrPayload,
+        _id: newest._id || 'temp-' + Date.now()
+      });
+    } else {
+      handleSelectAddressFromModal({
+        ...newAddrPayload,
+        _id: 'temp-' + Date.now()
+      });
+    }
+  };
+
+  // Handle setting default address inside modal
+  const handleSetDefaultInsideModal = async (addressId) => {
+    if (setDefaultAddress) {
+      await setDefaultAddress(addressId);
+    }
+  };
+
+  // Instant location auto-fetch on 6-digit PIN code input
+  const handlePincodeChange = async (e) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+    setFormData(prev => ({ ...prev, pincode: val }));
+    setPincodeStatus('');
+    setErrorMessage('');
+
+    if (val.length === 6) {
+      setPincodeLoading(true);
+      try {
+        const [pinData] = await Promise.all([
+          shippingAPI.lookupPincode(val),
+          calculateIThinkRate(val)
+        ]);
+
+        if (pinData && pinData.district && pinData.state) {
+          setFormData(prev => ({
+            ...prev,
+            city: pinData.district,
+            state: pinData.state,
+            landmark: prev.landmark || pinData.area || ''
+          }));
+          setPincodeStatus(`✓ स्थान प्राप्त हुआ: ${pinData.district}, ${pinData.state}`);
+        } else {
+          setPincodeStatus('⚠️ पिनकोड मिला नहीं, कृपया शहर व राज्य स्वयं चुनें।');
+        }
+      } catch {
+        // Fallback
+      } finally {
+        setPincodeLoading(false);
+      }
+    } else {
+      setDynamicShippingFee(null);
+      setShippingRateInfo(null);
+    }
+  };
 
   const indianStates = [
     'Rajasthan', 'Delhi', 'Uttar Pradesh', 'Maharashtra', 'Karnataka', 
@@ -82,10 +248,14 @@ export const CheckoutPage = () => {
     setErrorMessage('');
   };
 
+  // Active shipping fee and total payable
+  const finalShippingFee = dynamicShippingFee !== null ? dynamicShippingFee : 50;
+  const finalPayableTotal = Math.max(0, subtotal - discountAmount + finalShippingFee);
+
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
     if (cartItems.length === 0) {
-      setErrorMessage('Your cart is empty. Please add pickles before checkout.');
+      setErrorMessage('आपकी कार्ट खाली है। कृपया चेकआउट से पहले अचार जोड़ें।');
       return;
     }
 
@@ -94,20 +264,51 @@ export const CheckoutPage = () => {
       return;
     }
 
-    // Strict 10-digit Indian Mobile Number validation
-    const cleanPhone = String(formData.phone || '').trim().replace(/^(\+91|91|0)/, '').replace(/\D/g, '');
+    // 1. Strict Name Validation
+    if (!formData.name.trim() || formData.name.trim().length < 3) {
+      setErrorMessage('कृपया प्राप्तकर्ता का पूरा नाम (कम से कम 3 अक्षर) दर्ज करें।');
+      return;
+    }
+
+    // 2. Strict 10-digit Indian Mobile Number validation
+    const cleanPhone = String(formData.phone || '').trim().replace(/^(\+91|91|0)/, '').replace(/\D/g, '').slice(-10);
     if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
       setErrorMessage('कृपया 10-अंकों का वैध भारतीय मोबाइल नंबर (उदा. 9876543210) दर्ज करें। यह कूरियर डिलीवरी और WhatsApp ट्रैकिंग अपडेट्स के लिए अनिवार्य है।');
       return;
     }
 
-    if (!formData.addressLine1 || !formData.city || !formData.pincode) {
-      setErrorMessage('Please provide your complete delivery address and PIN code.');
+    // 3. Strict 6-digit PIN code validation
+    if (!formData.pincode || !/^\d{6}$/.test(formData.pincode.trim())) {
+      setErrorMessage('कृपया 6-अंकों का मान्य भारतीय पिनकोड दर्ज करें।');
       return;
     }
 
-    if (!/^\d{6}$/.test(formData.pincode.trim())) {
-      setErrorMessage('Please enter a valid 6-digit Indian PIN code.');
+    // 4. Strict Address Line 1 Validation
+    if (!formData.addressLine1.trim()) {
+      setErrorMessage('कृपया मकान / फ्लैट नं. और बिल्डिंग का नाम दर्ज करें।');
+      return;
+    }
+
+    // 5. Strict Address Line 2 Validation
+    if (!formData.addressLine2.trim()) {
+      setErrorMessage('कृपया सड़क / गली / मोहल्ला / कॉलोनी का नाम दर्ज करें।');
+      return;
+    }
+
+    // 6. Strict Landmark Validation
+    if (!formData.landmark.trim()) {
+      setErrorMessage('कृपया कोई प्रमुख लैंडमार्क (उदा. जैन मंदिर के पास / पोस्ट ऑफिस के सामने) दर्ज करें।');
+      return;
+    }
+
+    // 7. Strict City & State Validation
+    if (!formData.city.trim()) {
+      setErrorMessage('कृपया शहर या जिला (City) दर्ज करें।');
+      return;
+    }
+
+    if (!formData.state.trim()) {
+      setErrorMessage('कृपया राज्य (State) चुनें।');
       return;
     }
 
@@ -122,18 +323,20 @@ export const CheckoutPage = () => {
     try {
       const orderPayload = {
         customer: {
-          name: user?.name || formData.name,
+          name: formData.name.trim(),
           email: user?.email || formData.email,
           phone: cleanPhone
         },
         shippingAddress: {
-          addressLine1: formData.addressLine1,
-          addressLine2: formData.addressLine2,
-          landmark: formData.landmark,
-          city: formData.city,
-          state: formData.state,
-          pincode: formData.pincode,
-          phone: cleanPhone
+          fullName: formData.name.trim(),
+          addressLine1: formData.addressLine1.trim(),
+          addressLine2: formData.addressLine2.trim(),
+          landmark: formData.landmark.trim(),
+          city: formData.city.trim(),
+          state: formData.state.trim(),
+          pincode: formData.pincode.trim(),
+          phone: cleanPhone,
+          isDefault: true
         },
         items: cartItems.map(item => ({
           product: item.productId,
@@ -146,7 +349,9 @@ export const CheckoutPage = () => {
         subtotal,
         discount: discountAmount,
         couponCode: appliedCoupon?.code || '',
-        shippingFee,
+        shippingFee: finalShippingFee,
+        carrier: shippingRateInfo?.courierName || 'iThink Logistics Express',
+        zone: shippingRateInfo?.zone || 'Zone B (Intra-Rajasthan)',
         paymentMethod: formData.paymentMethod,
         customerNotes: formData.customerNotes
       };
@@ -176,7 +381,7 @@ export const CheckoutPage = () => {
 
         const options = {
           key: razorpayKey,
-          amount: Math.round(finalTotal * 100),
+          amount: Math.round(finalPayableTotal * 100),
           currency: 'INR',
           name: 'Singodhia Foods',
           description: `Payment for Order ${createdOrder.orderNumber}`,
@@ -185,11 +390,11 @@ export const CheckoutPage = () => {
           prefill: {
             name: formData.name,
             email: formData.email,
-            contact: formData.phone
+            contact: cleanPhone
           },
           notes: {
             orderNumber: createdOrder.orderNumber,
-            address: `${formData.addressLine1}, ${formData.city}, ${formData.pincode}`
+            address: `${formData.addressLine1}, ${formData.addressLine2}, ${formData.city}, ${formData.pincode}`
           },
           theme: {
             color: '#1E4334'
@@ -307,7 +512,7 @@ export const CheckoutPage = () => {
             Checkout & Delivery
           </h1>
           <p className="text-xs sm:text-sm text-earth-brown mt-1">
-            Complete your shipping details to receive your handcrafted Rajasthani pickles.
+            Fill in your complete delivery details to receive your fresh handcrafted Rajasthani pickles.
           </p>
         </div>
 
@@ -331,7 +536,7 @@ export const CheckoutPage = () => {
                     1
                   </span>
                   <h2 className="text-base font-bold text-charcoal font-serif">
-                    Contact Information
+                    Contact & Receiver Information
                   </h2>
                 </div>
 
@@ -360,12 +565,31 @@ export const CheckoutPage = () => {
                   </div>
                 )}
 
-                <div className="space-y-4 pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                  {/* Full Name */}
+                  <div>
+                    <label className="text-xs font-bold text-charcoal flex items-center justify-between mb-1.5">
+                      <span className="flex items-center gap-1">
+                        <span>Full Name (नाम)</span>
+                        <span className="text-red-500 font-extrabold">*</span>
+                      </span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      name="name"
+                      placeholder="e.g. Ramesh Chandra Singodhia"
+                      value={formData.name}
+                      onChange={handleChange}
+                      className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium text-charcoal"
+                    />
+                  </div>
+
                   {/* Phone Number Input with +91 Prefix */}
                   <div>
                     <label className="text-xs font-bold text-charcoal flex items-center justify-between mb-1.5">
-                      <span className="flex items-center gap-1.5">
-                        <span>Mobile Number (Phone)</span>
+                      <span className="flex items-center gap-1">
+                        <span>Mobile Number (मोबाइल)</span>
                         <span className="text-red-500 font-extrabold">*</span>
                       </span>
                       <span className="text-[10px] text-amber-900 bg-amber-100/80 font-bold px-2 py-0.5 rounded-full border border-amber-300">
@@ -381,7 +605,7 @@ export const CheckoutPage = () => {
                         required
                         maxLength={10}
                         name="phone"
-                        placeholder="e.g. 9876543210"
+                        placeholder="9876543210"
                         value={formData.phone}
                         onChange={(e) => {
                           const val = e.target.value.replace(/\D/g, '').slice(0, 10);
@@ -391,81 +615,165 @@ export const CheckoutPage = () => {
                         className="w-full px-3.5 py-2.5 text-xs bg-transparent focus:outline-none font-semibold text-charcoal tracking-wide placeholder:font-normal placeholder:text-gray-400"
                       />
                     </div>
-                    <p className="text-[10px] text-earth-brown mt-1.5 flex items-center gap-1">
-                      <span>🚚</span>
-                      <span>कूरियर डिलीवरी राइडर और WhatsApp ट्रैकिंग अपडेट्स इसी नंबर पर आएंगे।</span>
-                    </p>
                   </div>
                 </div>
               </div>
 
-              {/* Delivery Address */}
-              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-cream-200 shadow-card space-y-4">
-                <div className="flex items-center gap-2 pb-3 border-b border-cream-100">
-                  <span className="w-6 h-6 rounded-full bg-brand-green text-white text-xs font-bold flex items-center justify-center">
-                    2
-                  </span>
-                  <h2 className="text-base font-bold text-charcoal font-serif">
-                    Delivery Address
-                  </h2>
+              {/* Delivery Address Section */}
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-cream-200 shadow-card space-y-5">
+                
+                {/* Section Header with Select Address Action */}
+                <div className="flex items-center justify-between pb-3 border-b border-cream-100 flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-brand-green text-white text-xs font-bold flex items-center justify-center">
+                      2
+                    </span>
+                    <h2 className="text-base font-bold text-charcoal font-serif">
+                      Delivery Address (डिलीवरी पता)
+                    </h2>
+                  </div>
+
+                  {/* Top "Select Address" Button */}
+                  <button
+                    type="button"
+                    onClick={() => setIsAddressModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cream-100 hover:bg-cream-200 border border-brand-green/30 text-brand-green font-bold text-xs transition-all shadow-2xs hover:scale-102"
+                  >
+                    <MapPin className="w-3.5 h-3.5 text-brand-green" />
+                    <span>पते चुनें / बदलें ({user?.addresses?.length || 0} Saved)</span>
+                  </button>
                 </div>
 
+                {/* Active Address Status Pill */}
+                {formData.pincode && formData.city && (
+                  <div className="p-3 bg-[#FBF8F1] rounded-2xl border border-cream-200 flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                        <Home className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-charcoal truncate">
+                          {formData.addressLine1 || 'Saved Address'}, {formData.city} - {formData.pincode}
+                        </p>
+                        <p className="text-[11px] text-earth-brown truncate">
+                          Recipient: {formData.name || user?.name} • +91 {formData.phone}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsAddressModalOpen(true)}
+                      className="text-brand-green font-bold text-xs underline shrink-0 hover:text-brand-green-dark"
+                    >
+                      बदलें
+                    </button>
+                  </div>
+                )}
+
+                {/* Address Form Inputs */}
                 <div className="space-y-4">
+                  
+                  {/* PIN Code with Instant Auto-Fetch */}
                   <div>
-                    <label className="text-xs font-bold text-charcoal block mb-1">
-                      House / Flat No., Street / Building Name *
+                    <label className="text-xs font-bold text-charcoal flex items-center justify-between mb-1.5">
+                      <span className="flex items-center gap-1">
+                        <span>PIN Code (6-अंकों का पिनकोड)</span>
+                        <span className="text-red-500 font-extrabold">*</span>
+                      </span>
+                      <span className="text-[11px] text-brand-green font-bold flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" />
+                        <span>ऑटो लोकेशन और iThink रेट्स लाइव</span>
+                      </span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        maxLength={6}
+                        name="pincode"
+                        placeholder="e.g. 302001 or 331507"
+                        value={formData.pincode}
+                        onChange={handlePincodeChange}
+                        className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-bold tracking-wider text-charcoal"
+                      />
+                      {pincodeLoading && (
+                        <div className="absolute right-3.5 top-2.5 text-brand-green">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        </div>
+                      )}
+                    </div>
+                    {pincodeStatus && (
+                      <p className={`text-[11px] mt-1 font-semibold ${
+                        pincodeStatus.startsWith('✓') ? 'text-emerald-700' : 'text-amber-800'
+                      }`}>
+                        {pincodeStatus}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Address Line 1 */}
+                  <div>
+                    <label className="text-xs font-bold text-charcoal flex items-center gap-1 mb-1.5">
+                      <span>House / Flat No., Building / Apartment Name (मकान / फ्लैट नं. व बिल्डिंग)</span>
+                      <span className="text-red-500 font-extrabold">*</span>
                     </label>
                     <input
                       type="text"
                       required
                       name="addressLine1"
-                      placeholder="e.g. Flat 302, Royal Palms Apartment, MG Road"
+                      placeholder="e.g. Flat 302, Prem Niwas, Block B"
                       value={formData.addressLine1}
                       onChange={handleChange}
                       className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
                     />
                   </div>
 
+                  {/* Address Line 2 */}
+                  <div>
+                    <label className="text-xs font-bold text-charcoal flex items-center gap-1 mb-1.5">
+                      <span>Street / Colony / Area (सड़क / गली / मोहल्ला / क्षेत्र)</span>
+                      <span className="text-red-500 font-extrabold">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      name="addressLine2"
+                      placeholder="e.g. Station Road, Bagreche Bass"
+                      value={formData.addressLine2}
+                      onChange={handleChange}
+                      className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
+                    />
+                  </div>
+
+                  {/* Landmark */}
+                  <div>
+                    <label className="text-xs font-bold text-charcoal flex items-center gap-1 mb-1.5">
+                      <span>Famous Landmark (प्रसिद्ध लैंडमार्क / पहचान)</span>
+                      <span className="text-red-500 font-extrabold">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      name="landmark"
+                      placeholder="e.g. Near Jain Mandir / Opp. SBI Bank"
+                      value={formData.landmark}
+                      onChange={handleChange}
+                      className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
+                    />
+                  </div>
+
+                  {/* City & State (Auto-filled on Pincode) */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-bold text-charcoal block mb-1">
-                        Locality / Area / Landmark
-                      </label>
-                      <input
-                        type="text"
-                        name="landmark"
-                        placeholder="e.g. Near Jain Mandir"
-                        value={formData.landmark}
-                        onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-bold text-charcoal block mb-1">
-                        PIN Code *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        maxLength={6}
-                        name="pincode"
-                        placeholder="6-digit PIN code"
-                        value={formData.pincode}
-                        onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-bold text-charcoal block mb-1">
-                        City / Town *
+                      <label className="text-xs font-bold text-charcoal flex items-center gap-1 mb-1.5">
+                        <span>City / District (शहर / जिला)</span>
+                        <span className="text-red-500 font-extrabold">*</span>
                       </label>
                       <input
                         type="text"
                         required
                         name="city"
-                        placeholder="e.g. Jaipur"
+                        placeholder="e.g. Sujangarh / Jaipur"
                         value={formData.city}
                         onChange={handleChange}
                         className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
@@ -473,11 +781,13 @@ export const CheckoutPage = () => {
                     </div>
 
                     <div>
-                      <label className="text-xs font-bold text-charcoal block mb-1">
-                        State *
+                      <label className="text-xs font-bold text-charcoal flex items-center gap-1 mb-1.5">
+                        <span>State (राज्य)</span>
+                        <span className="text-red-500 font-extrabold">*</span>
                       </label>
                       <select
                         name="state"
+                        required
                         value={formData.state}
                         onChange={handleChange}
                         className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
@@ -489,20 +799,50 @@ export const CheckoutPage = () => {
                     </div>
                   </div>
 
+                  {/* Optional Delivery Instructions */}
                   <div>
                     <label className="text-xs font-bold text-charcoal block mb-1">
-                      Delivery Instructions (Optional)
+                      Delivery Instructions (डिलीवरी निर्देश - वैकल्पिक)
                     </label>
                     <textarea
                       rows="2"
                       name="customerNotes"
-                      placeholder="e.g. Please ring bell twice or leave with security."
+                      placeholder="e.g. Please call before delivery or ring bell twice."
                       value={formData.customerNotes}
                       onChange={handleChange}
                       className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
                     />
                   </div>
+
                 </div>
+
+                {/* iThink Logistics Live Rate Card Indicator */}
+                <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200/80 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Truck className="w-4 h-4 text-[#002E6E]" />
+                      <span className="text-xs font-bold text-blue-950 font-serif">
+                        iThink Logistics Express Delivery
+                      </span>
+                    </div>
+                    {shippingLoading ? (
+                      <span className="text-[11px] text-blue-700 flex items-center gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        <span>गणना जारी...</span>
+                      </span>
+                    ) : (
+                      <span className="text-xs font-black text-brand-green bg-white px-2.5 py-0.5 rounded-full border border-blue-200">
+                        {formatPrice(finalShippingFee)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-blue-900 leading-relaxed flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span>• {shippingRateInfo?.zone || 'Zone B (Intra-Rajasthan)'}</span>
+                    <span>• {shippingRateInfo?.courierName || 'BlueDart / Delhivery (via iThink Logistics)'}</span>
+                    <span>• अपेक्षित समय: {shippingRateInfo?.expectedDeliveryDays || '2 - 3 Business Days'}</span>
+                  </div>
+                </div>
+
               </div>
 
               {/* Payment Method */}
@@ -544,17 +884,8 @@ export const CheckoutPage = () => {
                     <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">PhonePe</span>
                     <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">Paytm UPI</span>
                     <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">BHIM UPI</span>
-                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">All Debit & Credit Cards</span>
-                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">Net Banking</span>
+                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">All Cards & Net Banking</span>
                   </div>
-                </div>
-
-                {/* Logistics Info Note */}
-                <div className="p-3 bg-blue-50/70 border border-blue-200/80 rounded-2xl flex items-center gap-2.5 text-xs text-blue-900">
-                  <Truck className="w-4 h-4 text-[#002E6E] shrink-0" />
-                  <span>
-                    Your parcel will be carefully packed in bubble wrap and dispatched via <strong>iThink Logistics Express</strong>.
-                  </span>
                 </div>
               </div>
 
@@ -605,20 +936,22 @@ export const CheckoutPage = () => {
                     </div>
                   )}
 
-                  <div className="flex justify-between">
-                    <span className="text-earth-brown">Shipping Fee:</span>
-                    <span>
-                      {shippingFee === 0 ? (
-                        <span className="text-gray-900 font-bold uppercase text-[11px]">₹0</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-earth-brown">
+                      Delivery (iThink Logistics):
+                    </span>
+                    <span className="font-bold text-charcoal">
+                      {shippingLoading ? (
+                        <span className="text-gray-400 text-[11px]">Calculating...</span>
                       ) : (
-                        formatPrice(shippingFee)
+                        formatPrice(finalShippingFee)
                       )}
                     </span>
                   </div>
 
                   <div className="flex justify-between text-lg font-extrabold text-charcoal pt-3 border-t border-cream-200">
                     <span>Payable Amount:</span>
-                    <span className="text-brand-green">{formatPrice(finalTotal)}</span>
+                    <span className="text-brand-green">{formatPrice(finalPayableTotal)}</span>
                   </div>
                 </div>
 
@@ -634,7 +967,7 @@ export const CheckoutPage = () => {
                     <>
                       <Lock className="w-4 h-4" />
                       <span>
-                        Place Order ({formatPrice(finalTotal)})
+                        Place Order ({formatPrice(finalPayableTotal)})
                       </span>
                     </>
                   )}
@@ -642,10 +975,10 @@ export const CheckoutPage = () => {
 
                 <div className="p-3 bg-cream-50 rounded-xl text-[11px] text-earth-brown space-y-1">
                   <p className="flex items-center gap-1 font-semibold text-charcoal">
-                    <Truck className="w-3.5 h-3.5 text-brand-green" /> Dispatched within 24 hours from Jaipur
+                    <Truck className="w-3.5 h-3.5 text-brand-green" /> Express Dispatch via iThink Logistics from Sujangarh / Jaipur
                   </p>
                   <p>• Carefully packed in leak-proof protective cushioning</p>
-                  <p>• SMS and WhatsApp tracking will be shared upon dispatch</p>
+                  <p>• Live SMS and WhatsApp tracking will be shared upon dispatch</p>
                 </div>
 
               </div>
@@ -655,9 +988,19 @@ export const CheckoutPage = () => {
         </form>
 
       </div>
+
+      {/* Address Selection & Add Address Popup Modal */}
+      <AddressSelectModal
+        isOpen={isAddressModalOpen}
+        onClose={() => setIsAddressModalOpen(false)}
+        addresses={user?.addresses || []}
+        selectedAddressId={selectedAddressId}
+        onSelectAddress={handleSelectAddressFromModal}
+        onSaveNewAddress={handleSaveNewAddressFromModal}
+        onSetDefault={handleSetDefaultInsideModal}
+      />
     </div>
   );
 };
 
 export default CheckoutPage;
-
