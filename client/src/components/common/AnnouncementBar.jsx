@@ -63,10 +63,8 @@ export const AnnouncementBar = () => {
   );
 
   return (
-    <div className="bg-[#f3a222] border-b border-[#e59415] overflow-hidden py-1.5 sm:py-2 select-none shadow-2xs">
-      <div className="flex w-max animate-marquee hover:[animation-play-state:paused] cursor-default">
-        {renderMarqueeContent()}
-        {renderMarqueeContent()}
+    <div className="w-full max-w-[100vw] bg-[#f3a222] border-b border-[#e59415] overflow-hidden py-1.5 sm:py-2 select-none shadow-2xs">
+      <div className="flex w-max animate-marquee hover:[animation-play-state:paused] cursor-default select-none pointer-events-auto">
         {renderMarqueeContent()}
         {renderMarqueeContent()}
       </div>

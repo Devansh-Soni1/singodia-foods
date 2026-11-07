@@ -26,7 +26,7 @@ export const HomemadePromiseSection = () => {
               </div>
 
               {/* Overlaid Secondary Badge */}
-              <div className="absolute -bottom-6 -right-4 sm:-right-6 bg-white p-4 sm:p-5 rounded-2xl shadow-xl border border-cream-200 max-w-[220px]">
+              <div className="absolute -bottom-6 right-2 sm:-right-6 bg-white p-3.5 sm:p-5 rounded-2xl shadow-xl border border-cream-200 max-w-[200px] sm:max-w-[220px]">
                 <div className="flex items-center gap-2 text-brand-green font-bold text-xs mb-1">
                   <Sun className="w-4 h-4 text-mustard flex-shrink-0" />
                   <span>30-60 Days in Sunlight</span>

@@ -152,7 +152,7 @@ export const SubHeaderCategoryBar = () => {
   const categoriesToShow = dbCategories.length > 0 ? dbCategories : defaultList;
 
   return (
-    <section className="bg-white border-t border-b border-amber-200/80 shadow-[0_2px_8px_rgba(243,162,34,0.06)] select-none">
+    <section className="w-full max-w-[100vw] bg-white border-t border-b border-amber-200/80 shadow-[0_2px_8px_rgba(243,162,34,0.06)] select-none overflow-hidden">
       
       {/* 1. Animated Category Emoji Strip (Pure transparent emoji, no background box, no badges) */}
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pt-2.5 pb-2.5 overflow-hidden">

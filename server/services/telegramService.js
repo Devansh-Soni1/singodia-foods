@@ -43,7 +43,7 @@ export const sendTelegramMessage = async (messageText, parseMode = 'HTML') => {
 };
 
 /**
- * Notify owner when a new order is paid & confirmed
+ * Notify owner when a new order is paid & confirmed or placed via COD
  */
 export const notifyNewOrder = async (order) => {
   try {
@@ -55,7 +55,10 @@ export const notifyNewOrder = async (order) => {
     const state = order.shippingAddress?.state || '';
     const pincode = order.shippingAddress?.pincode || '';
     const totalAmount = order.totalAmount || 0;
-    const paymentId = order.razorpayPaymentId || 'Online';
+    const paymentMethod = (order.paymentMethod || 'razorpay').toUpperCase();
+    const isCOD = paymentMethod === 'COD';
+    const paymentModeText = isCOD ? 'Cash on Delivery (COD)' : 'Prepaid (Razorpay)';
+    const paymentId = order.razorpayPaymentId || (isCOD ? 'Pay on Delivery' : 'Online');
     const tracking = order.trackingNumber || 'Pending pickup';
 
     const itemsList = (order.items || [])
@@ -63,11 +66,11 @@ export const notifyNewOrder = async (order) => {
       .join('\n');
 
     const message = `
-🎉 <b>नया ऑर्डर प्राप्त हुआ! (New Order Confirmed)</b>
+🎉 <b>नया ऑर्डर प्राप्त हुआ! (New Order Placed)</b>
 ━━━━━━━━━━━━━━━━━━
 📦 <b>Order ID:</b> <code>${orderNumber}</code>
-💰 <b>कुल राशि:</b> ₹${totalAmount} (Paid via Razorpay)
-💳 <b>Payment ID:</b> <code>${paymentId}</code>
+💰 <b>कुल राशि:</b> ₹${totalAmount} (${paymentModeText})
+💳 <b>भुगतान मोड:</b> <code>${paymentMethod}</code> ${paymentId !== 'Pay on Delivery' && paymentId !== 'Online' ? `(${paymentId})` : ''}
 
 👤 <b>ग्राहक विवरण (Customer):</b>
   • नाम: <b>${customerName}</b>

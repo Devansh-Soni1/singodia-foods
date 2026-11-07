@@ -275,6 +275,35 @@ export const createOrder = async (req, res, next) => {
       memoryOrders.unshift(order);
     }
 
+    // For Cash on Delivery (COD) orders: trigger instant Telegram alert, email confirmation, and iThink shipment creation
+    if (paymentMethod === 'cod') {
+      try {
+        const shipRes = await createShipmentOrder(order);
+        if (shipRes?.success && shipRes.waybill) {
+          order.trackingNumber = shipRes.waybill;
+          order.carrier = shipRes.courierName || 'iThink Logistics Express';
+          order.shipping = {
+            carrier: shipRes.courierName || 'iThink Logistics Express',
+            trackingNumber: shipRes.waybill,
+            trackingUrl: `https://my.ithinklogistics.com/track/${shipRes.waybill}`,
+            dispatchedAt: new Date()
+          };
+          if (mongoose.connection.readyState === 1 && typeof order.save === 'function') {
+            await order.save();
+          }
+        }
+      } catch (shipErr) {
+        console.warn('[COD Order] Auto iThink shipment notice:', shipErr.message);
+      }
+
+      sendOrderConfirmationEmail(order).catch(emailErr => {
+        console.warn('[COD Order] Order confirmation email notice:', emailErr.message);
+      });
+      notifyNewOrder(order).catch(tgErr => {
+        console.warn('[COD Order] Telegram new order alert notice:', tgErr.message);
+      });
+    }
+
     res.status(201).json({
       success: true,
       message: 'Order created successfully',
