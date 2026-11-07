@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Truck, Check, Sparkles, Tag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../utils/formatCurrency';
 
 export const CartPage = () => {
@@ -22,6 +23,7 @@ export const CartPage = () => {
   const [couponInput, setCouponInput] = useState('');
   const [couponError, setCouponError] = useState('');
   const [isApplying, setIsApplying] = useState(false);
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const handleApplyCoupon = async (e) => {
@@ -247,7 +249,7 @@ export const CartPage = () => {
 
               {/* Checkout CTA */}
               <button
-                onClick={() => navigate('/checkout')}
+                onClick={() => navigate(isAuthenticated ? '/checkout' : '/login?redirect=/checkout')}
                 className="w-full bg-mustard hover:bg-mustard-dark text-brand-green-dark text-sm font-extrabold py-4 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 group"
               >
                 <span>Proceed to Checkout</span>

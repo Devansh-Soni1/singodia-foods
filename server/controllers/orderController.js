@@ -58,6 +58,22 @@ export const createOrder = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please provide full customer contact details' });
     }
 
+    // Strict 10-digit Indian Mobile Number Validation
+    const cleanPhone = String(customer.phone).trim().replace(/^(\+91|91|0)/, '').replace(/\D/g, '');
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'डिलीवरी और WhatsApp ट्रैकिंग अपडेट्स के लिए 10-अंकों का मान्य भारतीय मोबाइल नंबर (उदा. 9876543210) अनिवार्य है।'
+      });
+    }
+    customer.phone = cleanPhone;
+    if (shippingAddress) shippingAddress.phone = cleanPhone;
+
+    // Auto-update user's saved profile phone if logged in
+    if (req.user && (!req.user.phone || req.user.phone !== cleanPhone)) {
+      User.findByIdAndUpdate(req.user._id, { phone: cleanPhone }).catch(() => {});
+    }
+
     if (!shippingAddress?.addressLine1 || !shippingAddress?.city || !shippingAddress?.pincode) {
       return res.status(400).json({ success: false, message: 'Please provide complete delivery address' });
     }

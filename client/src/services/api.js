@@ -231,26 +231,8 @@ export const categoryAPI = {
 // Order Services
 export const orderAPI = {
   createOrder: async (orderData) => {
-    try {
-      const res = await api.post('/orders', orderData);
-      return res.data;
-    } catch (err) {
-      // Local fallback for smooth demonstration
-      const orderNumber = `SGF-${new Date().toISOString().slice(2, 10).replace(/-/g, '')}-${Math.floor(1000 + Math.random() * 9000)}`;
-      return {
-        success: true,
-        message: 'Order placed successfully',
-        order: {
-          _id: 'ord-' + Date.now(),
-          orderNumber,
-          ...orderData,
-          totalAmount: Math.max(0, (orderData.subtotal || 0) - (orderData.discount || 0) + (orderData.shippingFee || 0)),
-          orderStatus: 'Placed',
-          paymentStatus: orderData.paymentMethod === 'cod' ? 'pending' : 'completed',
-          createdAt: new Date()
-        }
-      };
-    }
+    const res = await api.post('/orders', orderData);
+    return res.data;
   },
   verifyPayment: async (paymentData) => {
     const res = await api.post('/orders/verify-payment', paymentData);

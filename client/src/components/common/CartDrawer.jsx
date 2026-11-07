@@ -5,6 +5,7 @@ import {
   ChevronDown, ChevronUp, Percent, Sparkles, FileText
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import { formatPrice } from '../../utils/formatCurrency';
 import { productAPI } from '../../services/api';
 import { resolveProductImage } from '../../utils/imageUtils';
@@ -32,6 +33,7 @@ export const CartDrawer = () => {
   const [isApplying, setIsApplying] = useState(false);
   const [showPriceBreakdown, setShowPriceBreakdown] = useState(false);
   const [upsellProducts, setUpsellProducts] = useState([]);
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // Load upsell / "People Also Loved" products
@@ -73,7 +75,11 @@ export const CartDrawer = () => {
 
   const handleCheckoutClick = () => {
     closeCart();
-    navigate('/checkout');
+    if (!isAuthenticated) {
+      navigate('/login?redirect=/checkout');
+    } else {
+      navigate('/checkout');
+    }
   };
 
   return (

@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   ShieldCheck, Truck, CreditCard, Banknote, ArrowRight, 
-  CheckCircle, AlertCircle, ShoppingBag, Lock
+  CheckCircle, AlertCircle, ShoppingBag, Lock, UserCheck, CheckCircle2
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { orderAPI } from '../services/api';
+import { orderAPI, authAPI } from '../services/api';
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 import { formatPrice } from '../utils/formatCurrency';
 
 // Dynamic loader for Razorpay Checkout script if not already present in DOM
@@ -48,6 +49,24 @@ export const CheckoutPage = () => {
     customerNotes: ''
   });
 
+  // Auto-sync form when user logs in with Google
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+        phone: user.phone ? String(user.phone).replace(/^(\+91|91|0)/, '').replace(/\D/g, '') : prev.phone,
+        addressLine1: user.addresses?.[0]?.addressLine1 || prev.addressLine1,
+        addressLine2: user.addresses?.[0]?.addressLine2 || prev.addressLine2,
+        landmark: user.addresses?.[0]?.landmark || prev.landmark,
+        city: user.addresses?.[0]?.city || prev.city,
+        state: user.addresses?.[0]?.state || prev.state,
+        pincode: user.addresses?.[0]?.pincode || prev.pincode
+      }));
+    }
+  }, [user]);
+
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -70,9 +89,15 @@ export const CheckoutPage = () => {
       return;
     }
 
-    // Validation
-    if (!formData.name || !formData.email || !formData.phone) {
-      setErrorMessage('Please fill in your name, email, and 10-digit phone number.');
+    if (!isAuthenticated) {
+      setErrorMessage('ऑर्डर करने के लिए कृपया पहले Google से लॉगिन करें।');
+      return;
+    }
+
+    // Strict 10-digit Indian Mobile Number validation
+    const cleanPhone = String(formData.phone || '').trim().replace(/^(\+91|91|0)/, '').replace(/\D/g, '');
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      setErrorMessage('कृपया 10-अंकों का वैध भारतीय मोबाइल नंबर (उदा. 9876543210) दर्ज करें। यह कूरियर डिलीवरी और WhatsApp ट्रैकिंग अपडेट्स के लिए अनिवार्य है।');
       return;
     }
 
@@ -86,15 +111,20 @@ export const CheckoutPage = () => {
       return;
     }
 
+    // Auto-save phone to user profile if missing or updated
+    if (user && (!user.phone || user.phone !== cleanPhone)) {
+      authAPI.updateProfile({ phone: cleanPhone }).catch(() => {});
+    }
+
     setLoading(true);
     setErrorMessage('');
 
     try {
       const orderPayload = {
         customer: {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone
+          name: user?.name || formData.name,
+          email: user?.email || formData.email,
+          phone: cleanPhone
         },
         shippingAddress: {
           addressLine1: formData.addressLine1,
@@ -102,7 +132,8 @@ export const CheckoutPage = () => {
           landmark: formData.landmark,
           city: formData.city,
           state: formData.state,
-          pincode: formData.pincode
+          pincode: formData.pincode,
+          phone: cleanPhone
         },
         items: cartItems.map(item => ({
           product: item.productId,
@@ -224,6 +255,48 @@ export const CheckoutPage = () => {
     );
   }
 
+  // Require Google Login before Checkout
+  if (!isAuthenticated) {
+    return (
+      <div className="py-14 sm:py-20 bg-[#FAF6EF] min-h-[75vh] flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-10 border border-cream-200 shadow-card text-center space-y-6">
+          <div className="w-16 h-16 rounded-full bg-cream-100 flex items-center justify-center mx-auto text-brand-green">
+            <Lock className="w-8 h-8" />
+          </div>
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-brand-green bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+              Account Required
+            </span>
+            <h2 className="text-2xl font-extrabold text-charcoal font-serif mt-2 mb-1.5">
+              Login to Place Order
+            </h2>
+            <p className="text-xs text-earth-brown leading-relaxed">
+              सुरक्षित ऑर्डर प्रोसेसिंग, लाइव ट्रैकिंग और ईमेल रसीद के लिए 1-क्लिक में अपने Google Account से लॉगिन करें।
+            </p>
+          </div>
+
+          <div className="p-4 bg-cream-50/80 border border-cream-200 rounded-2xl">
+            <p className="text-xs font-bold text-gray-700 mb-3">
+              Click below to continue checkout:
+            </p>
+            <GoogleAuthButton redirectPath="/checkout" promptOneTap={true} />
+          </div>
+
+          <div className="space-y-2 text-left bg-[#FFFDF9] p-3.5 rounded-2xl border border-cream-200 text-xs text-gray-700">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>100% Secure 1-Click Google Sign-In</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Truck className="w-4 h-4 text-brand-green shrink-0" />
+              <span>Instant WhatsApp & SMS Tracking Updates</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="py-10 sm:py-16 bg-[#FAF6EF] min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -262,50 +335,66 @@ export const CheckoutPage = () => {
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="sm:col-span-2">
-                    <label className="text-xs font-bold text-charcoal block mb-1">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      name="name"
-                      placeholder="e.g. Ramesh Chandra Singodhia"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
-                    />
+                {/* Verified Customer Card */}
+                {user && (
+                  <div className="p-3.5 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full border border-emerald-300 object-cover shrink-0" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center shrink-0">
+                          {user.name?.[0] || 'U'}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="font-bold text-gray-900 truncate flex items-center gap-1.5">
+                          <span>{user.name}</span>
+                          <span className="text-[10px] bg-emerald-200/70 text-emerald-800 font-bold px-1.5 py-0.2 rounded-full">
+                            Google Verified
+                          </span>
+                        </p>
+                        <p className="text-[11px] text-gray-600 truncate">{user.email}</p>
+                      </div>
+                    </div>
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                   </div>
+                )}
 
+                <div className="space-y-4 pt-1">
+                  {/* Phone Number Input with +91 Prefix */}
                   <div>
-                    <label className="text-xs font-bold text-charcoal block mb-1">
-                      Phone Number (Mobile for Delivery updates) *
+                    <label className="text-xs font-bold text-charcoal flex items-center justify-between mb-1.5">
+                      <span className="flex items-center gap-1.5">
+                        <span>Mobile Number (Phone)</span>
+                        <span className="text-red-500 font-extrabold">*</span>
+                      </span>
+                      <span className="text-[10px] text-amber-900 bg-amber-100/80 font-bold px-2 py-0.5 rounded-full border border-amber-300">
+                        10-Digit Mobile Required
+                      </span>
                     </label>
-                    <input
-                      type="tel"
-                      required
-                      name="phone"
-                      placeholder="10-digit mobile number"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold text-charcoal block mb-1">
-                      Email Address (For receipt & tracking) *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      name="email"
-                      placeholder="name@example.com"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
-                    />
+                    <div className="flex rounded-xl overflow-hidden border border-cream-300 bg-cream-50 focus-within:border-brand-green focus-within:ring-1 focus-within:ring-brand-green shadow-xs">
+                      <span className="px-3 py-2.5 bg-cream-200/60 text-xs font-bold text-gray-700 flex items-center border-r border-cream-300 select-none">
+                        🇮🇳 +91
+                      </span>
+                      <input
+                        type="tel"
+                        required
+                        maxLength={10}
+                        name="phone"
+                        placeholder="e.g. 9876543210"
+                        value={formData.phone}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                          setFormData({ ...formData, phone: val });
+                          setErrorMessage('');
+                        }}
+                        className="w-full px-3.5 py-2.5 text-xs bg-transparent focus:outline-none font-semibold text-charcoal tracking-wide placeholder:font-normal placeholder:text-gray-400"
+                      />
+                    </div>
+                    <p className="text-[10px] text-earth-brown mt-1.5 flex items-center gap-1">
+                      <span>🚚</span>
+                      <span>कूरियर डिलीवरी राइडर और WhatsApp ट्रैकिंग अपडेट्स इसी नंबर पर आएंगे।</span>
+                    </p>
                   </div>
                 </div>
               </div>
