@@ -52,13 +52,10 @@ export const FlavoursShowcaseSection = () => {
     <section className="py-10 sm:py-14 bg-white border-b border-[#F0E2C4]/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Section Header */}
+        {/* Section Header: Pure Singodia Foods without Dadi Ma line */}
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
-          <span className="font-serif text-xl sm:text-3xl font-extrabold text-[#1F4D36] block leading-tight tracking-wide mb-1">
-            दादी माँ के पारंपरिक नुस्खों से तैयार
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-[#1A1A1A] uppercase tracking-tight">
-            घर जैसे शुद्ध <span className="text-[#D12027]">देसी स्वाद</span>
+          <h2 className="text-2xl sm:text-4xl font-black text-[#1A1A1A] uppercase tracking-tight font-sans">
+            Singodia <span className="text-[#D12027]">Foods</span>
           </h2>
           <p className="text-xs sm:text-sm text-[#6B5A48] font-medium mt-2 max-w-2xl mx-auto leading-relaxed">
             धूप में पके कच्चे आम से लेकर पारंपरिक भरवां लाल मिर्च और शाही कैर सांगरी तक — अपने मनपसंद स्वाद पर क्लिक करके देखें।
@@ -114,4 +111,3 @@ export const FlavoursShowcaseSection = () => {
 };
 
 export default FlavoursShowcaseSection;
-

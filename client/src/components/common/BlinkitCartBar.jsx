@@ -51,38 +51,38 @@ export const BlinkitCartBar = () => {
 
   return (
     <div 
-      className={`fixed bottom-3 sm:bottom-5 left-1/2 -translate-x-1/2 z-40 w-[88%] xs:w-[84%] sm:w-auto sm:min-w-[340px] max-w-sm sm:max-w-md animate-cart-slide-up transition-transform duration-300 pointer-events-auto ${
-        pulse ? 'scale-103 -translate-y-0.5' : 'scale-100 translate-y-0'
+      className={`fixed bottom-3 sm:bottom-5 left-1/2 -translate-x-1/2 z-40 w-auto min-w-[275px] max-w-[320px] sm:max-w-[350px] animate-cart-slide-up transition-transform duration-300 pointer-events-auto ${
+        pulse ? 'scale-104 -translate-y-0.5' : 'scale-100 translate-y-0'
       }`}
     >
       {/* Floating "+1 Added!" Animated Badge */}
       {floatingBadge && (
-        <div className="absolute -top-2.5 left-6 z-50 pointer-events-none animate-cart-float-badge">
-          <div className="bg-amber-400 text-gray-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow-md border border-amber-300 flex items-center gap-1">
+        <div className="absolute -top-3 left-6 z-50 pointer-events-none animate-cart-float-badge">
+          <div className="bg-amber-400 text-gray-950 font-black text-[10px] px-2.5 py-0.5 rounded-full shadow-md border border-amber-300 flex items-center gap-1">
             <Sparkles className="w-2.5 h-2.5 text-brand-green" />
             <span>{floatingBadge}</span>
           </div>
         </div>
       )}
 
-      {/* Modern Blinkit-Style Sleek Pill Bar (Compact & Rounded Corners) */}
+      {/* Modern Ultra-Rounded Blinkit-Style Capsule Pill (Reduced Width, Bigger Vertical Size, 100% Rounded Corners) */}
       <div 
         onClick={() => setIsCartOpen(true)}
-        className="relative overflow-hidden bg-gradient-to-r from-[#0C831F] via-[#0A731B] to-[#085E16] text-white rounded-2xl sm:rounded-full px-3 py-2 sm:px-4 sm:py-2.5 shadow-[0_8px_30px_rgba(12,131,31,0.38)] border border-emerald-400/40 flex items-center justify-between gap-2.5 cursor-pointer hover:shadow-[0_12px_36px_rgba(12,131,31,0.5)] transition-all select-none backdrop-blur-md group"
+        className="relative overflow-hidden bg-gradient-to-r from-[#0C831F] via-[#0A731B] to-[#085E16] text-white rounded-full px-3.5 py-2.5 sm:px-4 sm:py-3 shadow-[0_10px_32px_rgba(12,131,31,0.45)] border-2 border-emerald-400/50 flex items-center justify-between gap-3 cursor-pointer hover:shadow-[0_14px_42px_rgba(12,131,31,0.6)] transition-all select-none backdrop-blur-md group"
       >
         
         {/* Shimmer Light Reflection Sweep */}
         <div className="absolute inset-0 w-24 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none animate-cart-shimmer" />
 
-        {/* LEFT SECTION: Recent Item Photos (1 or 2 side-by-side with pop animation) */}
+        {/* LEFT SECTION: Recent Item Photos (Rounded-full thumbnails with pop animation) */}
         <div className="flex items-center gap-2 min-w-0 relative z-10">
           
-          {/* Thumbnails Container with sliding pop-in */}
+          {/* Thumbnails Container */}
           <div className="flex items-center gap-1 shrink-0">
             {displayPhotos.map((item, idx) => (
               <div 
                 key={item.id || idx}
-                className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border-1.5 border-white/95 shadow-xs bg-white shrink-0 transform transition-all duration-300 ${
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-white shadow-xs bg-white shrink-0 transform transition-all duration-300 ${
                   idx === displayPhotos.length - 1 ? 'animate-cart-item-pop' : ''
                 }`}
               >
@@ -96,10 +96,10 @@ export const BlinkitCartBar = () => {
             ))}
           </div>
 
-          {/* Text: '1 item' and Total Price */}
+          {/* Text: '1 item' and Total Price (Enlarged & Bold) */}
           <div className="min-w-0 flex flex-col justify-center">
-            <span className={`text-[11px] sm:text-xs font-black text-white leading-tight truncate ${pulse ? 'animate-pop-scale' : ''}`}>
-              {cartCount} {cartCount === 1 ? 'item' : 'items'} added
+            <span className={`text-xs sm:text-[13px] font-black text-white leading-tight truncate ${pulse ? 'animate-pop-scale' : ''}`}>
+              {cartCount} {cartCount === 1 ? 'item' : 'items'}
             </span>
             <span className={`font-black text-amber-300 text-xs sm:text-sm leading-none mt-0.5 ${pulse ? 'animate-pop-scale text-yellow-300' : ''}`}>
               {formatPrice(subtotal)}
@@ -108,7 +108,7 @@ export const BlinkitCartBar = () => {
 
         </div>
 
-        {/* RIGHT SECTION: 'View Cart ➔' Blinkit-style compact button */}
+        {/* RIGHT SECTION: 'View Cart ➔' Extra Rounded Pill Button */}
         <div className="flex items-center gap-1.5 shrink-0 relative z-10">
           <button
             type="button"
@@ -116,7 +116,7 @@ export const BlinkitCartBar = () => {
               e.stopPropagation();
               setIsCartOpen(true);
             }}
-            className="bg-white hover:bg-emerald-50 text-[#0C831F] font-black text-xs px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-full shadow-sm flex items-center gap-1 active:scale-95 transition-all cursor-pointer group"
+            className="bg-white hover:bg-emerald-50 text-[#0C831F] font-black text-xs sm:text-[13px] px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-full shadow-sm flex items-center gap-1 active:scale-95 transition-all cursor-pointer group"
           >
             <ShoppingBag className="w-3.5 h-3.5 text-[#0C831F] group-hover:rotate-12 transition-transform" />
             <span>View Cart</span>
