@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, X, ChevronDown, Sparkles, MessageCircle } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, ChevronDown, Sparkles, MessageCircle, Package, Heart, LogOut } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { categoryAPI } from '../../services/api';
@@ -11,6 +11,7 @@ export const Navbar = ({ onOpenSearch }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [ingredientsDropdownOpen, setIngredientsDropdownOpen] = useState(false);
   const [tasteDropdownOpen, setTasteDropdownOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   
   // Active hovered ingredient in 2-column mega menu (null by default so subcategories only show on hover!)
   const [activeHoveredIngredientId, setActiveHoveredIngredientId] = useState(null);
@@ -23,9 +24,10 @@ export const Navbar = ({ onOpenSearch }) => {
   // Timer refs for smooth hover transitions and instant closing on mouse leave
   const ingredientsTimeoutRef = useRef(null);
   const tasteTimeoutRef = useRef(null);
+  const profileMenuRef = useRef(null);
 
   const { cartCount, openCart } = useCart();
-  const { user, isAuthenticated, isAdmin } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -34,6 +36,7 @@ export const Navbar = ({ onOpenSearch }) => {
     setMobileMenuOpen(false);
     setIngredientsDropdownOpen(false);
     setTasteDropdownOpen(false);
+    setProfileDropdownOpen(false);
     setActiveHoveredIngredientId(null);
   }, [location.pathname, location.search]);
 
@@ -41,6 +44,7 @@ export const Navbar = ({ onOpenSearch }) => {
     const handleScroll = () => {
       setIngredientsDropdownOpen(false);
       setTasteDropdownOpen(false);
+      setProfileDropdownOpen(false);
       setActiveHoveredIngredientId(null);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -59,6 +63,9 @@ export const Navbar = ({ onOpenSearch }) => {
         setIngredientsDropdownOpen(false);
         setTasteDropdownOpen(false);
         setActiveHoveredIngredientId(null);
+      }
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+        setProfileDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -414,27 +421,142 @@ export const Navbar = ({ onOpenSearch }) => {
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Customer Account Icon */}
-            <Link
-              to={isAuthenticated ? '/account' : '/login'}
-              className="p-1.5 text-[#e68819] hover:text-[#c46809] transition-colors flex items-center relative group"
-              aria-label="My Account"
-              title={isAuthenticated ? `Logged in as ${user?.name}` : 'Login to your account'}
-            >
-              {/* Profile icon SVG matching FarmDidi user icon */}
-              <svg 
-                className="w-6 h-6 text-[#e68819]" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="1.8" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
+            {/* Customer Account Icon & Popover Menu */}
+            <div className="relative" ref={profileMenuRef}>
+              <button
+                type="button"
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className={`p-1.5 rounded-full transition-colors flex items-center relative cursor-pointer ${
+                  profileDropdownOpen 
+                    ? 'text-[#c46809] bg-amber-50 ring-2 ring-[#e68819]/30' 
+                    : 'text-[#e68819] hover:text-[#c46809] hover:bg-amber-50/50'
+                }`}
+                aria-label="Account Menu"
+                title={isAuthenticated ? `Account: ${user?.name}` : 'Login / Register'}
               >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-            </Link>
+                {/* Profile icon SVG matching FarmDidi user icon */}
+                <svg 
+                  className="w-6 h-6 text-[#e68819]" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="1.8" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+
+                {/* If authenticated, tiny green dot indicating logged-in status */}
+                {isAuthenticated && (
+                  <span className="absolute bottom-1 right-1 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white" />
+                )}
+              </button>
+
+              {/* Popover Dropdown Menu */}
+              {profileDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-64 sm:w-72 bg-white rounded-2xl shadow-2xl border border-cream-200 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                  {isAuthenticated ? (
+                    /* CASE 1: LOGGED IN */
+                    <div>
+                      {/* User Info Header: Name & Email */}
+                      <div className="p-4 bg-gradient-to-br from-[#FAF6EF] to-amber-50/70 border-b border-cream-200 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[#143025] text-mustard flex items-center justify-center font-bold text-base shrink-0 shadow-xs">
+                          {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[11px] text-gray-500 font-medium">Signed in as</p>
+                          <h4 className="text-sm font-bold text-gray-900 truncate leading-snug">
+                            {user?.name || 'Customer'}
+                          </h4>
+                          <p className="text-[11px] text-gray-600 truncate">
+                            {user?.email || ''}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Menu Options: Profile, Order History, Wishlist */}
+                      <div className="py-2 px-1.5 space-y-0.5">
+                        <Link
+                          to="/account?tab=profile"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-700 hover:text-[#b35400] hover:bg-[#FAF6EF] transition-colors"
+                        >
+                          <User className="w-4 h-4 text-[#e68819]" />
+                          <span>Profile (मेरी प्रोफ़ाइल)</span>
+                        </Link>
+
+                        <Link
+                          to="/account?tab=orders"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-700 hover:text-[#b35400] hover:bg-[#FAF6EF] transition-colors"
+                        >
+                          <Package className="w-4 h-4 text-[#e68819]" />
+                          <span>Order History (ऑर्डर हिस्ट्री)</span>
+                        </Link>
+
+                        <Link
+                          to="/account?tab=wishlist"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-gray-700 hover:text-[#b35400] hover:bg-[#FAF6EF] transition-colors"
+                        >
+                          <Heart className="w-4 h-4 text-chilli" />
+                          <span>Wishlist (मेरी विशलिस्ट)</span>
+                        </Link>
+                      </div>
+
+                      {/* Log Out Option */}
+                      <div className="p-1.5 border-t border-gray-100 bg-gray-50/50">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProfileDropdownOpen(false);
+                            logout();
+                            navigate('/');
+                          }}
+                          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition-colors text-left cursor-pointer"
+                        >
+                          <LogOut className="w-4 h-4 text-red-600" />
+                          <span>Log Out (लॉग आउट)</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* CASE 2: NOT LOGGED IN */
+                    <div className="p-4 space-y-3">
+                      <div className="text-left">
+                        <h4 className="text-sm font-bold text-gray-900 font-serif">
+                          Welcome to Singodia Foods
+                        </h4>
+                        <p className="text-[11px] text-gray-500 mt-0.5">
+                          Sign in to manage orders, addresses & wishlist
+                        </p>
+                      </div>
+
+                      {/* Login Button */}
+                      <Link
+                        to="/login"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#143025] hover:bg-[#1E4334] text-white text-xs font-bold shadow-xs transition-colors"
+                      >
+                        <User className="w-3.5 h-3.5 text-mustard" />
+                        <span>Sign In (लॉगिन करें)</span>
+                      </Link>
+
+                      {/* Sign Up Button */}
+                      <Link
+                        to="/register"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl border border-gray-300 hover:border-gray-400 bg-gray-50 hover:bg-gray-100 text-gray-800 text-xs font-bold transition-colors"
+                      >
+                        <span>Create Account (रजिस्टर करें)</span>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Shopping Cart Icon (Wireframe golden cart with Round Crimson Red Badge) */}
             <button
@@ -620,16 +742,43 @@ export const Navbar = ({ onOpenSearch }) => {
             <div className="pt-6 mt-6 border-t border-gray-200 space-y-3">
               {isAuthenticated ? (
                 <div className="space-y-2">
-                  <div className="text-xs text-gray-600 px-3">
-                    Welcome back, <strong className="text-gray-900">{user?.name}</strong>
+                  <div className="text-xs text-gray-600 px-3 flex items-center justify-between">
+                    <span className="truncate mr-2">Signed in as <strong className="text-gray-900">{user?.name}</strong></span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        logout();
+                        navigate('/');
+                      }}
+                      className="text-[11px] font-bold text-red-600 hover:underline shrink-0 cursor-pointer"
+                    >
+                      Log Out
+                    </button>
                   </div>
-                  <Link 
-                    to="/account" 
-                    className="block text-center text-xs font-bold py-2.5 bg-gray-100 text-gray-800 rounded-xl"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    My Account & Orders
-                  </Link>
+                  <div className="grid grid-cols-3 gap-1.5 pt-1">
+                    <Link
+                      to="/account?tab=profile"
+                      className="text-center text-[11px] font-bold py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <Link
+                      to="/account?tab=orders"
+                      className="text-center text-[11px] font-bold py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Orders
+                    </Link>
+                    <Link
+                      to="/account?tab=wishlist"
+                      className="text-center text-[11px] font-bold py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Wishlist
+                    </Link>
+                  </div>
                 </div>
               ) : (
                 <div className="flex gap-2">
