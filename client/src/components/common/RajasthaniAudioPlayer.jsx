@@ -1,18 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Volume2, VolumeX, Music } from 'lucide-react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 
 export const RajasthaniAudioPlayer = () => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(() => {
-    try {
-      return localStorage.getItem('singodhia_audio_muted') === 'true';
-    } catch {
-      return false;
-    }
-  });
+  const [isMuted, setIsMuted] = useState(false);
 
   const { cartItems, isCartOpen } = useCart();
   const location = useLocation();
@@ -26,89 +20,86 @@ export const RajasthaniAudioPlayer = () => {
     location.pathname !== '/cart' &&
     !location.pathname.startsWith('/admin');
 
-  // Ambient Target Volume: 10% (0.10) for truly soft, peaceful background sound
+  // Ambient Target Volume: 10% (0.10) for soft, peaceful background sound
   const TARGET_VOLUME = 0.10;
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    // Respect saved mute preference
-    const savedMute = localStorage.getItem('singodhia_audio_muted') === 'true';
-    if (savedMute) {
-      setIsMuted(true);
-      return;
-    }
+    // Reset volume to soft level
+    audio.volume = TARGET_VOLUME;
 
-    // Function to softly start playback with a smooth fade-in
-    const startSoftPlayback = () => {
+    const playAudio = () => {
       if (!audio) return;
-      if (localStorage.getItem('singodhia_audio_muted') === 'true') return;
-      if (!audio.paused) return; // already playing
-
-      audio.volume = 0.03;
+      audio.volume = TARGET_VOLUME;
       const playPromise = audio.play();
-
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
             setIsPlaying(true);
             setIsMuted(false);
-
-            // Smooth 1-second fade-in up to TARGET_VOLUME (0.10)
-            let currentVol = 0.03;
-            const stepTimer = setInterval(() => {
-              currentVol += 0.015;
-              if (currentVol >= TARGET_VOLUME) {
-                audio.volume = TARGET_VOLUME;
-                clearInterval(stepTimer);
-              } else {
-                audio.volume = currentVol;
-              }
-            }, 120);
           })
           .catch(() => {
-            // Browser policy blocked automatic unmuted play; waiting for first user touch
+            // Autoplay waiting for user gesture (click/touch/scroll)
           });
       }
     };
 
-    // 1. Attempt immediate autoplay upon page load
-    startSoftPlayback();
+    // 1. Attempt play immediately when component mounts
+    playAudio();
 
-    // 2. High-priority capture listeners: start instantly on first touch/scroll/click/interaction
+    // 2. Also attempt play as soon as audio data is ready to play
+    audio.addEventListener('canplay', playAudio, { once: true });
+    audio.addEventListener('loadeddata', playAudio, { once: true });
+
+    // 3. High-priority capture interaction listeners:
+    // As soon as the user touches, scrolls, or clicks anywhere on the site, audio starts immediately
     const interactionEvents = [
       'pointerdown',
       'touchstart',
+      'touchend',
       'click',
       'scroll',
       'wheel',
       'keydown'
     ];
 
-    const handleImmediateGesture = () => {
-      startSoftPlayback();
-      cleanupListeners();
-    };
-
-    const cleanupListeners = () => {
-      interactionEvents.forEach((evt) => {
-        window.removeEventListener(evt, handleImmediateGesture, { capture: true });
-        document.removeEventListener(evt, handleImmediateGesture, { capture: true });
-      });
+    const handleInteraction = () => {
+      if (audioRef.current && audioRef.current.paused) {
+        playAudio();
+      }
     };
 
     interactionEvents.forEach((evt) => {
-      window.addEventListener(evt, handleImmediateGesture, { capture: true, passive: true });
-      document.addEventListener(evt, handleImmediateGesture, { capture: true, passive: true });
+      window.addEventListener(evt, handleInteraction, { capture: true, passive: true });
+      document.addEventListener(evt, handleInteraction, { capture: true, passive: true });
     });
 
+    const handleAudioPlaying = () => {
+      setIsPlaying(true);
+      setIsMuted(false);
+      // Remove interaction listeners once audio is successfully playing
+      interactionEvents.forEach((evt) => {
+        window.removeEventListener(evt, handleInteraction, { capture: true });
+        document.removeEventListener(evt, handleInteraction, { capture: true });
+      });
+    };
+
+    audio.addEventListener('playing', handleAudioPlaying);
+
     return () => {
-      cleanupListeners();
+      audio.removeEventListener('canplay', playAudio);
+      audio.removeEventListener('loadeddata', playAudio);
+      audio.removeEventListener('playing', handleAudioPlaying);
+      interactionEvents.forEach((evt) => {
+        window.removeEventListener(evt, handleInteraction, { capture: true });
+        document.removeEventListener(evt, handleInteraction, { capture: true });
+      });
     };
   }, []);
 
-  // Sync Mute / Unmute Toggle Button
+  // Mute / Unmute Toggle Button (Icon only)
   const toggleMusic = (e) => {
     e.stopPropagation();
     const audio = audioRef.current;
@@ -119,24 +110,14 @@ export const RajasthaniAudioPlayer = () => {
       audio.pause();
       setIsPlaying(false);
       setIsMuted(true);
-      try {
-        localStorage.setItem('singodhia_audio_muted', 'true');
-      } catch (err) {
-        // Ignore localStorage error
-      }
     } else {
-      // Unmute & Play Softly
+      // Play & Unmute
       audio.volume = TARGET_VOLUME;
       audio
         .play()
         .then(() => {
           setIsPlaying(true);
           setIsMuted(false);
-          try {
-            localStorage.setItem('singodhia_audio_muted', 'false');
-          } catch (err) {
-            // Ignore localStorage error
-          }
         })
         .catch((err) => {
           console.error('Audio playback error:', err);
@@ -146,59 +127,44 @@ export const RajasthaniAudioPlayer = () => {
 
   return (
     <>
-      {/* Background Audio Source with looping and preload */}
+      {/* Background Audio Source with autoPlay, loop, and preload */}
       <audio
         ref={audioRef}
+        autoPlay
+        playsInline
         loop
         preload="auto"
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
+        onPlay={() => {
+          setIsPlaying(true);
+          setIsMuted(false);
+        }}
+        onPause={() => {
+          setIsPlaying(false);
+        }}
       >
         <source src="/audio/rajasthani-tune.mp3" type="audio/mpeg" />
         <source src="/audio/rajasthani-tune.ogg" type="audio/ogg" />
       </audio>
 
-      {/* Floating Rajasthani Music Controller */}
-      <aside aria-label="Rajasthani Ambient Background Music">
+      {/* Floating Audio Controller (Icon only, no text) */}
+      <aside aria-label="Audio Controller">
         <button
           type="button"
           onClick={toggleMusic}
-          aria-label={isPlaying ? 'Mute Rajasthani Flute Tune' : 'Play Rajasthani Flute Tune'}
-          title={isPlaying ? 'राजस्थानी धुन बंद करें (Mute)' : 'राजस्थानी धुन चालू करें (Unmute)'}
-          className={`fixed z-40 transition-all duration-300 transform active:scale-95 cursor-pointer flex items-center gap-2 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-full select-none left-4 sm:left-6 ${
+          aria-label={isPlaying ? 'Mute Audio' : 'Unmute Audio'}
+          title={isPlaying ? 'Mute' : 'Unmute'}
+          className={`fixed z-40 transition-all duration-300 transform active:scale-90 cursor-pointer flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full select-none left-4 sm:left-6 ${
             isCartBarVisible ? 'bottom-16 sm:bottom-20' : 'bottom-5 sm:bottom-6'
           } ${
             isPlaying
-              ? 'bg-gradient-to-r from-[#78350F] via-[#92400E] to-[#B45309] text-amber-100 border border-amber-400/50 shadow-[0_4px_18px_rgba(146,64,14,0.35)] hover:shadow-[0_6px_24px_rgba(146,64,14,0.55)]'
-              : 'bg-[#292524]/90 backdrop-blur-md text-stone-300 border border-stone-700/60 shadow-[0_4px_16px_rgba(0,0,0,0.3)] hover:bg-[#1C1917] hover:text-white'
+              ? 'bg-gradient-to-tr from-[#92400E] to-[#B45309] text-white shadow-[0_4px_16px_rgba(180,83,9,0.45)] hover:shadow-[0_6px_22px_rgba(180,83,9,0.6)] border-2 border-amber-300/40 hover:scale-105'
+              : 'bg-[#292524]/90 backdrop-blur-md text-stone-300 border border-stone-600/60 shadow-[0_4px_14px_rgba(0,0,0,0.35)] hover:bg-[#1C1917] hover:text-white'
           }`}
         >
-          {/* Animated Equalizer Waves or Muted Icon */}
-          <div className="flex items-center justify-center shrink-0">
-            {isPlaying ? (
-              <div className="flex items-end gap-0.5 h-3.5 w-3.5 justify-center py-0.5">
-                <span className="w-0.5 bg-amber-300 rounded-full animate-soundbar-1" />
-                <span className="w-0.5 bg-amber-200 rounded-full animate-soundbar-2" />
-                <span className="w-0.5 bg-amber-300 rounded-full animate-soundbar-3" />
-              </div>
-            ) : (
-              <VolumeX className="w-4 h-4 text-stone-400" />
-            )}
-          </div>
-
-          {/* Label Text */}
-          <div className="flex flex-col text-left leading-none">
-            <span className="text-[10.5px] sm:text-[11.5px] font-extrabold tracking-tight whitespace-nowrap">
-              {isPlaying ? 'राजस्थानी धुन' : 'धुन चालू करें'}
-            </span>
-            <span className="text-[8px] sm:text-[8.5px] opacity-75 font-medium hidden xs:inline">
-              {isPlaying ? 'धीमी आवाज़ में चालू' : 'क्लिक करके सुनें'}
-            </span>
-          </div>
-
-          {/* Subtle Speaker icon indicator */}
-          {isPlaying && (
-            <Volume2 className="w-3.5 h-3.5 text-amber-300/90 hidden sm:inline-block ml-0.5" />
+          {isPlaying ? (
+            <Volume2 className="w-5 h-5 sm:w-6 sm:h-6 text-white stroke-[2.2]" />
+          ) : (
+            <VolumeX className="w-5 h-5 sm:w-6 sm:h-6 text-stone-300 stroke-[2.2]" />
           )}
         </button>
       </aside>
