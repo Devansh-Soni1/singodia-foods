@@ -187,16 +187,16 @@ export const FeaturedTrialPackBanner = () => {
           <div className="absolute -top-16 -right-16 w-60 h-60 bg-amber-200/30 rounded-full blur-2xl pointer-events-none" />
 
           {/* -------------------------------------------------------- */}
-          {/* 1. TOP ROW: Left Logo & Right Discount Line */}
+          {/* 1. TOP ROW: Left Logo & Right Discount Line (Side-by-side on Mobile) */}
           {/* -------------------------------------------------------- */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 mb-3.5 border-b border-amber-200/70">
+          <div className="flex items-center justify-between gap-2 sm:gap-4 pb-3 mb-3.5 border-b border-amber-200/70">
             
-            {/* LEFT: Official Logo */}
-            <div className="flex items-center gap-2">
+            {/* LEFT: Official Logo (Bigger on mobile) */}
+            <div className="flex items-center gap-2 shrink-0">
               <img 
                 src={siteLogo} 
                 alt="Singodia Foods" 
-                className="h-10 sm:h-12 md:h-14 w-auto object-contain drop-shadow-xs" 
+                className="h-12 sm:h-14 md:h-16 w-auto object-contain drop-shadow-xs" 
                 onError={(e) => { e.target.src = '/logo.png'; }} 
               />
               <span className="hidden sm:inline-block text-[10px] font-extrabold uppercase tracking-widest text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-md">
@@ -204,13 +204,13 @@ export const FeaturedTrialPackBanner = () => {
               </span>
             </div>
 
-            {/* RIGHT: Red Offer Line */}
-            <div className="inline-flex items-center gap-2 bg-[#D32F2F] text-white px-3.5 py-1.5 rounded-full shadow-2xs text-xs font-black tracking-wide uppercase self-start sm:self-auto">
-              <span className="bg-white text-[#D32F2F] text-[10px] font-black px-1.5 py-0.2 rounded-full">
+            {/* RIGHT: Red Offer Line (In front of Logo on right) */}
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-[#D32F2F] text-white px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-full shadow-2xs text-[10px] sm:text-xs font-black tracking-tight sm:tracking-wide uppercase shrink-0">
+              <span className="bg-white text-[#D32F2F] text-[9px] sm:text-[10px] font-black px-1.5 py-0.2 rounded-full">
                 {currentPricing.discountPercent}% OFF
               </span>
-              <span>
-                {packSize}x75g Pickle Jars At <s className="opacity-75 font-normal">₹{currentPricing.originalPrice}</s> <span className="text-amber-300 font-black text-sm">₹{currentPricing.price}</span>
+              <span className="whitespace-nowrap">
+                {packSize}x75g At <s className="opacity-75 font-normal">₹{currentPricing.originalPrice}</s> <span className="text-amber-300 font-black text-xs sm:text-sm">₹{currentPricing.price}</span>
               </span>
             </div>
 
@@ -232,8 +232,8 @@ export const FeaturedTrialPackBanner = () => {
                 </span>
               </div>
 
-              {/* 4x2 Compact Cards Grid (2 cols on small mobile, 4 cols on tablet/desktop) */}
-              <div className="grid grid-cols-2 xs:grid-cols-4 gap-2 sm:gap-2.5">
+              {/* 4x2 Compact Cards Grid (Restored to original 4 columns on all screen sizes) */}
+              <div className="grid grid-cols-4 gap-1.5 sm:gap-2.5">
                 {trialItems.map((item) => {
                   const isSelected = selectedJars.some(j => j.id === item.id);
                   const isFull = isBucketFull && !isSelected;
@@ -242,7 +242,7 @@ export const FeaturedTrialPackBanner = () => {
                     <div
                       key={item.id}
                       onClick={(e) => handleToggleJar(item, e)}
-                      className={`relative rounded-2xl p-2 border text-center transition-all duration-200 flex flex-col justify-between items-center cursor-pointer select-none group ${
+                      className={`relative rounded-xl sm:rounded-2xl p-1.5 sm:p-2 border text-center transition-all duration-200 flex flex-col justify-between items-center cursor-pointer select-none group ${
                         isSelected 
                           ? 'bg-emerald-50/90 border-brand-green ring-2 ring-brand-green/30 shadow-xs' 
                           : isFull 
@@ -251,7 +251,7 @@ export const FeaturedTrialPackBanner = () => {
                       }`}
                     >
                       {/* Product Thumbnail */}
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-amber-50/60 border border-gray-200 mb-1.5 shadow-2xs">
+                      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl overflow-hidden bg-amber-50/60 border border-gray-200 mb-1 sm:mb-1.5 shadow-2xs">
                         <img 
                           src={item.image} 
                           alt={item.name} 
@@ -261,11 +261,11 @@ export const FeaturedTrialPackBanner = () => {
                       </div>
 
                       {/* Name & Flavour */}
-                      <div className="w-full mb-1.5 px-0.5">
-                        <span className="text-[10px] sm:text-[11px] font-extrabold text-gray-950 block leading-tight truncate" title={item.name}>
+                      <div className="w-full mb-1 px-0.5">
+                        <span className="text-[9.5px] sm:text-[11px] font-extrabold text-gray-950 block leading-tight truncate" title={item.name}>
                           {item.name}
                         </span>
-                        <span className="text-[9px] text-gray-500 font-medium block truncate">
+                        <span className="text-[8.5px] sm:text-[9px] text-gray-500 font-medium block truncate">
                           {item.hindiName || item.taste || 'देसी स्वाद'}
                         </span>
                       </div>
@@ -278,7 +278,7 @@ export const FeaturedTrialPackBanner = () => {
                           handleToggleJar(item, e);
                         }}
                         disabled={isFull}
-                        className={`w-full py-1 px-1.5 rounded-lg text-[10px] font-black flex items-center justify-center gap-0.5 transition-all cursor-pointer ${
+                        className={`w-full py-0.5 sm:py-1 px-1 sm:px-1.5 rounded-lg text-[9px] sm:text-[10px] font-black flex items-center justify-center gap-0.5 transition-all cursor-pointer ${
                           isSelected
                             ? 'bg-brand-green text-white shadow-2xs'
                             : isFull
@@ -289,12 +289,12 @@ export const FeaturedTrialPackBanner = () => {
                       >
                         {isSelected ? (
                           <>
-                            <Check className="w-3 h-3 stroke-[3]" />
+                            <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3]" />
                             <span>In Bucket</span>
                           </>
                         ) : (
                           <>
-                            <Plus className="w-3 h-3 stroke-[3]" />
+                            <Plus className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3]" />
                             <span>+ Add</span>
                           </>
                         )}
