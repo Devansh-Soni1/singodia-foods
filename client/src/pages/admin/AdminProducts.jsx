@@ -44,7 +44,7 @@ export const AdminProducts = () => {
     spiceLevel: 'Medium',
     ingredients: '',
     shelfLife: '12 Months from packaging date',
-    oilType: 'Pure Kachi Ghani Mustard Oil (सरसों का तेल)',
+    oilType: 'Traditional Pure Oil (पारंपरिक तेल)',
     pairWith: 'Aloo Paratha, Dal Rice, Khichdi',
     tags: '',
     isBestSeller: false,
@@ -110,7 +110,7 @@ export const AdminProducts = () => {
       spiceLevel: p.spiceLevel || 'Medium',
       ingredients: Array.isArray(p.ingredients) ? p.ingredients.join(', ') : (p.ingredients || ''),
       shelfLife: p.shelfLife || '12 Months from packaging date',
-      oilType: p.oilType || 'Pure Kachi Ghani Mustard Oil (सरसों का तेल)',
+      oilType: p.oilType || 'Traditional Pure Oil (पारंपरिक तेल)',
       pairWith: Array.isArray(p.pairWith) ? p.pairWith.join(', ') : (p.pairWith || ''),
       tags: Array.isArray(p.tags) ? p.tags.join(', ') : (p.tags || ''),
       isBestSeller: !!p.isBestSeller,
@@ -1067,7 +1067,7 @@ export const AdminProducts = () => {
                   <label className="font-bold block mb-1 text-gray-800">Oil Type (तेल का प्रकार)</label>
                   <input
                     type="text"
-                    placeholder="Pure Kachi Ghani Mustard Oil (सरसों का तेल)"
+                    placeholder="Traditional Pure Oil (पारंपरिक तेल)"
                     value={formData.oilType}
                     onChange={(e) => setFormData({ ...formData, oilType: e.target.value })}
                     className="w-full p-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-brand-green text-xs"

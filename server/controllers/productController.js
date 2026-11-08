@@ -416,7 +416,7 @@ export const createProduct = async (req, res, next) => {
     }
     if (!productData.spiceLevel) productData.spiceLevel = 'Medium';
     if (!productData.shelfLife) productData.shelfLife = '12 Months from packaging date';
-    if (!productData.oilType) productData.oilType = 'Pure Kachi Ghani Mustard Oil (सरसों का तेल)';
+    if (!productData.oilType) productData.oilType = 'Traditional Pure Oil (पारंपरिक तेल)';
     if (productData.isActive === undefined) productData.isActive = true;
 
     let savedProduct = null;

@@ -165,8 +165,8 @@ export const SAMPLE_PRODUCTS = [
     slug: 'punjabi-mango-pickle-punjabi-aam-ka-achar',
     category: 'mango-pickles',
     subCategory: 'tangy',
-    shortDescription: 'Zesty North Indian style raw mango pickle with whole methi dana, saunf, and aromatic mustard oil.',
-    fullDescription: 'Rich Punjabi style raw mango pickle infused with roasted kalonji, saunf, fenugreek, and cold-pressed Kachi Ghani mustard oil for an authentic dhaba and home flavor.',
+    shortDescription: 'Zesty North Indian style raw mango pickle with whole methi dana, saunf, and aromatic traditional spices.',
+    fullDescription: 'Rich Punjabi style raw mango pickle infused with roasted kalonji, saunf, fenugreek, and traditional pure oil for an authentic dhaba and home flavor.',
     images: [
       '/products/punjabi-mango-pickle.png',
       'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80'
@@ -625,15 +625,15 @@ export const SAMPLE_REVIEWS = [
 export const SAMPLE_FAQS = [
   {
     q: 'How are Singodhia Foods pickles prepared?',
-    a: 'All our pickles are prepared strictly by hand in small artisan batches using heritage family recipes from Rajasthan. We use 100% natural spices, cold-pressed Kachi Ghani mustard oil, and mature them naturally under sunlight in traditional ceramic barnis (martabans).'
+    a: 'All our pickles are prepared strictly by hand in small artisan batches using heritage family recipes from Rajasthan. We use 100% natural spices, pure traditional oil, and mature them naturally under sunlight in traditional ceramic barnis (martabans).'
   },
   {
     q: 'Do your pickles contain any chemical preservatives or artificial vinegar?',
-    a: 'Absolutely not! We do not add synthetic acetic acid, sodium benzoate, or artificial food colours. Natural preservation is achieved purely through sun-curing, cold-pressed mustard oil, and pure rock salt/spices.'
+    a: 'Absolutely not! We do not add synthetic acetic acid, sodium benzoate, or artificial food colours. Natural preservation is achieved purely through sun-curing, traditional pure oil, and pure rock salt/spices.'
   },
   {
     q: 'How long do the pickles stay fresh?',
-    a: 'Our mustard oil pickles typically have a shelf life of 12 to 18 months, and our oil-free sun-aged lemon pickle stays delicious for 24+ months! Always ensure the oil layer covers the pickle and use a clean, dry spoon.'
+    a: 'Our traditional pickles typically have a shelf life of 12 to 18 months, and our oil-free sun-aged lemon pickle stays delicious for 24+ months! Always ensure the oil layer covers the pickle and use a clean, dry spoon.'
   },
   {
     q: 'What is the shipping cost and delivery time?',

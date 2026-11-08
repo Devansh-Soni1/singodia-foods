@@ -15,7 +15,7 @@ export const INITIAL_PRODUCTS = [
       { weight: "1kg", price: 799, originalPrice: 950, inStock: true, stockCount: 5, _id: "6adf094fbe410dbeefca79dc" }
     ],
     spiceLevel: "Medium",
-    oilType: "Mustard oil",
+    oilType: "Traditional Pure Oil",
     rating: 4.8,
     numReviews: 24,
     isBestSeller: true,
@@ -29,8 +29,8 @@ export const INITIAL_PRODUCTS = [
     slug: "lal-mirch-ka-achar",
     category: "red-chilli-pickles",
     subCategory: "spicy",
-    shortDescription: "Authentic Rajasthani stuffed red chilli pickle made with handpicked whole red chillies and aromatic stone-ground spices in cold-pressed mustard oil.",
-    fullDescription: "Inspired by Rajasthan’s royal recipes, Singodia Foods Lal Mirch Pickle is crafted with handpicked whole red chillies stuffed with authentic stone-ground spices and soaked in pure mustard oil.",
+    shortDescription: "Authentic Rajasthani stuffed red chilli pickle made with handpicked whole red chillies and aromatic stone-ground spices in traditional pure oil.",
+    fullDescription: "Inspired by Rajasthan’s royal recipes, Singodia Foods Lal Mirch Pickle is crafted with handpicked whole red chillies stuffed with authentic stone-ground spices and soaked in traditional pure oil.",
     images: ["https://res.cloudinary.com/pfdyike8/image/upload/v1793463665/singodia-foods/products/lal-mirch-ka-achar.jpg"],
     variants: [
       { weight: "250g", price: 249, originalPrice: 299, inStock: true, stockCount: 50, _id: "6adf0d2bbe410dbeefca7a5e" },
@@ -38,7 +38,7 @@ export const INITIAL_PRODUCTS = [
       { weight: "1kg", price: 799, originalPrice: 950, inStock: true, stockCount: 50, _id: "6adf0d2bbe410dbeefca7a60" }
     ],
     spiceLevel: "Spicy",
-    oilType: "Mustard oil",
+    oilType: "Traditional Pure Oil",
     rating: 4.9,
     numReviews: 38,
     isBestSeller: true,
@@ -61,7 +61,7 @@ export const INITIAL_PRODUCTS = [
       { weight: "1kg", price: 799, originalPrice: 950, inStock: true, stockCount: 50, _id: "6adf0bf4be410dbeefca7a1a" }
     ],
     spiceLevel: "Mild",
-    oilType: "Mustard Oil",
+    oilType: "Traditional Pure Oil",
     rating: 4.8,
     numReviews: 19,
     isBestSeller: false,
@@ -84,7 +84,7 @@ export const INITIAL_PRODUCTS = [
       { weight: "1kg", price: 799, originalPrice: 950, inStock: true, stockCount: 50, _id: "6adf0eb5be410dbeefca7ac0" }
     ],
     spiceLevel: "Mild",
-    oilType: "Pure Kachi Ghani Mustard Oil (सरसों का तेल)",
+    oilType: "Oil-Free (Sun-Cured)",
     rating: 4.8,
     numReviews: 29,
     isBestSeller: true,
@@ -99,7 +99,7 @@ export const INITIAL_PRODUCTS = [
     category: "green-chilli-pickles",
     subCategory: "spicy",
     shortDescription: "Singodia Foods Green Chilli Pickle combines the bold flavour of green chillies with traditional Indian spices, delivering a deliciously spicy and tangy taste to complement every meal.",
-    fullDescription: "Inspired by Rajasthan’s rich culinary heritage, Singodia Foods Hari Mirch Pickle brings the authentic taste of traditional Indian achar to your table. Green chillies are carefully prepared with aromatic spices and mustard oil to create a flavourful blend of spice, tanginess, and traditional goodness.",
+    fullDescription: "Inspired by Rajasthan’s rich culinary heritage, Singodia Foods Hari Mirch Pickle brings the authentic taste of traditional Indian achar to your table. Green chillies are carefully prepared with aromatic spices and traditional pure oil to create a flavourful blend of spice, tanginess, and traditional goodness.",
     images: ["https://res.cloudinary.com/pfdyike8/image/upload/v1793463669/singodia-foods/products/hari-mirch-ka-achar.jpg"],
     variants: [
       { weight: "250g", price: 249, originalPrice: 299, inStock: true, stockCount: 49, _id: "6adf0f56be410dbeefca7b33" },
@@ -107,7 +107,7 @@ export const INITIAL_PRODUCTS = [
       { weight: "1kg", price: 799, originalPrice: 950, inStock: true, stockCount: 50, _id: "6adf0f56be410dbeefca7b35" }
     ],
     spiceLevel: "Medium",
-    oilType: "Mustard Oil",
+    oilType: "Traditional Pure Oil",
     rating: 4.8,
     numReviews: 16,
     isBestSeller: false,

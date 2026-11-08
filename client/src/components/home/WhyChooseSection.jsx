@@ -11,14 +11,14 @@ export const WhyChooseSection = () => {
     },
     {
       icon: Sparkles,
-      title: 'Pure Kachi Ghani Mustard Oil',
-      desc: 'Cold-pressed from indigenous mustard seeds. Natural preservation without artificial chemicals or cheap refined oil dilutions.',
+      title: '100% Pure & Natural Spices',
+      desc: 'Hand-picked authentic ingredients. Natural preservation without artificial chemicals or cheap refined dilutions.',
       bg: 'bg-yellow-50 text-yellow-600'
     },
     {
       icon: ShieldCheck,
       title: 'Zero Chemical Preservatives',
-      desc: 'No synthetic acetic acid, artificial coloring, or sodium benzoate. Only pure sendha salt, mustard oil, and citrus brine.',
+      desc: 'No synthetic acetic acid, artificial coloring, or sodium benzoate. Only pure sendha salt, authentic spices, and citrus brine.',
       bg: 'bg-emerald-50 text-emerald-600'
     },
     {

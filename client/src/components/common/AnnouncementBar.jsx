@@ -30,7 +30,7 @@ export const AnnouncementBar = () => {
   const brandHeritageItems = [
     { prefix: '🌶️ 100% Traditional ', bold: 'Rajasthani Homemade Pickles' },
     { prefix: '🏺 Naturally Sun-Cured in ', bold: 'Ceramic Martabans' },
-    { prefix: '🌾 Handcrafted with ', bold: 'Pure Kachi Ghani Mustard Oil' },
+    { prefix: '🌾 Handcrafted with ', bold: 'Traditional Desi Spices' },
     { prefix: '✨ Authentic Dadi-Nani Recipe ', bold: 'Zero Preservatives' },
     { prefix: '📦 Dispatched Safely in ', bold: 'Bubble-Proof Packaging' }
   ];

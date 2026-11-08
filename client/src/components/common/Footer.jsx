@@ -23,7 +23,7 @@ export const Footer = () => {
             </Link>
             <p className="text-xs sm:text-sm text-cream-200/90 leading-relaxed max-w-sm">
               Authentic Rajasthani homemade pickles prepared using time-honoured family recipes. 
-              Sun-cured naturally in glazed ceramic martabans with pure cold-pressed Kachi Ghani mustard oil and zero artificial preservatives.
+              Sun-cured naturally in glazed ceramic martabans with authentic hand-ground spices and zero artificial preservatives.
             </p>
             <div className="pt-1 flex flex-wrap items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-mustard font-semibold">
               <span className="flex items-center gap-1">

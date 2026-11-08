@@ -41,7 +41,7 @@ const GOOGLE_REVIEWS = [
     date: '1 week ago',
     tag: 'Verified Google Review',
     title: 'Authentic Kair Sangri is unbelievable',
-    comment: 'Real Kair Sangri pickle is so hard to find outside Rajasthan! Singodia Foods has completely nailed the authentic royal Marwadi taste. Fresh mustard oil aroma and perfect crunchy texture. Repurchasing 1kg now!',
+    comment: 'Real Kair Sangri pickle is so hard to find outside Rajasthan! Singodia Foods has completely nailed the authentic royal Marwadi taste. Fresh authentic spice aroma and perfect crunchy texture. Repurchasing 1kg now!',
     product: 'Kair Sangri Shahi',
     helpfulCount: 12
   },
@@ -82,8 +82,8 @@ const GOOGLE_REVIEWS = [
     rating: 5,
     date: '3 weeks ago',
     tag: 'Verified Google Review',
-    title: 'Pure Kachi Ghani oil & zero chemicals',
-    comment: 'Original Rajasthani homemade swad after years in Kolkata! No synthetic vinegar or preservatives. You can smell the pure cold-pressed Kachi Ghani mustard oil as soon as you pop the lid. 100% recommended!',
+    title: '100% Natural & Zero Chemicals',
+    comment: 'Original Rajasthani homemade swad after years in Kolkata! No synthetic vinegar or preservatives. You can smell the authentic hand-ground spices as soon as you pop the lid. 100% recommended!',
     product: 'Traditional Mango Pickle',
     helpfulCount: 7
   },
@@ -539,8 +539,8 @@ export const CustomerReviewsSection = () => {
                   <span className="text-[9px] text-gray-500 font-medium">Homemade</span>
                 </div>
                 <div className="bg-white p-2 rounded-xl border border-[#E8DCC4] shadow-2xs">
-                  <span className="block text-[11px] font-black text-amber-700">Kachi Ghani</span>
-                  <span className="text-[9px] text-gray-500 font-medium">Pure Mustard Oil</span>
+                  <span className="block text-[11px] font-black text-amber-700">100% Pure</span>
+                  <span className="text-[9px] text-gray-500 font-medium">Desi Masale</span>
                 </div>
                 <div className="bg-white p-2 rounded-xl border border-[#E8DCC4] shadow-2xs">
                   <span className="block text-[11px] font-black text-emerald-700">Sun-Aged</span>

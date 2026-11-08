@@ -121,7 +121,7 @@ const wrapTemplate = (contentHtml, previewText = '') => {
     <div class="royal-footer">
       <div style="font-size: 16px; margin-bottom: 4px;">✦ ✦ ✦</div>
       <p style="margin: 0 0 6px; font-weight: 700; color: #4D1800; font-size: 13px;">Singodhia Foods — Traditional Pickles Handcrafted in Sujangarh</p>
-      <p style="margin: 0 0 10px; color: #6E5A47;">Sun-cured in ceramic martabans • Pure cold-pressed mustard oil • Zero chemical preservatives</p>
+      <p style="margin: 0 0 10px; color: #6E5A47;">Sun-cured in ceramic martabans • Pure traditional recipes • Zero chemical preservatives</p>
       <div class="seal-text">Sujangarh, Churu, Rajasthan (331507) • Customer Care: <a href="tel:${STORE_PHONE}">${STORE_PHONE}</a></div>
       <p style="margin: 12px 0 0;"><a href="${STORE_URL}">${STORE_URL}</a></p>
     </div>
@@ -157,7 +157,7 @@ export const sendWelcomeEmail = async (user) => {
       </div>
       <div style="font-size: 13px; color: #4A3A2C; line-height: 1.8;">
         <div style="margin-bottom: 8px;">✦ <strong>Sun-Cured in Ceramic Barnis:</strong> Slowly cured under the warm desert sun in authentic glazed earthen martabans.</div>
-        <div style="margin-bottom: 8px;">✦ <strong>Cold-Pressed Kachi Ghani Mustard Oil:</strong> Cured exclusively in 100% pure, unadulterated cold-pressed mustard oil.</div>
+        <div style="margin-bottom: 8px;">✦ <strong>100% Pure & Natural Spices:</strong> Prepared exclusively with hand-ground authentic spices and traditional ingredients.</div>
         <div style="margin-bottom: 8px;">✦ <strong>Zero Chemical Preservatives:</strong> No artificial vinegar, no synthetic food colors, no compromises.</div>
         <div>✦ <strong>Artisanal Small Batches:</strong> Hand-crafted by local women artisans using heritage whole spices.</div>
       </div>
@@ -328,7 +328,7 @@ export const sendOrderDeliveredEmail = async (order) => {
       </div>
       <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #4A3A2C; line-height: 1.7;">
         <li style="margin-bottom: 6px;">Always use a <strong>clean, completely dry spoon</strong> when scooping out pickle.</li>
-        <li style="margin-bottom: 6px;">Ensure the cold-pressed mustard oil layer stays gently above the pickles to seal in freshness naturally.</li>
+        <li style="margin-bottom: 6px;">Ensure the oil layer stays gently above the pickles to seal in freshness naturally.</li>
         <li>Treat the jar to 1-2 hours of gentle afternoon sunshine once a month to let the spices breathe.</li>
       </ul>
     </div>

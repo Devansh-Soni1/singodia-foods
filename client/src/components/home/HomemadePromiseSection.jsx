@@ -59,8 +59,8 @@ export const HomemadePromiseSection = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               {[
                 {
-                  title: 'Cold-Pressed Mustard Oil',
-                  desc: 'We use 100% pure Kachi Ghani mustard oil that naturally preserves while adding pungency.'
+                  title: '100% Natural Spices',
+                  desc: 'Authentic stone-ground spices and traditional recipes that preserve natural aroma and flavours.'
                 },
                 {
                   title: 'Ceramic Martabans (बरनी)',

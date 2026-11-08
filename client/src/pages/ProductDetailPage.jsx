@@ -17,7 +17,7 @@ const DEFAULT_PRODUCT_REVIEWS = [
     reviewerName: 'Sunita Sharma',
     rating: 5,
     title: 'Maa ke hath jaisa asali swad!',
-    comment: 'Bilkul wahi purana swad jo dadi-nani ke hath se bane achar me milta tha. Kachi ghani sarson ke tel ki khushboo or masale ekdum fresh hain. 1kg ka jar mangwaya tha, parivar me sabko bahut pasand aaya!',
+    comment: 'Bilkul wahi purana swad jo dadi-nani ke hath se bane achar me milta tha. Asli desi masale ekdum fresh hain. 1kg ka jar mangwaya tha, parivar me sabko bahut pasand aaya!',
     location: 'Jaipur, Rajasthan',
     date: '3 days ago',
     isVerifiedBuyer: true
@@ -43,7 +43,7 @@ const DEFAULT_PRODUCT_REVIEWS = [
   {
     reviewerName: 'Vikas Singhal',
     rating: 5,
-    title: 'Pure Mustard Oil & Sun-cured Perfection',
+    title: '100% Traditional & Sun-cured Perfection',
     comment: 'Purity aur quality lajawab hai. Oil level perfect hai aur masalon ki aroma khulte hi poore kamre me phel jati hai. Highly recommended for every home!',
     location: 'Gurugram, Haryana',
     date: '3 weeks ago',
@@ -526,7 +526,7 @@ export const ProductDetailPage = () => {
               <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
                 <p className="font-bold">⚠️ Allergen & Oil Information:</p>
                 <p>{product.allergenInfo}</p>
-                <p>Oil Used: <strong className="font-bold">{product.oilType || 'Pure Cold-Pressed Mustard Oil'}</strong></p>
+                <p>Oil Used: <strong className="font-bold">{product.oilType || 'Traditional Pure Oil'}</strong></p>
               </div>
             </div>
           )}
@@ -560,7 +560,7 @@ export const ProductDetailPage = () => {
                 <ul className="list-disc pl-5 space-y-1 text-xs">
                   <li>Always use a completely dry stainless steel or wooden spoon. Never use a wet spoon.</li>
                   <li>Ensure the oil layer always covers the top surface of the pickle.</li>
-                  <li>Do not refrigerate traditional mustard oil pickles as natural fats can congeal. Keep in pantry.</li>
+                  <li>Do not refrigerate traditional pickles. Keep in a dry, cool pantry.</li>
                 </ul>
               </div>
             </div>

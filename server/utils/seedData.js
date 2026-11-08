@@ -83,8 +83,8 @@ export const sampleProducts = [
     slug: 'banarasi-lal-mirch-bharwa-achar',
     category: 'red-chilli-pickles',
     subCategory: 'spicy',
-    shortDescription: 'Plump sun-dried red chillies hand-stuffed with aromatic roasted spices, saunf, amchur, and pure mustard oil.',
-    fullDescription: 'Our Banarasi Bharwa Lal Mirch Achar is the crown jewel of traditional Indian pickling. Each ripe, crimson chilli is carefully handpicked, slit with precision, and meticulously stuffed by hand with a slow-roasted dry spice blend comprising whole coriander seeds, fennel (saunf), fenugreek (methi), black mustard seeds (rai), dry mango powder (amchur), and pungent Hing. Matured naturally under the Indian sun in large ceramic barnis with cold-pressed Kachi Ghani mustard oil.',
+    shortDescription: 'Plump sun-dried red chillies hand-stuffed with aromatic roasted spices, saunf, amchur, and traditional pure oil.',
+    fullDescription: 'Our Banarasi Bharwa Lal Mirch Achar is the crown jewel of traditional Indian pickling. Each ripe, crimson chilli is carefully handpicked, slit with precision, and meticulously stuffed by hand with a slow-roasted dry spice blend comprising whole coriander seeds, fennel (saunf), fenugreek (methi), dry mango powder (amchur), and pungent Hing. Matured naturally under the Indian sun in large ceramic barnis with traditional pure oil.',
     images: [
       'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80'
@@ -97,19 +97,18 @@ export const sampleProducts = [
     spiceLevel: 'Spicy',
     ingredients: [
       'Sun-dried Red Chillies',
-      'Cold-Pressed Kachi Ghani Mustard Oil',
+      'Traditional Pure Oil',
       'Fennel Seeds (Saunf)',
       'Fenugreek Seeds (Methi Dana)',
-      'Yellow Mustard Seeds (Peeli Sarson)',
       'Amchur (Dry Mango Powder)',
       'Pure Hing (Asafoetida)',
       'Kalonji (Nigella)',
       'Rock Salt & Turmeric'
     ],
-    allergenInfo: 'Contains Mustard. Preservative-free, prepared in a traditional hygienic kitchen.',
-    storageInstructions: 'Keep submerged in mustard oil. Always use a dry wooden or steel spoon. Keep away from water moisture.',
+    allergenInfo: 'Preservative-free, prepared in a traditional hygienic kitchen.',
+    storageInstructions: 'Keep submerged in oil. Always use a dry wooden or steel spoon. Keep away from water moisture.',
     shelfLife: '12 Months from packaging date',
-    oilType: 'Pure Cold-Pressed Mustard Oil (सरसों का तेल)',
+    oilType: 'Traditional Pure Oil (पारंपरिक तेल)',
     traditionNotes: '100% Hand-stuffed using our 40-year-old family recipe from grandmother’s kitchen in Rajasthan.',
     pairWith: ['Garama-Garam Aloo Paratha', 'Dal Khichdi & Ghee', 'Bedmi Puri Sabzi', 'Mathri with Evening Chai'],
     tags: ['Bestseller', 'Handmade', 'Sun-Dried', 'Zero Preservatives'],
@@ -127,7 +126,7 @@ export const sampleProducts = [
     category: 'mango-pickles',
     subCategory: 'tangy',
     shortDescription: 'Classic sun-cured raw mango pickle made with hand-cut Ramkela mangoes, fenugreek, and cold-pressed mustard oil.',
-    fullDescription: 'Nothing evokes childhood nostalgia quite like the piquant crunch of raw mango pickle. We hand-select sour, firm Ramkela raw mangoes, cut them into traditional bite-sized pieces with their tender kernels intact, and marinate them with freshly ground whole spices. Bathed in golden Kachi Ghani mustard oil, our jars are kept in the blazing courtyard sun for weeks until every piece absorbs the tangy spiced richness.',
+    fullDescription: 'Nothing evokes childhood nostalgia quite like the piquant crunch of raw mango pickle. We hand-select sour, firm Ramkela raw mangoes, cut them into traditional bite-sized pieces with their tender kernels intact, and marinate them with freshly ground whole spices. Bathed in traditional pure oil, our jars are kept in the blazing courtyard sun for weeks until every piece absorbs the tangy spiced richness.',
     images: [
       'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80'

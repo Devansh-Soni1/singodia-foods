@@ -17,7 +17,7 @@ export const BestSellersSection = ({ products = [], onQuickView }) => {
             SHOP HOMEMADE PICKLES ONLINE
           </h2>
           <p className="text-xs sm:text-sm text-gray-500 mt-1 max-w-xl mx-auto">
-            100% Traditional homemade recipes cured under the sun with pure mustard oil.
+            100% Traditional homemade recipes cured naturally under the sun.
           </p>
         </div>
 

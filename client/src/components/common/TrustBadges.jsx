@@ -11,8 +11,8 @@ export const TrustBadges = ({ layout = 'row' }) => {
     },
     {
       icon: Sparkles,
-      title: 'Kachi Ghani Mustard Oil',
-      desc: 'Cold-pressed pure oil, zero refined blends',
+      title: '100% Pure & Natural',
+      desc: 'Hand-picked spices with authentic home taste',
       color: 'text-yellow-600 bg-yellow-50'
     },
     {

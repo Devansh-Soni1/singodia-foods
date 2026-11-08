@@ -17,7 +17,7 @@ Inspired by traditional D2C food brands (like FarmDidi), the website reflects an
 - **Hero Banner:** Evocative traditional Rajasthani messaging, handcrafted imagery, trust badges, and quick CTA buttons.
 - **Trust Badges (Authentic & Verified):**
   - ☀️ *100% Sun-Cured in Ceramic Barnis (Martabans)*
-  - 🌿 *Pure Cold-Pressed Kachi Ghani Mustard Oil*
+  - 🌿 *100% Traditional Pure Oil & Desi Spices*
   - 👵 *Grandmother's 40-Year Family Recipes*
   - 🚫 *Zero Chemical Preservatives or Synthetic Vinegars*
   - 📦 *Leak-Proof Spill-Resistant Food Grade Packing*

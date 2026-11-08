@@ -31,10 +31,10 @@ const productSchema = new mongoose.Schema({
     default: 'Medium' 
   },
   ingredients: [{ type: String }],
-  allergenInfo: { type: String, default: 'Contains Mustard. Handcrafted in a traditional kitchen without artificial preservatives.' },
+  allergenInfo: { type: String, default: 'Handcrafted in a traditional kitchen without artificial preservatives.' },
   storageInstructions: { type: String, default: 'Store in a cool, dry place. Keep covered with oil. Use only clean, dry spoons.' },
   shelfLife: { type: String, default: '12 Months from date of packaging' },
-  oilType: { type: String, default: 'Kachi Ghani Mustard Oil (सरसों का तेल)' },
+  oilType: { type: String, default: 'Traditional Pure Oil (पारंपरिक तेल)' },
   traditionNotes: { type: String, default: 'Slow sun-cured in traditional ceramic martabans for authentic aged flavour.' },
   pairWith: [{ type: String }],
   tags: [{ type: String }],

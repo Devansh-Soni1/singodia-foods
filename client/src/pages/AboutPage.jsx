@@ -17,7 +17,7 @@ export const AboutPage = () => {
           </h1>
           <p className="text-sm sm:text-base text-earth-brown mt-4 leading-relaxed">
             Born in the historic courtyards of Jaipur, Rajasthan in 1984, Singodhia Foods was founded on a simple family principle: 
-            <strong> real achar requires patience, authentic sunlight, and pure mustard oil—never chemical preservatives.</strong>
+            <strong> real achar requires patience, authentic sunlight, and pure traditional recipes—never chemical preservatives.</strong>
           </p>
         </div>
 

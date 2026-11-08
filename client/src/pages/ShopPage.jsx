@@ -189,8 +189,8 @@ export const ShopPage = () => {
           </h1>
           <p className="text-xs sm:text-sm text-earth-brown mt-1">
             {categoryParam !== 'all'
-              ? `Authentic homemade Rajasthani ${categoryParam.replace(/-/g, ' ')} cured in pure cold-pressed mustard oil.`
-              : 'Hand-crafted in small batches, sun-cured in ceramic martabans with pure mustard oil.'}
+              ? `Authentic homemade Rajasthani ${categoryParam.replace(/-/g, ' ')} prepared with traditional heritage recipes.`
+              : 'Hand-crafted in small batches, sun-cured in ceramic martabans with pure desi spices.'}
           </p>
         </div>
 

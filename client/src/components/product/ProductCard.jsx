@@ -48,16 +48,15 @@ export const ProductCard = ({ product, onQuickView }) => {
     if (onQuickView) onQuickView(product);
   };
 
-  // Distinctive badges (oil and handmade purity - spice level removed as requested)
-  const oilBadge = product.oilType?.toLowerCase().includes('sunflower')
-    ? 'Sunflower Oil'
-    : (product.oilType?.toLowerCase().includes('oil-free') ? 'Oil-Free' : 'Mustard Oil');
-
+  // Distinctive badges (handmade purity, sun-cured, oil-free)
+  const badges = [];
+  if (product.oilType?.toLowerCase().includes('oil-free')) {
+    badges.push('Oil-Free');
+  }
   const traditionBadge = product.tags?.includes('Jain Friendly') 
     ? 'Jain Friendly' 
     : (product.tags?.includes('Sun-Cured') ? 'Sun-Cured' : 'Handmade Batch');
-
-  const badges = [oilBadge, traditionBadge];
+  badges.push(traditionBadge);
 
   // Dynamic subtle backdrop color splash for jars matching the card style
   const isRed = product.slug?.includes('red-chilli') || product.name?.toLowerCase().includes('red chilli') || product.name?.toLowerCase().includes('punjabi');
