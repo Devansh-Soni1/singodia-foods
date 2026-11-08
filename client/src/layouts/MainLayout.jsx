@@ -8,6 +8,7 @@ import { WhatsAppButton } from '../components/common/WhatsAppButton';
 import { CartDrawer } from '../components/common/CartDrawer';
 import { SearchModal } from '../components/common/SearchModal';
 import { BlinkitCartBar } from '../components/common/BlinkitCartBar';
+import { RajasthaniAudioPlayer } from '../components/common/RajasthaniAudioPlayer';
 
 export const MainLayout = () => {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -38,6 +39,9 @@ export const MainLayout = () => {
 
       {/* Blinkit-Style Floating Bottom Cart Bar */}
       <BlinkitCartBar />
+
+      {/* Ambient Soft Rajasthani Background Tune with Mute/Unmute Control */}
+      <RajasthaniAudioPlayer />
     </div>
   );
 };

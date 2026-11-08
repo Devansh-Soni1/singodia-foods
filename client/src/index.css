@@ -77,6 +77,34 @@
   }
 }
 
+/* Equalizer soundwave keyframes for Rajasthani Background Audio Player */
+@keyframes soundbar1 {
+  0%, 100% { height: 4px; }
+  50% { height: 14px; }
+}
+
+@keyframes soundbar2 {
+  0%, 100% { height: 12px; }
+  50% { height: 5px; }
+}
+
+@keyframes soundbar3 {
+  0%, 100% { height: 6px; }
+  50% { height: 15px; }
+}
+
+.animate-soundbar-1 {
+  animation: soundbar1 0.75s ease-in-out infinite;
+}
+
+.animate-soundbar-2 {
+  animation: soundbar2 0.65s ease-in-out infinite 0.15s;
+}
+
+.animate-soundbar-3 {
+  animation: soundbar3 0.85s ease-in-out infinite 0.3s;
+}
+
 /* Marquee infinite animation */
 @keyframes marquee {
   0% { transform: translateX(0%); }
