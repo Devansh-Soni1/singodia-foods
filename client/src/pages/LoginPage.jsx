@@ -52,18 +52,6 @@ export const LoginPage = () => {
           </div>
         </div>
 
-        {/* Admin Portal Redirect Notice */}
-        <div className="mt-8 pt-6 border-t border-cream-200 text-center text-xs text-earth-brown">
-          <p className="text-[11px] text-gray-400 mb-1.5">Are you a store administrator?</p>
-          <Link 
-            to="/admin/login" 
-            className="inline-flex items-center gap-1.5 font-bold text-brand-green hover:underline text-xs"
-          >
-            <span>Admin Portal Login (एडमिन लॉगिन)</span>
-            <ArrowRight className="w-3 h-3" />
-          </Link>
-        </div>
-
       </div>
     </div>
   );

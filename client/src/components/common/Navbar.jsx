@@ -414,12 +414,12 @@ export const Navbar = ({ onOpenSearch }) => {
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Customer / Admin Account Icon */}
+            {/* Customer Account Icon */}
             <Link
-              to={isAuthenticated ? (isAdmin ? '/admin' : '/account') : '/login'}
+              to={isAuthenticated ? '/account' : '/login'}
               className="p-1.5 text-[#e68819] hover:text-[#c46809] transition-colors flex items-center relative group"
-              aria-label={isAdmin ? 'Admin Dashboard' : 'My Account'}
-              title={isAuthenticated ? (isAdmin ? 'Admin Control Center' : `Logged in as ${user?.name}`) : 'Login to your account'}
+              aria-label="My Account"
+              title={isAuthenticated ? `Logged in as ${user?.name}` : 'Login to your account'}
             >
               {/* Profile icon SVG matching FarmDidi user icon */}
               <svg 
@@ -624,11 +624,11 @@ export const Navbar = ({ onOpenSearch }) => {
                     Welcome back, <strong className="text-gray-900">{user?.name}</strong>
                   </div>
                   <Link 
-                    to={isAdmin ? '/admin' : '/account'} 
+                    to="/account" 
                     className="block text-center text-xs font-bold py-2.5 bg-gray-100 text-gray-800 rounded-xl"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    {isAdmin ? 'Admin Control Center' : 'My Account & Orders'}
+                    My Account & Orders
                   </Link>
                 </div>
               ) : (

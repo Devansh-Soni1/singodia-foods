@@ -54,14 +54,14 @@ export const FlavoursShowcaseSection = () => {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
-          <span className="font-serif text-2xl sm:text-4xl font-extrabold text-[#1F4D36] block leading-tight tracking-wide mb-1">
-            Achar Wali Aunty Ji ke paas
+          <span className="font-serif text-xl sm:text-3xl font-extrabold text-[#1F4D36] block leading-tight tracking-wide mb-1">
+            दादी माँ के पारंपरिक नुस्खों से तैयार
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-[#1A1A1A] uppercase tracking-tight">
-            SAB FLAVOURS <span className="text-[#D12027]">hai!</span>
+            घर जैसे शुद्ध <span className="text-[#D12027]">देसी स्वाद</span>
           </h2>
-          <p className="text-xs sm:text-sm text-[#6B5A48] font-medium mt-3 max-w-2xl mx-auto leading-relaxed">
-            From zesty sun-cured raw mango to stone-pounded royal masalas, crisp hand-rolled papads and traditional barni pickles, tap any flavour to inspect and taste
+          <p className="text-xs sm:text-sm text-[#6B5A48] font-medium mt-2 max-w-2xl mx-auto leading-relaxed">
+            धूप में पके कच्चे आम से लेकर पारंपरिक भरवां लाल मिर्च और शाही कैर सांगरी तक — अपने मनपसंद स्वाद पर क्लिक करके देखें।
           </p>
         </div>
 

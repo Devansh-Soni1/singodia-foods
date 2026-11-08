@@ -157,7 +157,7 @@ export const SubHeaderCategoryBar = () => {
       {/* 1. Animated Category Emoji Strip (Pure transparent emoji, no background box, no badges) */}
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pt-2.5 pb-2.5 overflow-hidden">
         <div 
-          className="flex items-start justify-start md:justify-center gap-3 sm:gap-6 lg:gap-8 overflow-x-auto scrollbar-none pb-1 pt-1 px-1 select-none"
+          className="flex items-start justify-start md:justify-center gap-3 sm:gap-6 lg:gap-8 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden pb-1 pt-1 px-1 select-none"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {categoriesToShow.map((cat) => {
@@ -201,7 +201,7 @@ export const SubHeaderCategoryBar = () => {
 
       {/* 2. Trust Guarantee Strip */}
       <div className="border-t border-amber-300/70 bg-[#FFFDF9] py-1.5 px-3 sm:px-4 overflow-hidden">
-        <div className="max-w-5xl mx-auto flex items-center justify-center gap-2.5 sm:gap-6 text-[10.5px] sm:text-[13px] font-bold text-gray-800 flex-nowrap overflow-x-auto scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div className="max-w-5xl mx-auto flex items-center justify-center gap-2.5 sm:gap-6 text-[10.5px] sm:text-[13px] font-bold text-gray-800 flex-nowrap overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           
           {/* Trust Item 1: NO Chemical Preservatives */}
           <div className="flex items-center gap-1 shrink-0">
