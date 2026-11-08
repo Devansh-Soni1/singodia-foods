@@ -26,63 +26,89 @@ export const RajasthaniAudioPlayer = () => {
     location.pathname !== '/cart' &&
     !location.pathname.startsWith('/admin');
 
-  // Handle first user interaction autoplay (complying with modern browser autoplay policies)
+  // Ambient Target Volume: 10% (0.10) for truly soft, peaceful background sound
+  const TARGET_VOLUME = 0.10;
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    // Set pleasant, soft ambient volume (22% volume - soothing background feel)
-    audio.volume = 0.22;
-
-    // If user has explicitly muted in the past, respect preference
+    // Respect saved mute preference
     const savedMute = localStorage.getItem('singodhia_audio_muted') === 'true';
     if (savedMute) {
       setIsMuted(true);
       return;
     }
 
-    const tryPlayAudio = () => {
+    // Function to softly start playback with a smooth fade-in
+    const startSoftPlayback = () => {
+      if (!audio) return;
       if (localStorage.getItem('singodhia_audio_muted') === 'true') return;
-      audio.volume = 0.22;
+      if (!audio.paused) return; // already playing
+
+      audio.volume = 0.03;
       const playPromise = audio.play();
+
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
             setIsPlaying(true);
             setIsMuted(false);
+
+            // Smooth 1-second fade-in up to TARGET_VOLUME (0.10)
+            let currentVol = 0.03;
+            const stepTimer = setInterval(() => {
+              currentVol += 0.015;
+              if (currentVol >= TARGET_VOLUME) {
+                audio.volume = TARGET_VOLUME;
+                clearInterval(stepTimer);
+              } else {
+                audio.volume = currentVol;
+              }
+            }, 120);
           })
           .catch(() => {
-            // Browser prevented audio, keep waiting for explicit user gesture
+            // Browser policy blocked automatic unmuted play; waiting for first user touch
           });
       }
     };
 
-    // Attempt direct play (works in browsers that allow autoplay or subsequent page transitions)
-    tryPlayAudio();
+    // 1. Attempt immediate autoplay upon page load
+    startSoftPlayback();
 
-    // Listen to first user touch/click/scroll anywhere to initiate soft background music
-    const handleFirstGesture = () => {
-      tryPlayAudio();
-      window.removeEventListener('click', handleFirstGesture);
-      window.removeEventListener('touchstart', handleFirstGesture);
-      window.removeEventListener('scroll', handleFirstGesture);
-      window.removeEventListener('keydown', handleFirstGesture);
+    // 2. High-priority capture listeners: start instantly on first touch/scroll/click/interaction
+    const interactionEvents = [
+      'pointerdown',
+      'touchstart',
+      'click',
+      'scroll',
+      'wheel',
+      'keydown'
+    ];
+
+    const handleImmediateGesture = () => {
+      startSoftPlayback();
+      cleanupListeners();
     };
 
-    window.addEventListener('click', handleFirstGesture, { once: true });
-    window.addEventListener('touchstart', handleFirstGesture, { once: true, passive: true });
-    window.addEventListener('scroll', handleFirstGesture, { once: true, passive: true });
-    window.addEventListener('keydown', handleFirstGesture, { once: true });
+    const cleanupListeners = () => {
+      interactionEvents.forEach((evt) => {
+        window.removeEventListener(evt, handleImmediateGesture, { capture: true });
+        document.removeEventListener(evt, handleImmediateGesture, { capture: true });
+      });
+    };
+
+    interactionEvents.forEach((evt) => {
+      window.addEventListener(evt, handleImmediateGesture, { capture: true, passive: true });
+      document.addEventListener(evt, handleImmediateGesture, { capture: true, passive: true });
+    });
 
     return () => {
-      window.removeEventListener('click', handleFirstGesture);
-      window.removeEventListener('touchstart', handleFirstGesture);
-      window.removeEventListener('scroll', handleFirstGesture);
-      window.removeEventListener('keydown', handleFirstGesture);
+      cleanupListeners();
     };
   }, []);
 
-  // Sync isMuted state with audio element
+  // Sync Mute / Unmute Toggle Button
   const toggleMusic = (e) => {
     e.stopPropagation();
     const audio = audioRef.current;
@@ -99,8 +125,8 @@ export const RajasthaniAudioPlayer = () => {
         // Ignore localStorage error
       }
     } else {
-      // Unmute & Play
-      audio.volume = 0.22;
+      // Unmute & Play Softly
+      audio.volume = TARGET_VOLUME;
       audio
         .play()
         .then(() => {
@@ -133,11 +159,11 @@ export const RajasthaniAudioPlayer = () => {
       </audio>
 
       {/* Floating Rajasthani Music Controller */}
-      <aside aria-label="Rajasthani Background Music">
+      <aside aria-label="Rajasthani Ambient Background Music">
         <button
           type="button"
           onClick={toggleMusic}
-          aria-label={isPlaying ? 'Mute Rajasthani Tune' : 'Play Rajasthani Tune'}
+          aria-label={isPlaying ? 'Mute Rajasthani Flute Tune' : 'Play Rajasthani Flute Tune'}
           title={isPlaying ? 'राजस्थानी धुन बंद करें (Mute)' : 'राजस्थानी धुन चालू करें (Unmute)'}
           className={`fixed z-40 transition-all duration-300 transform active:scale-95 cursor-pointer flex items-center gap-2 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-full select-none left-4 sm:left-6 ${
             isCartBarVisible ? 'bottom-16 sm:bottom-20' : 'bottom-5 sm:bottom-6'
