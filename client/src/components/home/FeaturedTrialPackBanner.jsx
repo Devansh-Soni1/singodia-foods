@@ -3,6 +3,7 @@ import {
   Sparkles, Star, Plus, Check, ShoppingBag, 
   Truck, ShieldCheck, ChevronDown, Gift, Zap, X
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useCart } from '../../context/CartContext';
 import { adminAPI } from '../../services/api';
 import siteLogo from '../../assets/logo.png';
@@ -59,6 +60,7 @@ export const FeaturedTrialPackBanner = () => {
 
   const currentPricing = pricing[packSize] || pricing[8];
   const isBucketFull = selectedJars.length >= packSize;
+  const isPackComplete = selectedJars.length === packSize;
 
   // Handle pack size change: when 8 is selected, auto-select all 8 items!
   const handlePackChange = (newSize) => {
@@ -129,9 +131,12 @@ export const FeaturedTrialPackBanner = () => {
 
   // Add customized trial pack to cart
   const handleAddToCart = () => {
-    const itemsToPack = selectedJars.length > 0 
-      ? selectedJars 
-      : trialItems.slice(0, packSize);
+    if (selectedJars.length < packSize) {
+      toast.error(`कृपया पहले पूरे ${packSize} अचार चुनें (अभी सिर्फ ${selectedJars.length} चुने हैं)`);
+      return;
+    }
+
+    const itemsToPack = selectedJars;
 
     const trialProduct = {
       _id: `trial-pack-${packSize}`,
@@ -479,21 +484,42 @@ export const FeaturedTrialPackBanner = () => {
                 </div>
               </div>
 
-              {/* Big Red ADD TO CART Button */}
+              {/* Big Red ADD TO CART Button (Active only when complete) */}
               <div className="pt-2">
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  className="w-full bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-black text-xs sm:text-sm py-2.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 uppercase tracking-wider active:scale-98 cursor-pointer"
+                  disabled={!isPackComplete}
+                  className={`w-full font-black text-xs sm:text-sm py-2.5 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 uppercase tracking-wider ${
+                    isPackComplete
+                      ? 'bg-[#D32F2F] hover:bg-[#B71C1C] text-white hover:shadow-lg active:scale-98 cursor-pointer ring-2 ring-red-400/50'
+                      : 'bg-gray-200 hover:bg-gray-200 text-gray-500 border border-gray-300 shadow-none cursor-not-allowed opacity-90'
+                  }`}
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>
-                    {selectedJars.length === 0 
+                    {isPackComplete
                       ? `ADD PACK OF ${packSize} TO CART • ₹${currentPricing.price}`
-                      : `ADD TO CART • ₹${currentPricing.price} (${selectedJars.length}/${packSize} IN BUCKET)`
+                      : selectedJars.length === 0
+                        ? `पहले ${packSize} अचार चुनें • ₹${currentPricing.price} (0/${packSize})`
+                        : `कृपया ${packSize - selectedJars.length} और अचार चुनें (${selectedJars.length}/${packSize})`
                     }
                   </span>
                 </button>
+
+                {/* Real-time Status Guide */}
+                <div className="text-center mt-1.5">
+                  {!isPackComplete ? (
+                    <span className="text-[11px] font-bold text-[#832B0A]">
+                      👉 पैक में <b>{packSize - selectedJars.length}</b> और अचार जोड़ें ({selectedJars.length}/{packSize})
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-bold text-emerald-700 flex items-center justify-center gap-1">
+                      <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
+                      सभी {packSize} अचार चुने जा चुके हैं! अब Add to Cart करें
+                    </span>
+                  )}
+                </div>
 
                 {/* Delivery & Perks */}
                 <div className="flex items-center justify-between text-[10.5px] font-bold text-gray-700 mt-2">

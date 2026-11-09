@@ -143,7 +143,6 @@ export const RajasthaniAudioPlayer = () => {
         }}
       >
         <source src="/audio/rajasthani-tune.mp3" type="audio/mpeg" />
-        <source src="/audio/rajasthani-tune.ogg" type="audio/ogg" />
       </audio>
 
       {/* Floating Audio Controller (Icon only, no text) */}

@@ -178,7 +178,7 @@ export const Navbar = ({ onOpenSearch }) => {
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-[0_4px_12px_rgba(243,162,34,0.12)] transition-all" ref={navRef}>
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="relative flex items-center justify-between h-20 sm:h-[88px] md:h-[94px]">
+        <div className="relative flex items-center justify-between h-20 sm:h-[84px] md:h-[90px]">
           
           {/* Left: Mobile Hamburger Button */}
           <div className="flex items-center lg:hidden z-10">
@@ -197,7 +197,7 @@ export const Navbar = ({ onOpenSearch }) => {
               <img 
                 src={siteLogo} 
                 alt="Singodia Foods" 
-                className="h-[68px] sm:h-[84px] md:h-[96px] w-auto object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105" 
+                className="h-[68px] sm:h-[78px] md:h-[89px] lg:h-[89px] w-auto object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105" 
                 onError={(e) => { e.target.src = '/logo.png'; }}
               />
             </Link>
