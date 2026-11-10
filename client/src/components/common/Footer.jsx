@@ -9,11 +9,11 @@ export const Footer = () => {
     <footer className="bg-[#143025] text-[#FAF6EF] pt-8 sm:pt-12 pb-6 sm:pb-8 border-t-4 border-mustard">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Main Grid: On desktop 5 cols, on mobile links sit side-by-side in 2 cols */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8 pb-6 sm:pb-8 border-b border-white/10">
+        {/* Main Grid: On desktop 5 cols, on mobile links sit side-by-side */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 sm:gap-8 pb-6 sm:pb-8 border-b border-white/10">
           
           {/* Brand Col */}
-          <div className="lg:col-span-2 space-y-2.5 sm:space-y-4">
+          <div className="col-span-2 lg:col-span-2 space-y-2.5 sm:space-y-4">
             <Link to="/" className="inline-block transition-all group">
               <img 
                 src={footerLogo} 
@@ -73,90 +73,95 @@ export const Footer = () => {
             </div>
           </div>
 
-          {/* Links Section: 2-column grid on mobile to keep vertical height minimal */}
-          <div className="lg:col-span-2 grid grid-cols-2 gap-4 sm:gap-6">
-            
-            {/* Quick Links */}
-            <div className="space-y-2 sm:space-y-3">
-              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-mustard font-sans">
-                Explore Pickles
-              </h4>
-              <ul className="space-y-1.5 sm:space-y-2 text-[11px] sm:text-xs text-cream-200/80">
-                <li>
-                  <Link to="/shop" className="hover:text-mustard transition-colors">
-                    All Pickles (सभी आचार)
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/shop/" className="hover:text-mustard transition-colors">
-                    Bestsellers
-                  </Link>
-                </li>
-                <li>
-                  <a 
-                    href="/#trial-pack" 
-                    onClick={(e) => {
-                      if (window.location.pathname === '/') {
-                        e.preventDefault();
-                        document.getElementById('trial-pack')?.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }}
-                    className="hover:text-mustard transition-colors text-mustard font-semibold"
-                  >
-                    Trial Pack (ट्रायल पैक)
-                  </a>
-                </li>
-                <li>
-                  <Link to="/product/combo-packs/" className="hover:text-mustard transition-colors">
-                    Gift Hampers
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/product/rajasthani-specials/" className="hover:text-mustard transition-colors">
-                    Rajasthani Specials
-                  </Link>
-                </li>
-              </ul>
-            </div>
+          {/* Explore Pickles */}
+          <div className="col-span-1 space-y-2 sm:space-y-3">
+            <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-mustard font-sans">
+              Explore Pickles
+            </h4>
+            <ul className="space-y-1.5 sm:space-y-2 text-[11px] sm:text-xs text-cream-200/80">
+              <li>
+                <Link to="/shop" className="hover:text-mustard transition-colors">
+                  All Pickles (सभी आचार)
+                </Link>
+              </li>
+              <li>
+                <a 
+                  href="/#trial-pack" 
+                  onClick={(e) => {
+                    if (window.location.pathname === '/') {
+                      e.preventDefault();
+                      document.getElementById('trial-pack')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                  className="hover:text-mustard transition-colors text-mustard font-semibold"
+                >
+                  Trial Pack (ट्रायल पैक)
+                </a>
+              </li>
+              <li>
+                <Link to="/product/mango-pickle/" className="hover:text-mustard transition-colors">
+                  Mango (आम का अचार)
+                </Link>
+              </li>
+              <li>
+                <Link to="/product/red-chilli-pickle/" className="hover:text-mustard transition-colors">
+                  Banarasi Lal Mirch
+                </Link>
+              </li>
+              <li>
+                <Link to="/product/green-chilli-pickle/" className="hover:text-mustard transition-colors">
+                  Green Chilli (हरी मिर्च)
+                </Link>
+              </li>
+              <li>
+                <Link to="/product/garlic-pickle/" className="hover:text-mustard transition-colors">
+                  Garlic (लहसुन अचार)
+                </Link>
+              </li>
+            </ul>
+          </div>
 
-            {/* Categories */}
-            <div className="space-y-2 sm:space-y-3">
-              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-mustard font-sans">
-                Pickle Categories
-              </h4>
-              <ul className="space-y-1.5 sm:space-y-2 text-[11px] sm:text-xs text-cream-200/80">
-                <li>
-                  <Link to="/product/mango-pickle/" className="hover:text-mustard transition-colors">
-                    Mango (Aam Ka Achar)
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/product/red-chilli-pickle/" className="hover:text-mustard transition-colors">
-                    Red Chilli (Banarasi)
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/product/green-chilli-pickle/" className="hover:text-mustard transition-colors">
-                    Green Chilli (Hari Mirch)
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/product/lemon-pickle/" className="hover:text-mustard transition-colors">
-                    Lemon (Oil-Free Nimbu)
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/product/garlic-pickle/" className="hover:text-mustard transition-colors">
-                    Garlic (Lahsun)
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
+          {/* Company & Policies */}
+          <div className="col-span-1 space-y-2 sm:space-y-3">
+            <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-mustard font-sans">
+              Company & Policies
+            </h4>
+            <ul className="space-y-1.5 sm:space-y-2 text-[11px] sm:text-xs text-cream-200/80">
+              <li>
+                <Link to="/about" className="hover:text-mustard transition-colors">
+                  About Us (हमारी कहानी)
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="hover:text-mustard transition-colors">
+                  Contact Us (संपर्क करें)
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="hover:text-mustard transition-colors">
+                  Terms & Conditions (नियम)
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="hover:text-mustard transition-colors">
+                  Privacy Policy (गोपनीयता)
+                </Link>
+              </li>
+              <li>
+                <Link to="/shipping-policy" className="hover:text-mustard transition-colors">
+                  Shipping Policy (शिपिंग)
+                </Link>
+              </li>
+              <li>
+                <Link to="/refund-policy" className="hover:text-mustard transition-colors">
+                  Refund & Return (रिफंड)
+                </Link>
+              </li>
+            </ul>
           </div>
 
           {/* Contact Details */}
-          <div className="lg:col-span-1 space-y-2 sm:space-y-3">
+          <div className="col-span-2 md:col-span-2 lg:col-span-1 space-y-2 sm:space-y-3">
             <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-mustard font-sans">
               Contact & Support
             </h4>
@@ -202,13 +207,26 @@ export const Footer = () => {
         </div>
 
         {/* Bottom bar with payment badges and policies */}
-        <div className="pt-4 sm:pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] sm:text-xs text-cream-200/70">
+        <div className="pt-4 sm:pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] sm:text-xs text-cream-200/70 border-t border-white/5 mt-2">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-4 text-center md:text-left">
             <span>© {new Date().getFullYear()} Singodia Foods. All Rights Reserved.</span>
             <span className="hidden sm:inline">•</span>
             <span className="flex items-center gap-1">
               Handcrafted with <Heart className="w-3 h-3 text-chilli fill-current" /> in Rajasthan
             </span>
+          </div>
+
+          {/* Quick Policies Bar */}
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-[11px] text-cream-200/80">
+            <Link to="/about" className="hover:text-mustard transition-colors">About Us</Link>
+            <span>•</span>
+            <Link to="/terms" className="hover:text-mustard transition-colors">Terms</Link>
+            <span>•</span>
+            <Link to="/privacy" className="hover:text-mustard transition-colors">Privacy</Link>
+            <span>•</span>
+            <Link to="/shipping-policy" className="hover:text-mustard transition-colors">Shipping</Link>
+            <span>•</span>
+            <Link to="/refund-policy" className="hover:text-mustard transition-colors">Refund & Return</Link>
           </div>
 
           {/* Payment Methods */}

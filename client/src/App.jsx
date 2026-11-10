@@ -22,6 +22,10 @@ import RegisterPage from './pages/RegisterPage';
 import AccountPage from './pages/AccountPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import ShippingPolicyPage from './pages/ShippingPolicyPage';
+import RefundPolicyPage from './pages/RefundPolicyPage';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -168,6 +172,13 @@ export const App = () => {
                 <Route path="account" element={<AccountPage />} />
                 <Route path="about" element={<AboutPage />} />
                 <Route path="contact" element={<ContactPage />} />
+                <Route path="terms" element={<TermsPage />} />
+                <Route path="terms-and-conditions" element={<TermsPage />} />
+                <Route path="privacy" element={<PrivacyPolicyPage />} />
+                <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+                <Route path="shipping-policy" element={<ShippingPolicyPage />} />
+                <Route path="refund-policy" element={<RefundPolicyPage />} />
+                <Route path="return-policy" element={<RefundPolicyPage />} />
               </Route>
 
               {/* Dedicated Admin Login Page (Separate from customer login) */}

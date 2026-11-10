@@ -387,7 +387,15 @@ export const Navbar = ({ onOpenSearch }) => {
               </span>
             </a>
 
-            {/* 4. Contact us (Our story and Blogs are removed per user request) */}
+            {/* 4. About Us */}
+            <Link 
+              to="/about" 
+              className="hover:text-[#e68819] transition-colors"
+            >
+              About Us
+            </Link>
+
+            {/* 5. Contact us */}
             <Link 
               to="/contact" 
               className="hover:text-[#e68819] transition-colors"
@@ -728,7 +736,16 @@ export const Navbar = ({ onOpenSearch }) => {
                 </span>
               </a>
 
-              {/* Contact us (Our story & blogs excluded) */}
+              {/* About Us (Mobile) */}
+              <Link 
+                to="/about" 
+                className="py-2.5 px-3 rounded-lg hover:bg-cream-100 flex items-center justify-between text-[#b35400]"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <span>About Us (हमारी कहानी)</span>
+              </Link>
+
+              {/* Contact us (Mobile) */}
               <Link 
                 to="/contact" 
                 className="py-2.5 px-3 rounded-lg hover:bg-cream-100 flex items-center justify-between text-[#b35400]"

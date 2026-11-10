@@ -126,3 +126,4 @@ export const SocialLinks = ({ variant = 'icons', className = '' }) => {
 };
 
 export default SocialLinks;
+
