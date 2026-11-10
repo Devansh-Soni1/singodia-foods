@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { categoryAPI } from '../../services/api';
 import { INGREDIENT_CATEGORIES } from '../../constants/ingredientCategories';
 import siteLogo from '../../assets/logo.png';
+import { InstagramIcon, YouTubeIcon, FacebookIcon } from './SocialLinks';
 
 export const Navbar = ({ onOpenSearch }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -808,6 +809,42 @@ export const Navbar = ({ onOpenSearch }) => {
                 <MessageCircle className="w-4 h-4 fill-white" />
                 <span>Chat on WhatsApp</span>
               </a>
+
+              {/* Social Channels in Mobile Menu */}
+              <div className="pt-2 border-t border-cream-200">
+                <span className="text-[11px] font-bold text-charcoal/70 uppercase tracking-wider block mb-2 text-center">
+                  Follow Singodia Foods
+                </span>
+                <div className="flex items-center justify-center gap-3">
+                  <a
+                    href="https://www.instagram.com/singodiafoods?obrf=Y3l0aGw1enh2bTl6"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center shadow-xs hover:opacity-90 transition-opacity"
+                  >
+                    <InstagramIcon className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="https://youtube.com/@singodiafoods?si=a4PR1N-ItrTXdKgx"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="YouTube"
+                    className="w-9 h-9 rounded-xl bg-[#FF0000] text-white flex items-center justify-center shadow-xs hover:bg-[#d90000] transition-colors"
+                  >
+                    <YouTubeIcon className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="https://www.facebook.com/share/1DTfda4oNd/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook"
+                    className="w-9 h-9 rounded-xl bg-[#1877F2] text-white flex items-center justify-center shadow-xs hover:bg-[#0d65d9] transition-colors"
+                  >
+                    <FacebookIcon className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
             </div>
 
           </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, MessageCircle, Send, Check } from 'lucide-react';
+import { InstagramIcon, YouTubeIcon, FacebookIcon } from '../components/common/SocialLinks';
 
 export const ContactPage = () => {
   const [sent, setSent] = useState(false);
@@ -84,6 +85,42 @@ export const ContactPage = () => {
                   <MessageCircle className="w-4 h-4 fill-white" />
                   <span>Chat With Our Team on WhatsApp</span>
                 </a>
+              </div>
+
+              {/* Official Social Media Channels */}
+              <div className="pt-4 border-t border-cream-100 space-y-2.5">
+                <h4 className="text-xs font-bold text-charcoal uppercase tracking-wider">
+                  Connect on Social Media (सोशल मीडिया)
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <a
+                    href="https://www.instagram.com/singodiafoods?obrf=Y3l0aGw1enh2bTl6"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white font-bold text-xs hover:opacity-95 transition-all shadow-xs"
+                  >
+                    <InstagramIcon className="w-4 h-4" />
+                    <span>Instagram</span>
+                  </a>
+                  <a
+                    href="https://youtube.com/@singodiafoods?si=a4PR1N-ItrTXdKgx"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#FF0000] text-white font-bold text-xs hover:bg-[#d90000] transition-all shadow-xs"
+                  >
+                    <YouTubeIcon className="w-4 h-4" />
+                    <span>YouTube</span>
+                  </a>
+                  <a
+                    href="https://www.facebook.com/share/1DTfda4oNd/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#1877F2] text-white font-bold text-xs hover:bg-[#0d65d9] transition-all shadow-xs"
+                  >
+                    <FacebookIcon className="w-4 h-4" />
+                    <span>Facebook</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>

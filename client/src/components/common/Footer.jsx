@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, MessageCircle, ShieldCheck, Heart, Sparkles, Star, ExternalLink } from 'lucide-react';
 import footerLogo from '../../assets/footer-logo.png';
+import { InstagramIcon, YouTubeIcon, FacebookIcon } from './SocialLinks';
 
 export const Footer = () => {
   return (
@@ -33,6 +34,42 @@ export const Footer = () => {
               <span className="flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5" /> FSSAI Certified Kitchen
               </span>
+            </div>
+
+            {/* Social Media Channels */}
+            <div className="pt-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-mustard block mb-2 font-sans">
+                Follow Us (सोशल मीडिया पर जुड़ें)
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <a
+                  href="https://www.instagram.com/singodiafoods?obrf=Y3l0aGw1enh2bTl6"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white font-bold text-xs hover:opacity-90 transition-all transform hover:-translate-y-0.5 shadow-xs"
+                >
+                  <InstagramIcon className="w-3.5 h-3.5" />
+                  <span>Instagram</span>
+                </a>
+                <a
+                  href="https://youtube.com/@singodiafoods?si=a4PR1N-ItrTXdKgx"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FF0000] text-white font-bold text-xs hover:bg-[#d90000] transition-all transform hover:-translate-y-0.5 shadow-xs"
+                >
+                  <YouTubeIcon className="w-3.5 h-3.5" />
+                  <span>YouTube</span>
+                </a>
+                <a
+                  href="https://www.facebook.com/share/1DTfda4oNd/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1877F2] text-white font-bold text-xs hover:bg-[#0d65d9] transition-all transform hover:-translate-y-0.5 shadow-xs"
+                >
+                  <FacebookIcon className="w-3.5 h-3.5" />
+                  <span>Facebook</span>
+                </a>
+              </div>
             </div>
           </div>
 
