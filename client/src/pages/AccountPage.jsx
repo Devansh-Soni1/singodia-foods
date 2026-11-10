@@ -3,16 +3,17 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { 
   User, Package, MapPin, Heart, LogOut, Plus, Trash2, 
-  CheckCircle, Clock, Truck, ShieldAlert, ArrowRight, Eye
+  CheckCircle, Clock, Truck, ShieldAlert, ArrowRight, Eye,
+  Loader2, Check
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
-import { orderAPI } from '../services/api';
+import { orderAPI, shippingAPI } from '../services/api';
 import { formatPrice } from '../utils/formatCurrency';
 import { ProductCard } from '../components/product/ProductCard';
 
 export const AccountPage = () => {
-  const { user, isAuthenticated, logout, updateProfile, addAddress, deleteAddress } = useAuth();
+  const { user, isAuthenticated, logout, updateProfile, addAddress, deleteAddress, setDefaultAddress } = useAuth();
   const { wishlist } = useWishlist();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,8 +24,13 @@ export const AccountPage = () => {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
 
-  // Address form modal
+  // Address form state
   const [showAddressForm, setShowAddressForm] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [pincodeLoading, setPincodeLoading] = useState(false);
+  const [pincodeStatus, setPincodeStatus] = useState('');
+  const [addressError, setAddressError] = useState('');
+
   const [newAddress, setNewAddress] = useState({
     fullName: user?.name || '',
     phone: user?.phone || '',
@@ -32,6 +38,7 @@ export const AccountPage = () => {
     addressLine2: '',
     landmark: '',
     city: '',
+    district: '',
     state: 'Rajasthan',
     pincode: '',
     isDefault: false
@@ -76,12 +83,97 @@ export const AccountPage = () => {
     }
   };
 
+  const handlePincodeChange = async (e) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+    setNewAddress(prev => ({ ...prev, pincode: val }));
+    setPincodeStatus('');
+    setAddressError('');
+
+    if (val.length === 6) {
+      setPincodeLoading(true);
+      try {
+        const details = await shippingAPI.lookupPincode(val);
+        if (details && details.state) {
+          setNewAddress(prev => ({
+            ...prev,
+            city: details.city || prev.city || '',
+            district: details.district || prev.district || '',
+            state: details.state,
+            landmark: prev.landmark || ''
+          }));
+          setPincodeStatus(`✓ ${details.city || details.district}, ${details.district} (${details.state})`);
+        } else {
+          setPincodeStatus('');
+        }
+      } catch {
+        // Fallback
+      } finally {
+        setPincodeLoading(false);
+      }
+    }
+  };
+
   const handleAddAddress = async (e) => {
     e.preventDefault();
+    setAddressError('');
+
+    if (!newAddress.fullName.trim()) {
+      setAddressError('कृपया प्राप्तकर्ता का पूरा नाम दर्ज करें।');
+      return;
+    }
+
+    const cleanPhone = newAddress.phone.replace(/\D/g, '').slice(-10);
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      setAddressError('कृपया 10-अंकों का मान्य मोबाइल नंबर दर्ज करें।');
+      return;
+    }
+
+    if (!newAddress.addressLine1.trim()) {
+      setAddressError('कृपया मकान / फ्लैट नं. व बिल्डिंग का नाम दर्ज करें।');
+      return;
+    }
+
+    if (!newAddress.addressLine2.trim()) {
+      setAddressError('कृपया सड़क / गली / मोहल्ला / क्षेत्र दर्ज करें।');
+      return;
+    }
+
+    if (!newAddress.landmark.trim()) {
+      setAddressError('कृपया कोई लैंडमार्क (उदा. मुख्य बाजार / मंदिर के पास) दर्ज करें।');
+      return;
+    }
+
+    if (!newAddress.city.trim()) {
+      setAddressError('कृपया शहर या कस्बा (City / Town) दर्ज करें।');
+      return;
+    }
+
+    if (!newAddress.district.trim()) {
+      setAddressError('कृपया अपना ज़िला (District) दर्ज करें।');
+      return;
+    }
+
+    if (!/^\d{6}$/.test(newAddress.pincode.trim())) {
+      setAddressError('कृपया 6-अंकों का मान्य पिनकोड दर्ज करें।');
+      return;
+    }
+
+    if (!newAddress.state.trim()) {
+      setAddressError('कृपया राज्य दर्ज करें।');
+      return;
+    }
+
+    setSavingAddress(true);
     try {
-      await addAddress(newAddress);
-      toast.success('Address added successfully!');
+      await addAddress({
+        ...newAddress,
+        phone: cleanPhone,
+        district: newAddress.district.trim(),
+        isDefault: newAddress.isDefault || (!user?.addresses || user.addresses.length === 0)
+      });
+      toast.success('पता सफलतापूर्वक सहेजा गया!');
       setShowAddressForm(false);
+      setPincodeStatus('');
       setNewAddress({
         fullName: user?.name || '',
         phone: user?.phone || '',
@@ -89,18 +181,36 @@ export const AccountPage = () => {
         addressLine2: '',
         landmark: '',
         city: '',
+        district: '',
         state: 'Rajasthan',
         pincode: '',
         isDefault: false
       });
     } catch (err) {
-      toast.error(err.message || 'Failed to add address');
+      setAddressError(err.message || 'पता सहेजने में विफल');
+      toast.error(err.message || 'पता सहेजने में विफल');
+    } finally {
+      setSavingAddress(false);
     }
   };
 
   const handleDeleteAddress = async (id) => {
-    if (window.confirm('Are you sure you want to delete this address?')) {
-      await deleteAddress(id);
+    if (window.confirm('क्या आप वाकई इस पते को हटाना चाहते हैं?')) {
+      try {
+        await deleteAddress(id);
+        toast.success('पता हटा दिया गया');
+      } catch (err) {
+        toast.error(err.message || 'पता हटाने में विफल');
+      }
+    }
+  };
+
+  const handleSetDefaultAddress = async (id) => {
+    try {
+      await setDefaultAddress(id);
+      toast.success('मुख्य पता अपडेट हो गया!');
+    } catch (err) {
+      toast.error(err.message || 'मुख्य पता सेट करने में विफल');
     }
   };
 
@@ -258,104 +368,311 @@ export const AccountPage = () => {
             {activeTab === 'addresses' && (
               <div>
                 <div className="flex items-center justify-between mb-6 pb-2 border-b border-cream-100">
-                  <h2 className="text-lg font-bold text-charcoal font-serif">
-                    Saved Delivery Addresses
-                  </h2>
-                  <button
-                    onClick={() => setShowAddressForm(true)}
-                    className="flex items-center gap-1.5 text-xs font-bold bg-brand-green text-white px-3.5 py-2 rounded-xl"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Add Address
-                  </button>
+                  <div>
+                    <h2 className="text-lg font-bold text-charcoal font-serif">
+                      Saved Delivery Addresses
+                    </h2>
+                    <p className="text-xs text-earth-brown mt-0.5">
+                      अपने सुरक्षित पते प्रबंधित करें ताकि चेकआउट तेज़ और आसान हो सके
+                    </p>
+                  </div>
+                  {!showAddressForm && (
+                    <button
+                      onClick={() => {
+                        setShowAddressForm(true);
+                        setAddressError('');
+                        setPincodeStatus('');
+                      }}
+                      className="flex items-center gap-1.5 text-xs font-bold bg-brand-green hover:bg-brand-green-dark text-white px-4 py-2.5 rounded-xl transition-all shadow-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>+ नया पता जोड़ें</span>
+                    </button>
+                  )}
                 </div>
 
                 {showAddressForm && (
-                  <form onSubmit={handleAddAddress} className="p-5 rounded-2xl bg-cream-50 border border-cream-200 mb-6 space-y-4">
-                    <h3 className="text-sm font-bold text-charcoal font-serif">New Delivery Address</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <form onSubmit={handleAddAddress} className="p-5 sm:p-6 rounded-2xl bg-white border border-cream-200 mb-8 space-y-4 shadow-sm">
+                    <div className="flex items-center justify-between pb-3 border-b border-cream-100">
+                      <h3 className="text-sm font-bold text-charcoal font-serif flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-brand-green" />
+                        <span>नया डिलीवरी पता जोड़ें (Add Delivery Address)</span>
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowAddressForm(false);
+                          setAddressError('');
+                          setPincodeStatus('');
+                        }}
+                        className="text-xs text-gray-400 hover:text-charcoal font-semibold"
+                      >
+                        ✕ बंद करें
+                      </button>
+                    </div>
+
+                    {addressError && (
+                      <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium">
+                        {addressError}
+                      </div>
+                    )}
+
+                    {/* Full Name & Phone Number */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <div>
-                        <label className="font-bold block mb-1">Full Name</label>
+                        <label className="text-xs font-bold text-charcoal block mb-1">
+                          पूरा नाम (Full Name) <span className="text-red-500">*</span>
+                        </label>
                         <input
                           type="text"
                           required
+                          placeholder="e.g. Ramesh Chandra"
                           value={newAddress.fullName}
                           onChange={(e) => setNewAddress({ ...newAddress, fullName: e.target.value })}
-                          className="w-full p-2 rounded-lg border border-cream-300"
+                          className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
                         />
                       </div>
+
                       <div>
-                        <label className="font-bold block mb-1">Phone Number</label>
-                        <input
-                          type="text"
-                          required
-                          value={newAddress.phone}
-                          onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
-                          className="w-full p-2 rounded-lg border border-cream-300"
-                        />
+                        <label className="text-xs font-bold text-charcoal block mb-1">
+                          मोबाइल नंबर (10-Digit Mobile) <span className="text-red-500">*</span>
+                        </label>
+                        <div className="flex rounded-xl overflow-hidden border border-cream-300 bg-cream-50">
+                          <span className="px-3 py-2.5 bg-cream-200/60 text-xs font-bold text-gray-700 border-r border-cream-300">
+                            +91
+                          </span>
+                          <input
+                            type="tel"
+                            required
+                            maxLength={10}
+                            placeholder="9876543210"
+                            value={newAddress.phone}
+                            onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                            className="w-full px-3.5 py-2.5 text-xs bg-transparent focus:outline-none font-semibold text-charcoal"
+                          />
+                        </div>
                       </div>
-                      <div className="sm:col-span-2">
-                        <label className="font-bold block mb-1">Address (House, Street)</label>
-                        <input
-                          type="text"
-                          required
-                          value={newAddress.addressLine1}
-                          onChange={(e) => setNewAddress({ ...newAddress, addressLine1: e.target.value })}
-                          className="w-full p-2 rounded-lg border border-cream-300"
-                        />
-                      </div>
+                    </div>
+
+                    {/* Address Line 1 */}
+                    <div>
+                      <label className="text-xs font-bold text-charcoal block mb-1">
+                        मकान / फ्लैट नं., बिल्डिंग / अपार्टमेंट का नाम <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Flat 302, Prem Niwas, Tower B"
+                        value={newAddress.addressLine1}
+                        onChange={(e) => setNewAddress({ ...newAddress, addressLine1: e.target.value })}
+                        className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
+                      />
+                    </div>
+
+                    {/* Address Line 2 */}
+                    <div>
+                      <label className="text-xs font-bold text-charcoal block mb-1">
+                        सड़क / गली / मोहल्ला / क्षेत्र (Street / Area) <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Bagreche Bass, Near Station Road"
+                        value={newAddress.addressLine2}
+                        onChange={(e) => setNewAddress({ ...newAddress, addressLine2: e.target.value })}
+                        className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
+                      />
+                    </div>
+
+                    {/* Landmark */}
+                    <div>
+                      <label className="text-xs font-bold text-charcoal block mb-1">
+                        प्रसिद्ध लैंडमार्क (Landmark / पहचान) <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Near Jain Mandir / Old Post Office"
+                        value={newAddress.landmark}
+                        onChange={(e) => setNewAddress({ ...newAddress, landmark: e.target.value })}
+                        className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
+                      />
+                    </div>
+
+                    {/* City & District (Separated into distinct fields) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <div>
-                        <label className="font-bold block mb-1">City</label>
+                        <label className="text-xs font-bold text-charcoal block mb-1">
+                          शहर / कस्बा (City / Town) <span className="text-red-500">*</span>
+                        </label>
                         <input
                           type="text"
                           required
+                          placeholder="e.g. Sujangarh"
                           value={newAddress.city}
                           onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                          className="w-full p-2 rounded-lg border border-cream-300"
+                          className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
                         />
                       </div>
+
                       <div>
-                        <label className="font-bold block mb-1">PIN Code</label>
+                        <label className="text-xs font-bold text-charcoal block mb-1">
+                          ज़िला (District) <span className="text-red-500">*</span>
+                        </label>
                         <input
                           type="text"
                           required
-                          maxLength={6}
-                          value={newAddress.pincode}
-                          onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value })}
-                          className="w-full p-2 rounded-lg border border-cream-300"
+                          placeholder="e.g. Churu / Jaipur"
+                          value={newAddress.district}
+                          onChange={(e) => setNewAddress({ ...newAddress, district: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
                         />
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <button type="submit" className="px-4 py-2 bg-brand-green text-white text-xs font-bold rounded-lg">
-                        Save Address
+
+                    {/* PIN Code & State (Placed near City & District) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div>
+                        <label className="text-xs font-bold text-charcoal block mb-1">
+                          पिनकोड (PIN Code) <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            required
+                            maxLength={6}
+                            placeholder="e.g. 331507"
+                            value={newAddress.pincode}
+                            onChange={handlePincodeChange}
+                            className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-bold tracking-wider"
+                          />
+                          {pincodeLoading && (
+                            <div className="absolute right-3 top-3 text-brand-green">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            </div>
+                          )}
+                        </div>
+                        {pincodeStatus && (
+                          <p className="text-[11px] mt-1 font-semibold text-emerald-700">
+                            {pincodeStatus}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-bold text-charcoal block mb-1">
+                          राज्य (State) <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Rajasthan"
+                          value={newAddress.state}
+                          onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+                          className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Default Address Checkbox */}
+                    <div className="pt-1">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-charcoal">
+                        <input
+                          type="checkbox"
+                          checked={newAddress.isDefault}
+                          onChange={(e) => setNewAddress({ ...newAddress, isDefault: e.target.checked })}
+                          className="w-4 h-4 accent-brand-green rounded"
+                        />
+                        <span>इस पते को मुख्य पता (Default Address) बनाएं</span>
+                      </label>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2.5 pt-3 border-t border-cream-200">
+                      <button
+                        type="submit"
+                        disabled={savingAddress}
+                        className="px-5 py-2.5 bg-brand-green hover:bg-brand-green-dark text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-2 disabled:opacity-60"
+                      >
+                        <Check className="w-4 h-4" />
+                        <span>{savingAddress ? 'सहेज रहे हैं...' : 'पता सहेजें (Save Address)'}</span>
                       </button>
                       <button
                         type="button"
-                        onClick={() => setShowAddressForm(false)}
-                        className="px-4 py-2 border border-cream-300 text-charcoal text-xs font-bold rounded-lg"
+                        onClick={() => {
+                          setShowAddressForm(false);
+                          setAddressError('');
+                          setPincodeStatus('');
+                        }}
+                        className="px-4 py-2.5 border border-cream-300 hover:bg-cream-100 text-charcoal text-xs font-bold rounded-xl transition-colors"
                       >
-                        Cancel
+                        रद्द करें (Cancel)
                       </button>
                     </div>
                   </form>
                 )}
 
                 {user?.addresses?.length === 0 ? (
-                  <p className="text-xs text-earth-brown">No saved addresses yet. Add one above for faster checkout.</p>
+                  <div className="p-8 text-center bg-white rounded-3xl border border-cream-200">
+                    <MapPin className="w-8 h-8 text-cream-300 mx-auto mb-2" />
+                    <p className="text-xs text-earth-brown font-medium">अभी तक कोई सहेजा गया पता नहीं है। तेज़ी से चेकआउट करने के लिए ऊपर से नया पता जोड़ें।</p>
+                  </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {user?.addresses?.map((addr) => (
-                      <div key={addr._id} className="p-4 rounded-2xl border border-cream-200 bg-cream-50/50 relative text-xs space-y-1">
-                        <button
-                          onClick={() => handleDeleteAddress(addr._id)}
-                          className="absolute top-3 right-3 text-gray-400 hover:text-chilli p-1"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                        <p className="font-bold text-charcoal">{addr.fullName}</p>
-                        <p className="text-earth-brown">{addr.addressLine1}</p>
-                        <p className="text-earth-brown">{addr.city}, {addr.state} — {addr.pincode}</p>
-                        <p className="text-charcoal font-semibold pt-1">Phone: {addr.phone}</p>
+                      <div 
+                        key={addr._id} 
+                        className={`p-4 sm:p-5 rounded-2xl border transition-all text-xs space-y-1.5 relative ${
+                          addr.isDefault 
+                            ? 'border-brand-green/40 bg-brand-green/5 shadow-sm' 
+                            : 'border-cream-200 bg-white hover:border-cream-300 shadow-sm'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-charcoal text-sm">{addr.fullName}</span>
+                            {addr.isDefault && (
+                              <span className="px-2 py-0.5 rounded-full bg-brand-green text-white text-[10px] font-bold">
+                                Default
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => handleDeleteAddress(addr._id)}
+                            className="text-gray-400 hover:text-chilli p-1 transition-colors"
+                            title="Delete address"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <p className="text-charcoal font-medium">{addr.addressLine1}</p>
+                        {addr.addressLine2 && (
+                          <p className="text-earth-brown">{addr.addressLine2}</p>
+                        )}
+                        {addr.landmark && (
+                          <p className="text-earth-brown text-[11px]">
+                            <span className="font-semibold text-charcoal">लैंडमार्क:</span> {addr.landmark}
+                          </p>
+                        )}
+                        <p className="text-earth-brown font-medium">
+                          {addr.city}{addr.district ? `, ${addr.district}` : ''}, {addr.state} — <span className="font-bold text-charcoal">{addr.pincode}</span>
+                        </p>
+                        <p className="text-charcoal font-semibold pt-1 text-[11px]">
+                          फोन: +91 {addr.phone}
+                        </p>
+
+                        {!addr.isDefault && setDefaultAddress && (
+                          <div className="pt-2 border-t border-cream-100 flex justify-end">
+                            <button
+                              type="button"
+                              onClick={() => handleSetDefaultAddress(addr._id)}
+                              className="text-[11px] text-brand-green hover:underline font-bold"
+                            >
+                              मुख्य पता बनाएं (Set as Default)
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

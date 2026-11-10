@@ -448,7 +448,7 @@ export const addAddress = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    const { fullName, phone, addressLine1, addressLine2, landmark, city, state, pincode, isDefault } = req.body;
+    const { fullName, phone, addressLine1, addressLine2, landmark, city, district, state, pincode, isDefault } = req.body;
     
     if (isDefault) {
       user.addresses.forEach(addr => { addr.isDefault = false; });
@@ -461,6 +461,7 @@ export const addAddress = async (req, res, next) => {
       addressLine2,
       landmark,
       city,
+      district: district || '',
       state,
       pincode,
       isDefault: isDefault || user.addresses.length === 0
