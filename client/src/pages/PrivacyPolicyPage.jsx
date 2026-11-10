@@ -166,3 +166,4 @@ export const PrivacyPolicyPage = () => {
 };
 
 export default PrivacyPolicyPage;
+

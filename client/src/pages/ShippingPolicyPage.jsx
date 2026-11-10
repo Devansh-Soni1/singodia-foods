@@ -197,3 +197,4 @@ export const ShippingPolicyPage = () => {
 };
 
 export default ShippingPolicyPage;
+

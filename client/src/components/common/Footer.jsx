@@ -39,35 +39,38 @@ export const Footer = () => {
             {/* Social Media Channels */}
             <div className="pt-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-mustard block mb-2 font-sans">
-                Follow Us (सोशल मीडिया पर जुड़ें)
+                Follow Us (सोशल मीडिया)
               </span>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <a
                   href="https://www.instagram.com/singodiafoods?obrf=Y3l0aGw1enh2bTl6"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white font-bold text-xs hover:opacity-90 transition-all transform hover:-translate-y-0.5 shadow-xs"
+                  aria-label="Instagram"
+                  title="Follow us on Instagram (@singodiafoods)"
+                  className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center shadow-xs hover:scale-115 hover:shadow-md transition-all duration-200"
                 >
-                  <InstagramIcon className="w-3.5 h-3.5" />
-                  <span>Instagram</span>
+                  <InstagramIcon className="w-4 h-4" />
                 </a>
                 <a
                   href="https://youtube.com/@singodiafoods?si=a4PR1N-ItrTXdKgx"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FF0000] text-white font-bold text-xs hover:bg-[#d90000] transition-all transform hover:-translate-y-0.5 shadow-xs"
+                  aria-label="YouTube"
+                  title="Subscribe on YouTube (@singodiafoods)"
+                  className="w-8 h-8 rounded-full bg-[#FF0000] text-white flex items-center justify-center shadow-xs hover:bg-[#d90000] hover:scale-115 hover:shadow-md transition-all duration-200"
                 >
-                  <YouTubeIcon className="w-3.5 h-3.5" />
-                  <span>YouTube</span>
+                  <YouTubeIcon className="w-4 h-4" />
                 </a>
                 <a
                   href="https://www.facebook.com/share/1DTfda4oNd/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1877F2] text-white font-bold text-xs hover:bg-[#0d65d9] transition-all transform hover:-translate-y-0.5 shadow-xs"
+                  aria-label="Facebook"
+                  title="Follow us on Facebook (Singodia Foods)"
+                  className="w-8 h-8 rounded-full bg-[#1877F2] text-white flex items-center justify-center shadow-xs hover:bg-[#0d65d9] hover:scale-115 hover:shadow-md transition-all duration-200"
                 >
-                  <FacebookIcon className="w-3.5 h-3.5" />
-                  <span>Facebook</span>
+                  <FacebookIcon className="w-4 h-4" />
                 </a>
               </div>
             </div>

@@ -222,14 +222,85 @@ export const FeaturedTrialPackBanner = () => {
           </div>
 
           {/* -------------------------------------------------------- */}
-          {/* 2. MAIN 2-COLUMN SECTION: Product Cards (Left) + Bucket & Info (Right) */}
+          {/* 2. MAIN INTERACTIVE SECTION */}
+          {/* On Mobile: Header & Pack Selector (Order 1) -> Products Grid (Order 2) -> Bucket & Add to Cart (Order 3) */}
+          {/* On Desktop: Products Grid (Cols 1-7, Rows 1-2) | Header (Cols 8-12, Row 1) + Bucket & CTA (Cols 8-12, Row 2) */}
           {/* -------------------------------------------------------- */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center">
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-3.5 sm:gap-6 items-start">
 
             {/* ====================================================== */}
-            {/* LEFT SIDE (7 cols): 8 Compact Product Cards (4 cols x 2 rows) */}
+            {/* BLOCK 1: Title, Subtitle, 4/8 Pack Selector & Price Row */}
+            {/* (Mobile: Order 1, Desktop: Cols 8-12, Row 1) */}
             {/* ====================================================== */}
-            <div className="lg:col-span-7">
+            <div className="order-1 lg:order-2 lg:col-start-8 lg:col-span-5 lg:row-start-1 w-full flex flex-col justify-between">
+              {/* Heading & Subtitle */}
+              <div>
+                <h3 className="text-base sm:text-lg lg:text-xl font-extrabold text-[#832B0A] leading-tight font-serif">
+                  Not sure which <span className="text-brand-green underline decoration-wavy decoration-mustard">pickle</span> to try first?
+                </h3>
+                <p className="text-[11px] text-gray-600 font-medium mt-0.5">
+                  <span className="hidden lg:inline">Pick flavours on left</span>
+                  <span className="lg:hidden">Pick flavours below</span> — watch them drop into your bucket!
+                </p>
+              </div>
+
+              {/* Pack Selector (4, 8 Jars) & Price Row */}
+              <div className="my-2.5 p-2 bg-amber-50/80 rounded-xl border border-amber-200 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-1.5">
+                  <div className="flex items-center gap-1.5">
+                    {[4, 8].map((size) => {
+                      const isActive = packSize === size;
+                      return (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => handlePackChange(size)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                            isActive
+                              ? 'bg-[#832B0A] text-white shadow-xs scale-102 ring-2 ring-amber-400'
+                              : 'bg-white text-gray-800 border border-gray-200 hover:border-amber-400 hover:bg-amber-100/50'
+                          }`}
+                        >
+                          <span>{size} Pack Box</span>
+                          {size === 8 && (
+                            <span className={`text-[9px] font-black px-1.5 py-0.2 rounded uppercase ${
+                              isActive ? 'bg-amber-300 text-amber-950' : 'bg-amber-100 text-amber-800'
+                            }`}>
+                              All 8
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex items-baseline gap-1.5 shrink-0">
+                    <span className="text-lg sm:text-xl font-black text-[#D32F2F]">
+                      ₹{currentPricing.price}
+                    </span>
+                    <span className="text-xs text-gray-400 line-through font-semibold">
+                      ₹{currentPricing.originalPrice}
+                    </span>
+                    <span className="bg-[#D32F2F] text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">
+                      {currentPricing.discountPercent}% OFF
+                    </span>
+                  </div>
+                </div>
+
+                {packSize === 8 && selectedJars.length === 8 && (
+                  <div className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-md flex items-center justify-between">
+                    <span>✨ All 8 flavours auto-selected in bucket!</span>
+                    <span className="text-[9px] text-emerald-900 font-extrabold uppercase">Best Value</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ====================================================== */}
+            {/* BLOCK 2: 8 Compact Product Cards (4 cols x 2 rows) */}
+            {/* (Mobile: Order 2, Desktop: Cols 1-7, Rows 1-2) */}
+            {/* ====================================================== */}
+            <div className="order-2 lg:order-1 lg:col-start-1 lg:col-span-7 lg:row-start-1 lg:row-span-2 w-full">
               <div className="text-[11px] font-bold text-gray-700 mb-2 flex items-center justify-between">
                 <span>Tap any card to drop into bucket:</span>
                 <span className="text-[10px] font-black text-brand-green bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200">
@@ -312,74 +383,12 @@ export const FeaturedTrialPackBanner = () => {
             </div>
 
             {/* ====================================================== */}
-            {/* RIGHT SIDE (5 cols): Title, Price, REAL BUCKET & ADD TO CART */}
+            {/* BLOCK 3: REALISTIC BUCKET, TRAY & ADD TO CART CTA */}
+            {/* (Mobile: Order 3, Desktop: Cols 8-12, Row 2) */}
             {/* ====================================================== */}
-            <div className="lg:col-span-5 flex flex-col justify-between">
+            <div className="order-3 lg:order-3 lg:col-start-8 lg:col-span-5 lg:row-start-2 w-full flex flex-col justify-between">
               
-              {/* Heading & Subtitle */}
-              <div>
-                <h3 className="text-base sm:text-lg lg:text-xl font-extrabold text-[#832B0A] leading-tight font-serif">
-                  Not sure which <span className="text-brand-green underline decoration-wavy decoration-mustard">pickle</span> to try first?
-                </h3>
-                <p className="text-[11px] text-gray-600 font-medium mt-0.5">
-                  Pick flavours on left — watch them drop into your bucket!
-                </p>
-              </div>
-
-              {/* Pack Selector (4, 8 Jars) & Price Row */}
-              <div className="my-2.5 p-2 bg-amber-50/80 rounded-xl border border-amber-200 space-y-2">
-                <div className="flex flex-wrap items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1.5">
-                    {[4, 8].map((size) => {
-                      const isActive = packSize === size;
-                      return (
-                        <button
-                          key={size}
-                          type="button"
-                          onClick={() => handlePackChange(size)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
-                            isActive
-                              ? 'bg-[#832B0A] text-white shadow-xs scale-102 ring-2 ring-amber-400'
-                              : 'bg-white text-gray-800 border border-gray-200 hover:border-amber-400 hover:bg-amber-100/50'
-                          }`}
-                        >
-                          <span>{size} Pack Box</span>
-                          {size === 8 && (
-                            <span className={`text-[9px] font-black px-1.5 py-0.2 rounded uppercase ${
-                              isActive ? 'bg-amber-300 text-amber-950' : 'bg-amber-100 text-amber-800'
-                            }`}>
-                              All 8
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="flex items-baseline gap-1.5 shrink-0">
-                    <span className="text-lg sm:text-xl font-black text-[#D32F2F]">
-                      ₹{currentPricing.price}
-                    </span>
-                    <span className="text-xs text-gray-400 line-through font-semibold">
-                      ₹{currentPricing.originalPrice}
-                    </span>
-                    <span className="bg-[#D32F2F] text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">
-                      {currentPricing.discountPercent}% OFF
-                    </span>
-                  </div>
-                </div>
-
-                {packSize === 8 && selectedJars.length === 8 && (
-                  <div className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-md flex items-center justify-between">
-                    <span>✨ All 8 flavours auto-selected in bucket!</span>
-                    <span className="text-[9px] text-emerald-900 font-extrabold uppercase">Best Value</span>
-                  </div>
-                )}
-              </div>
-
-              {/* ==================================================== */}
               {/* REALISTIC SVG BUCKET (CART BUCKET WITH LIVE JARS) */}
-              {/* ==================================================== */}
               <div 
                 ref={bucketTargetRef}
                 className={`relative my-1 p-2 rounded-2xl bg-gradient-to-b from-amber-100/70 via-amber-50 to-orange-50/50 border-2 border-amber-300 shadow-sm transition-all duration-300 ${
@@ -450,7 +459,8 @@ export const FeaturedTrialPackBanner = () => {
                           🧺 Bucket is empty!
                         </span>
                         <span className="text-[9px] text-gray-500 block">
-                          Tap pickles on left to add
+                          <span className="hidden lg:inline">Tap pickles on left to add</span>
+                          <span className="lg:hidden">Tap pickles above to add</span>
                         </span>
                       </div>
                     ) : (

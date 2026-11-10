@@ -11,10 +11,10 @@ export const BestSellersSection = ({ products = [], onQuickView }) => {
     <section className="py-10 sm:py-14 bg-white border-b border-cream-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Section Heading: "SHOP HOMEMADE PICKLES ONLINE" */}
+        {/* Section Heading: "SHOP RAJASTHANI HOMEMADE ORGANIC PICKLES ONLINE" */}
         <div className="text-center mb-8 sm:mb-10">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-950 uppercase tracking-tight font-sans">
-            SHOP HOMEMADE PICKLES ONLINE
+            SHOP RAJASTHANI HOMEMADE ORGANIC PICKLES ONLINE
           </h2>
           <p className="text-xs sm:text-sm text-gray-500 mt-1 max-w-xl mx-auto">
             100% Traditional homemade recipes cured naturally under the sun.
