@@ -832,33 +832,42 @@ export const Navbar = ({ onOpenSearch }) => {
                 <span className="text-[11px] font-bold text-charcoal/70 uppercase tracking-wider block mb-2 text-center">
                   Follow Singodia Foods
                 </span>
-                <div className="flex items-center justify-center gap-3">
+                <div className="flex items-center justify-center gap-2">
                   <a
                     href="https://www.instagram.com/singodiafoods?obrf=Y3l0aGw1enh2bTl6"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Instagram"
-                    className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center shadow-xs hover:opacity-90 transition-opacity"
+                    className="group inline-flex items-center h-8 px-2 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden hover:pr-3 cursor-pointer"
                   >
-                    <InstagramIcon className="w-4 h-4" />
+                    <InstagramIcon className="w-4 h-4 shrink-0" />
+                    <span className="max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 group-hover:ml-1.5 transition-all duration-300 ease-out whitespace-nowrap text-xs font-bold pointer-events-none">
+                      Instagram
+                    </span>
                   </a>
                   <a
                     href="https://youtube.com/@singodiafoods?si=a4PR1N-ItrTXdKgx"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="YouTube"
-                    className="w-9 h-9 rounded-xl bg-[#FF0000] text-white flex items-center justify-center shadow-xs hover:bg-[#d90000] transition-colors"
+                    className="group inline-flex items-center h-8 px-2 rounded-full bg-[#FF0000] text-white shadow-xs hover:bg-[#d90000] hover:shadow-md transition-all duration-300 overflow-hidden hover:pr-3 cursor-pointer"
                   >
-                    <YouTubeIcon className="w-4 h-4" />
+                    <YouTubeIcon className="w-4 h-4 shrink-0" />
+                    <span className="max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 group-hover:ml-1.5 transition-all duration-300 ease-out whitespace-nowrap text-xs font-bold pointer-events-none">
+                      YouTube
+                    </span>
                   </a>
                   <a
                     href="https://www.facebook.com/share/1DTfda4oNd/"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Facebook"
-                    className="w-9 h-9 rounded-xl bg-[#1877F2] text-white flex items-center justify-center shadow-xs hover:bg-[#0d65d9] transition-colors"
+                    className="group inline-flex items-center h-8 px-2 rounded-full bg-[#1877F2] text-white shadow-xs hover:bg-[#0d65d9] hover:shadow-md transition-all duration-300 overflow-hidden hover:pr-3 cursor-pointer"
                   >
-                    <FacebookIcon className="w-4 h-4" />
+                    <FacebookIcon className="w-4 h-4 shrink-0" />
+                    <span className="max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 group-hover:ml-1.5 transition-all duration-300 ease-out whitespace-nowrap text-xs font-bold pointer-events-none">
+                      Facebook
+                    </span>
                   </a>
                 </div>
               </div>
