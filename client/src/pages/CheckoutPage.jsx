@@ -222,12 +222,12 @@ export const CheckoutPage = () => {
         if (pinData && pinData.state) {
           setFormData(prev => ({
             ...prev,
-            city: prev.city || pinData.area || pinData.district || '',
+            city: pinData.city || prev.city || '',
             district: pinData.district || prev.district || '',
             state: pinData.state,
-            landmark: prev.landmark || pinData.area || ''
+            landmark: prev.landmark || ''
           }));
-          setPincodeStatus(`✓ ${pinData.district}, ${pinData.state}`);
+          setPincodeStatus(`✓ ${pinData.city || pinData.district}, ${pinData.district} (${pinData.state})`);
         } else {
           setPincodeStatus('');
         }

@@ -48,12 +48,12 @@ export const AddressSelectModal = ({
         if (details && details.state) {
           setNewAddr(prev => ({
             ...prev,
-            city: prev.city || details.area || details.district || '',
+            city: details.city || prev.city || '',
             district: details.district || prev.district || '',
             state: details.state,
-            landmark: prev.landmark || details.area || ''
+            landmark: prev.landmark || ''
           }));
-          setPincodeMessage(`✓ ${details.district}, ${details.state}`);
+          setPincodeMessage(`✓ ${details.city || details.district}, ${details.district} (${details.state})`);
         } else {
           setPincodeMessage('');
         }

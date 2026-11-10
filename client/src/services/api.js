@@ -464,11 +464,59 @@ export const shippingAPI = {
       const res = await fetch(`https://api.postalpincode.in/pincode/${cleanPin}`);
       const data = await res.json();
       if (Array.isArray(data) && data[0]?.Status === 'Success' && data[0]?.PostOffice?.length > 0) {
-        const po = data[0].PostOffice[0];
+        const offices = data[0].PostOffice;
+        const first = offices[0];
+        const district = (first.District || '').trim();
+        const state = (first.State || '').trim();
+
+        // Extract valid block/tehsil names (excluding placeholder values)
+        const validBlocks = [...new Set(offices.map(o => (o.Block || '').trim()).filter(b => b && !['NA', 'N/A', 'N.A.'].includes(b.toUpperCase())))];
+        const primaryBlock = validBlocks[0] || '';
+
+        // Priority 1: Head Post Office / Sub Post Office (NOT rural Branch Post Office)
+        const mainOffices = offices.filter(o => o.BranchType && !o.BranchType.toLowerCase().includes('branch'));
+        const deliveryMainOffices = mainOffices.filter(o => o.DeliveryStatus === 'Delivery');
+
+        // Check if there is a main office explicitly matching the Block or District name
+        const exactBlockOrDistrictMatch = mainOffices.find(o => 
+          primaryBlock && o.Name.toLowerCase() === primaryBlock.toLowerCase()
+        ) || mainOffices.find(o => 
+          district && o.Name.toLowerCase() === district.toLowerCase()
+        );
+
+        // Or delivery main office matching block, or any delivery main office
+        const deliveryMain = deliveryMainOffices.find(o => 
+          primaryBlock && o.Name.toLowerCase() === primaryBlock.toLowerCase()
+        ) || deliveryMainOffices[0];
+
+        const anyMain = mainOffices[0];
+
+        let chosenName = '';
+        if (exactBlockOrDistrictMatch) {
+          chosenName = exactBlockOrDistrictMatch.Name;
+        } else if (deliveryMain) {
+          chosenName = deliveryMain.Name;
+        } else if (anyMain) {
+          chosenName = anyMain.Name;
+        } else if (primaryBlock) {
+          chosenName = primaryBlock;
+        } else {
+          chosenName = district;
+        }
+
+        // Clean suffixes like S.O, B.O, H.O, G.P.O, LSG, etc.
+        let cleanCity = chosenName
+          .replace(/\s+(H\.O|Head Office|G\.P\.O|GPO|S\.O|SO|B\.O|BO|RS|R\.S\.|G\.G\.|LSG|L\.S\.G\.|MDG|M\.D\.G\.)(\s|$)/gi, ' ')
+          .replace(/\s*\([^)]*\)/g, '')
+          .trim();
+
+        if (!cleanCity) cleanCity = primaryBlock || district;
+
         return {
-          district: po.District || '',
-          state: po.State || '',
-          area: po.Name || '',
+          city: cleanCity,
+          district: district || cleanCity,
+          state: state,
+          area: cleanCity,
           pincode: cleanPin
         };
       }
