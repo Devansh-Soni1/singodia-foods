@@ -128,8 +128,8 @@ export const deleteCustomer = async (req, res, next) => {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      const singleAdminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase().trim();
-      if (user.role === 'admin' || user.email?.toLowerCase().trim() === singleAdminEmail) {
+      const singleAdminEmail = (process.env.ADMIN_EMAIL || 'admin@singodiafoods.com').toLowerCase().trim();
+      if (user.role === 'admin' || user.email?.toLowerCase().trim() === singleAdminEmail || user.email?.toLowerCase().trim() === 'admin@singodhiafoods.com') {
         return res.status(403).json({ success: false, message: 'Cannot delete the store administrator account.' });
       }
 
@@ -275,7 +275,7 @@ export const testTelegramAlert = async (req, res) => {
   try {
     const { sendTelegramMessage } = await import('../services/telegramService.js');
     const testMsg = `
-🔔 <b>Singodhia Foods — Telegram Alert Test</b>
+🔔 <b>Singodia Foods — Telegram Alert Test</b>
 ━━━━━━━━━━━━━━━━━━
 ✅ आपका Telegram Bot सफलतापूर्वक कनेक्ट हो चुका है!
 अब सभी नए ऑर्डर और ग्राहकों के लाइव अलर्ट्स आपको तुरंत इस चैट में प्राप्त होंगे।

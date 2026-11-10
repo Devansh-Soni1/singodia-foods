@@ -10,13 +10,13 @@ export const AboutPage = () => {
         {/* Story Hero */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-xs font-bold text-mustard-dark uppercase tracking-widest block mb-2">
-            The Singodhia Heritage • जयपुर का पारंपरिक स्वाद
+            The Singodia Heritage • जयपुर का पारंपरिक स्वाद
           </span>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-[#1E4334] font-serif leading-tight">
             Reviving the Lost Art of Desi Homemade Pickling
           </h1>
           <p className="text-sm sm:text-base text-earth-brown mt-4 leading-relaxed">
-            Born in the historic courtyards of Jaipur, Rajasthan in 1984, Singodhia Foods was founded on a simple family principle: 
+            Born in the historic courtyards of Jaipur, Rajasthan in 1984, Singodia Foods was founded on a simple family principle: 
             <strong> real achar requires patience, authentic sunlight, and pure traditional recipes—never chemical preservatives.</strong>
           </p>
         </div>
@@ -43,7 +43,7 @@ export const AboutPage = () => {
               Ceramic martabans wrapped with red muslin cloths were aligned across the white terrace in rows to bask in the intense Rajasthani sunshine for weeks. That slow, gentle sun-curing gave the pickle an extraordinary aroma that filled the entire lane.
             </p>
             <p>
-              When commercial brands took over the markets with artificial synthetic vinegar (acetic acid) and mechanical blending, the true soul of Indian pickles was lost. We created Singodhia Foods to preserve that endangered heirloom tradition.
+              When commercial brands took over the markets with artificial synthetic vinegar (acetic acid) and mechanical blending, the true soul of Indian pickles was lost. We created Singodia Foods to preserve that endangered heirloom tradition.
             </p>
           </div>
         </div>

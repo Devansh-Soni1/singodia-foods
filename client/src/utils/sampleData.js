@@ -595,7 +595,7 @@ export const SAMPLE_REVIEWS = [
     reviewerName: 'Rohit Agrawal',
     rating: 5,
     title: 'Kair Sangri pickle is unbelievable',
-    comment: 'Real Kair Sangri is so hard to find outside Rajasthan. Singodhia Foods has nailed the authentic royal taste. The mustard oil aroma is fresh and pure.',
+    comment: 'Real Kair Sangri is so hard to find outside Rajasthan. Singodia Foods has nailed the authentic royal taste. The mustard oil aroma is fresh and pure.',
     location: 'Gurugram, Haryana',
     date: '1 week ago',
     isVerifiedBuyer: true
@@ -624,7 +624,7 @@ export const SAMPLE_REVIEWS = [
 
 export const SAMPLE_FAQS = [
   {
-    q: 'How are Singodhia Foods pickles prepared?',
+    q: 'How are Singodia Foods pickles prepared?',
     a: 'All our pickles are prepared strictly by hand in small artisan batches using heritage family recipes from Rajasthan. We use 100% natural spices, pure traditional oil, and mature them naturally under sunlight in traditional ceramic barnis (martabans).'
   },
   {

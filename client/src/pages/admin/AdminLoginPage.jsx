@@ -158,7 +158,7 @@ export const AdminLoginPage = () => {
             <ShieldCheck className="w-9 h-9" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-serif text-white">
-            Singodhia Foods
+            Singodia Foods
           </h1>
           <p className="text-xs text-amber-300 font-bold uppercase tracking-widest mt-1">
             Admin Control Center • 2-Factor Security
@@ -350,7 +350,7 @@ export const AdminLoginPage = () => {
           {/* Quick Credential Hint for the Administrator */}
           <div className="mt-5 pt-4 border-t border-emerald-800/60 text-center">
             <p className="text-[11px] text-emerald-300/80">
-              सुरक्षित 2FA एडमिन लॉगिन • Singodhia Foods Rajasthan
+              सुरक्षित 2FA एडमिन लॉगिन • Singodia Foods Rajasthan
             </p>
           </div>
         </div>
@@ -362,7 +362,7 @@ export const AdminLoginPage = () => {
             className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-300/80 hover:text-white transition-colors"
           >
             <Store className="w-4 h-4" />
-            <span>Return to Singodhia Foods Storefront</span>
+            <span>Return to Singodia Foods Storefront</span>
           </Link>
         </div>
 

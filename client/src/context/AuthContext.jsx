@@ -10,16 +10,19 @@ const ADMIN_INACTIVITY_LIMIT_MS = 15 * 60 * 1000;
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     try {
-      const savedUser = localStorage.getItem('singodhia_user');
+      const savedUser = localStorage.getItem('singodia_user') || localStorage.getItem('singodhia_user');
       return savedUser ? JSON.parse(savedUser) : null;
     } catch {
       return null;
     }
   });
-  const [token, setToken] = useState(localStorage.getItem('singodhia_token') || null);
+  const [token, setToken] = useState(localStorage.getItem('singodia_token') || localStorage.getItem('singodhia_token') || null);
   const [loading, setLoading] = useState(!user);
 
   const logout = () => {
+    localStorage.removeItem('singodia_token');
+    localStorage.removeItem('singodia_user');
+    localStorage.removeItem('singodia_admin_last_activity');
     localStorage.removeItem('singodhia_token');
     localStorage.removeItem('singodhia_user');
     localStorage.removeItem('singodhia_admin_last_activity');
@@ -45,13 +48,13 @@ export const AuthProvider = ({ children }) => {
     };
 
     const resetTimer = () => {
-      localStorage.setItem('singodhia_admin_last_activity', Date.now().toString());
+      localStorage.setItem('singodia_admin_last_activity', Date.now().toString());
       if (timeoutId) clearTimeout(timeoutId);
       timeoutId = setTimeout(performAutoLogout, ADMIN_INACTIVITY_LIMIT_MS);
     };
 
     // Check if session has already expired while browser or tab was inactive/asleep
-    const lastActivity = Number(localStorage.getItem('singodhia_admin_last_activity') || Date.now());
+    const lastActivity = Number(localStorage.getItem('singodia_admin_last_activity') || localStorage.getItem('singodhia_admin_last_activity') || Date.now());
     if (Date.now() - lastActivity > ADMIN_INACTIVITY_LIMIT_MS) {
       performAutoLogout();
       return;
@@ -74,7 +77,7 @@ export const AuthProvider = ({ children }) => {
 
     // Periodic check every 15 seconds (handles tab wake-up and laptop sleep)
     const intervalId = setInterval(() => {
-      const currentLast = Number(localStorage.getItem('singodhia_admin_last_activity') || Date.now());
+      const currentLast = Number(localStorage.getItem('singodia_admin_last_activity') || localStorage.getItem('singodhia_admin_last_activity') || Date.now());
       if (Date.now() - currentLast > ADMIN_INACTIVITY_LIMIT_MS) {
         performAutoLogout();
       }
@@ -94,7 +97,7 @@ export const AuthProvider = ({ children }) => {
           const res = await authAPI.getProfile();
           if (res.user) {
             setUser(res.user);
-            localStorage.setItem('singodhia_user', JSON.stringify(res.user));
+            localStorage.setItem('singodia_user', JSON.stringify(res.user));
           }
         } catch (err) {
           console.warn('Profile fetch notice:', err.message || err);
@@ -111,10 +114,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password, loginType = 'customer') => {
     const res = await authAPI.login({ email, password, loginType });
     if (res.token) {
-      localStorage.setItem('singodhia_token', res.token);
-      localStorage.setItem('singodhia_user', JSON.stringify(res.user));
+      localStorage.setItem('singodia_token', res.token);
+      localStorage.setItem('singodia_user', JSON.stringify(res.user));
       if (res.user?.role === 'admin') {
-        localStorage.setItem('singodhia_admin_last_activity', Date.now().toString());
+        localStorage.setItem('singodia_admin_last_activity', Date.now().toString());
       }
       setToken(res.token);
       setUser(res.user);
@@ -129,10 +132,10 @@ export const AuthProvider = ({ children }) => {
   const adminVerifyOtp = async (password, otp) => {
     const res = await authAPI.adminVerifyOtp({ password, otp });
     if (res.token) {
-      localStorage.setItem('singodhia_token', res.token);
-      localStorage.setItem('singodhia_user', JSON.stringify(res.user));
+      localStorage.setItem('singodia_token', res.token);
+      localStorage.setItem('singodia_user', JSON.stringify(res.user));
       if (res.user?.role === 'admin') {
-        localStorage.setItem('singodhia_admin_last_activity', Date.now().toString());
+        localStorage.setItem('singodia_admin_last_activity', Date.now().toString());
       }
       setToken(res.token);
       setUser(res.user);
@@ -143,8 +146,8 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password, phone) => {
     const res = await authAPI.register({ name, email, password, phone });
     if (res.token) {
-      localStorage.setItem('singodhia_token', res.token);
-      localStorage.setItem('singodhia_user', JSON.stringify(res.user));
+      localStorage.setItem('singodia_token', res.token);
+      localStorage.setItem('singodia_user', JSON.stringify(res.user));
       setToken(res.token);
       setUser(res.user);
     }
@@ -154,8 +157,8 @@ export const AuthProvider = ({ children }) => {
   const googleLogin = async (credential) => {
     const res = await authAPI.googleLogin({ credential });
     if (res.token) {
-      localStorage.setItem('singodhia_token', res.token);
-      localStorage.setItem('singodhia_user', JSON.stringify(res.user));
+      localStorage.setItem('singodia_token', res.token);
+      localStorage.setItem('singodia_user', JSON.stringify(res.user));
       setToken(res.token);
       setUser(res.user);
     }
@@ -166,7 +169,7 @@ export const AuthProvider = ({ children }) => {
     const res = await authAPI.updateProfile(data);
     if (res.user) {
       setUser(res.user);
-      localStorage.setItem('singodhia_user', JSON.stringify(res.user));
+      localStorage.setItem('singodia_user', JSON.stringify(res.user));
     }
     return res;
   };

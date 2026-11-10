@@ -35,7 +35,7 @@ export const AdminLayout = () => {
           >
             {mobileSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
-          <span className="font-bold text-sm">Singodhia Admin</span>
+          <span className="font-bold text-sm">Singodia Admin</span>
         </div>
         <Link to="/" className="text-xs text-mustard font-bold flex items-center gap-1">
           <ArrowLeft className="w-3.5 h-3.5" /> Store

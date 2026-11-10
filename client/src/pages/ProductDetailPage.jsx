@@ -603,7 +603,7 @@ export const ProductDetailPage = () => {
 
                 {reviewSubmitted ? (
                   <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
-                    Thank you! Your review has been submitted and shared with the Singodhia Foods team.
+                    Thank you! Your review has been submitted and shared with the Singodia Foods team.
                   </div>
                 ) : (
                   <form onSubmit={handleReviewSubmit} className="space-y-4">

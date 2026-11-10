@@ -48,10 +48,10 @@ export const WhyChooseSection = () => {
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <span className="text-xs font-bold text-mustard-dark uppercase tracking-widest block mb-2">
-            The Singodhia Standard
+            The Singodia Standard
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-charcoal font-serif">
-            Why Choose Singodhia Foods?
+            Why Choose Singodia Foods?
           </h2>
           <p className="text-xs sm:text-sm text-earth-brown mt-2">
             Because a real Indian meal deserves real homemade achar, not industrial processed mass production.

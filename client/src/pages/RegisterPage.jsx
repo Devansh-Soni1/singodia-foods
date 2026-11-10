@@ -14,7 +14,7 @@ export const RegisterPage = () => {
           <Link to="/" className="inline-flex items-center justify-center gap-2 mb-3 group">
             <img 
               src={siteLogo} 
-              alt="Singodhia Foods" 
+              alt="Singodia Foods" 
               className="h-24 sm:h-28 w-auto mx-auto object-contain drop-shadow-sm transition-transform group-hover:scale-105" 
               onError={(e) => { e.target.src = '/logo.png'; }} 
             />

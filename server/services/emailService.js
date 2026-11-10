@@ -1,9 +1,9 @@
 // server/services/emailService.js
-// Automated Email Notifications via Resend API for Singodhia Foods
+// Automated Email Notifications via Resend API for Singodia Foods
 // Aesthetic: Royal Rajasthani Heritage • Refined English with Authentic Marwadi Touches
 
 const RESEND_API_URL = 'https://api.resend.com/emails';
-const STORE_NAME = 'Singodhia Foods';
+const STORE_NAME = 'Singodia Foods';
 const STORE_URL = 'https://singodiafoodstore.in';
 const STORE_PHONE = '+91 75979 66707';
 
@@ -22,8 +22,8 @@ export const sendEmail = async ({ to, subject, html, text }) => {
     return { success: false, message: 'Missing recipient' };
   }
 
-  const primaryFrom = process.env.RESEND_FROM_EMAIL || 'Singodhia Foods <orders@singodiafoodstore.in>';
-  const fallbackFrom = 'Singodhia Foods <onboarding@resend.dev>';
+  const primaryFrom = process.env.RESEND_FROM_EMAIL || 'Singodia Foods <orders@singodiafoodstore.in>';
+  const fallbackFrom = 'Singodia Foods <onboarding@resend.dev>';
 
   const attemptSend = async (fromAddress) => {
     const payload = {
@@ -80,7 +80,7 @@ const wrapTemplate = (contentHtml, previewText = '') => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Singodhia Foods — Royal Rajasthani Heritage</title>
+  <title>Singodia Foods — Royal Rajasthani Heritage</title>
   <style>
     body { margin: 0; padding: 0; background-color: #FAF5EB; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #2B2118; -webkit-font-smoothing: antialiased; }
     .wrapper { max-width: 600px; margin: 30px auto; background: #FFFFFF; border-radius: 20px; overflow: hidden; border: 1px solid #EADBCA; box-shadow: 0 10px 30px rgba(135,43,0,0.08); }
@@ -108,7 +108,7 @@ const wrapTemplate = (contentHtml, previewText = '') => {
     <div class="royal-header">
       <div class="heritage-badge">Authentic Marwari Heritage</div>
       <div style="font-size: 32px; line-height: 1; margin-bottom: 6px;">🏺</div>
-      <h1 class="brand-title">Singodhia Foods</h1>
+      <h1 class="brand-title">Singodia Foods</h1>
       <p class="brand-subtitle">Handcrafted Artisanal Pickles • Rajasthan</p>
     </div>
 
@@ -120,7 +120,7 @@ const wrapTemplate = (contentHtml, previewText = '') => {
     <!-- Royal Footer -->
     <div class="royal-footer">
       <div style="font-size: 16px; margin-bottom: 4px;">✦ ✦ ✦</div>
-      <p style="margin: 0 0 6px; font-weight: 700; color: #4D1800; font-size: 13px;">Singodhia Foods — Traditional Pickles Handcrafted in Sujangarh</p>
+      <p style="margin: 0 0 6px; font-weight: 700; color: #4D1800; font-size: 13px;">Singodia Foods — Traditional Pickles Handcrafted in Sujangarh</p>
       <p style="margin: 0 0 10px; color: #6E5A47;">Sun-cured in ceramic martabans • Pure traditional recipes • Zero chemical preservatives</p>
       <div class="seal-text">Sujangarh, Churu, Rajasthan (331507) • Customer Care: <a href="tel:${STORE_PHONE}">${STORE_PHONE}</a></div>
       <p style="margin: 12px 0 0;"><a href="${STORE_URL}">${STORE_URL}</a></p>
@@ -143,7 +143,7 @@ export const sendWelcomeEmail = async (user) => {
   const html = wrapTemplate(`
     <div style="text-align: center; margin-bottom: 24px;">
       <div class="greeting">Khamma Ghani ${userName} Sa! 🙏</div>
-      <p style="margin: 0; color: #6E5A47; font-size: 14px;">A warm royal welcome to the Singodhia Foods family.</p>
+      <p style="margin: 0; color: #6E5A47; font-size: 14px;">A warm royal welcome to the Singodia Foods family.</p>
     </div>
 
     <p style="font-size: 14px; margin-bottom: 18px;">
@@ -153,7 +153,7 @@ export const sendWelcomeEmail = async (user) => {
     <!-- Heritage Highlights -->
     <div class="parchment-card" style="padding: 22px 24px;">
       <div style="font-family: 'Playfair Display', Georgia, serif; font-size: 15px; font-weight: 700; color: #7A2600; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px;">
-        The Singodhia Heritage Promise:
+        The Singodia Heritage Promise:
       </div>
       <div style="font-size: 13px; color: #4A3A2C; line-height: 1.8;">
         <div style="margin-bottom: 8px;">✦ <strong>Sun-Cured in Ceramic Barnis:</strong> Slowly cured under the warm desert sun in authentic glazed earthen martabans.</div>
@@ -176,11 +176,11 @@ export const sendWelcomeEmail = async (user) => {
     <p style="font-size: 12px; color: #8F7660; text-align: center; margin-top: 24px;">
       Need personal flavor recommendations? Call or WhatsApp our artisanal kitchen directly at <a href="tel:${STORE_PHONE}" style="color: #7A2600; font-weight: 700;">${STORE_PHONE}</a>.
     </p>
-  `, 'Khamma Ghani Sa! Welcome to Singodhia Foods — Authentic Rajasthani Pickles.');
+  `, 'Khamma Ghani Sa! Welcome to Singodia Foods — Authentic Rajasthani Pickles.');
 
   return sendEmail({
     to: user.email,
-    subject: `Khamma Ghani Sa! Welcome to Singodhia Foods 🏺 (Authentic Rajasthani Heritage)`,
+    subject: `Khamma Ghani Sa! Welcome to Singodia Foods 🏺 (Authentic Rajasthani Heritage)`,
     html
   });
 };
@@ -290,7 +290,7 @@ export const sendOrderConfirmationEmail = async (order) => {
 
   return sendEmail({
     to: order.customer.email,
-    subject: `Order Confirmed #${orderNumber} | Singodhia Foods (Handcrafted in Rajasthan)`,
+    subject: `Order Confirmed #${orderNumber} | Singodia Foods (Handcrafted in Rajasthan)`,
     html
   });
 };
@@ -347,7 +347,7 @@ export const sendOrderDeliveredEmail = async (order) => {
 
   return sendEmail({
     to: order.customer.email,
-    subject: `Padharo Sa! Your Pickles Have Arrived (#${orderNumber}) — Singodhia Foods`,
+    subject: `Padharo Sa! Your Pickles Have Arrived (#${orderNumber}) — Singodia Foods`,
     html
   });
 };

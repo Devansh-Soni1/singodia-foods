@@ -1,5 +1,5 @@
 // server/services/telegramService.js
-// Instant Telegram Bot Notifications for Singodhia Foods
+// Instant Telegram Bot Notifications for Singodia Foods
 // Dispatches alerts on New Orders, Customer Signups, etc.
 
 const TELEGRAM_API_BASE = 'https://api.telegram.org';

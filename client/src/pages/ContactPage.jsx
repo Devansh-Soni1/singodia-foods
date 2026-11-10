@@ -19,7 +19,7 @@ export const ContactPage = () => {
             हमसे संपर्क करें
           </span>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-charcoal font-serif">
-            Get in Touch With Singodhia Foods
+            Get in Touch With Singodia Foods
           </h1>
           <p className="text-xs sm:text-sm text-earth-brown mt-2">
             Have a question about our ingredients, custom wedding hampers, or order status? We are always happy to help!
@@ -76,7 +76,7 @@ export const ContactPage = () => {
               {/* Direct WhatsApp CTA */}
               <div className="pt-4 border-t border-cream-100">
                 <a
-                  href="https://wa.me/917597966707?text=Hello%20Singodhia%20Foods%2C%20I%20have%20an%20inquiry%20regarding%20products%20and%20orders."
+                  href="https://wa.me/917597966707?text=Hello%20Singodia%20Foods%2C%20I%20have%20an%20inquiry%20regarding%20products%20and%20orders."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full py-3.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"

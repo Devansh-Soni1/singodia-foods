@@ -1,7 +1,7 @@
 {
-  "name": "singodhia-foods-server",
+  "name": "singodia-foods-server",
   "version": "1.0.0",
-  "description": "Backend API for Singodhia Foods - Desi Homemade Pickles E-commerce",
+  "description": "Backend API for Singodia Foods - Desi Homemade Pickles E-commerce",
   "main": "server.js",
   "type": "module",
   "scripts": {

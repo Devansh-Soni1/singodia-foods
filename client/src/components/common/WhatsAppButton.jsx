@@ -32,7 +32,7 @@ export const WhatsAppButton = ({ phoneNumber = '917597966707' }) => {
     !location.pathname.startsWith('/admin');
 
   const issueMessage = encodeURIComponent(
-    'Hello Singodhia Foods, I have an inquiry regarding products and orders.'
+    'Hello Singodia Foods, I have an inquiry regarding products and orders.'
   );
   const whatsappUrl = `https://wa.me/${activeNumber}?text=${issueMessage}`;
 

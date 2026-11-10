@@ -8,7 +8,7 @@ export const WishlistProvider = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const [wishlist, setWishlist] = useState(() => {
     try {
-      const saved = localStorage.getItem('singodhia_wishlist');
+      const saved = localStorage.getItem('singodia_wishlist') || localStorage.getItem('singodhia_wishlist');
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
       return [];
@@ -17,7 +17,7 @@ export const WishlistProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      localStorage.setItem('singodhia_wishlist', JSON.stringify(wishlist));
+      localStorage.setItem('singodia_wishlist', JSON.stringify(wishlist));
     } catch (e) {
       console.error(e);
     }

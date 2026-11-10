@@ -359,7 +359,7 @@ export const AdminProducts = () => {
             <h1 className="text-2xl font-bold text-gray-900 font-serif">Pickle Products Catalog</h1>
           </div>
           <p className="text-xs text-gray-600 mt-1.5 max-w-2xl leading-relaxed">
-            Upload new homemade pickles with photos from your phone/laptop, set prices for 250g/500g/1kg jars, manage stock, and highlight bestsellers for <strong>Singodhia Foods</strong>.
+            Upload new homemade pickles with photos from your phone/laptop, set prices for 250g/500g/1kg jars, manage stock, and highlight bestsellers for <strong>Singodia Foods</strong>.
           </p>
         </div>
 

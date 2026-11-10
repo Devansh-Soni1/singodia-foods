@@ -35,7 +35,7 @@ export const OffersAndNewsletter = () => {
             </h2>
 
             <p className="text-xs sm:text-sm text-cream-200/90 leading-relaxed max-w-lg mx-auto lg:mx-0">
-              Subscribe to the Singodhia Family Newsletter for secret seasonal recipes, festival harvest hampers, and exclusive coupon codes.
+              Subscribe to the Singodia Family Newsletter for secret seasonal recipes, festival harvest hampers, and exclusive coupon codes.
             </p>
 
             {/* Promo Code Box */}
@@ -59,7 +59,7 @@ export const OffersAndNewsletter = () => {
                 </div>
                 <h4 className="text-base font-bold text-white font-serif">You are Subscribed!</h4>
                 <p className="text-xs text-cream-200">
-                  Welcome to the Singodhia family! Your 10% off code <strong>DESI10</strong> is ready to use at checkout.
+                  Welcome to the Singodia family! Your 10% off code <strong>DESI10</strong> is ready to use at checkout.
                 </p>
               </div>
             ) : (

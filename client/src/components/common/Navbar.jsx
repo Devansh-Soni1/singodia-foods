@@ -800,7 +800,7 @@ export const Navbar = ({ onOpenSearch }) => {
               )}
 
               <a
-                href="https://wa.me/917597966707?text=Hello%20Singodhia%20Foods%2C%20I%20have%20an%20inquiry%20regarding%20products%20and%20orders."
+                href="https://wa.me/917597966707?text=Hello%20Singodia%20Foods%2C%20I%20have%20an%20inquiry%20regarding%20products%20and%20orders."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 py-2.5 text-xs font-bold bg-[#25D366] text-white rounded-xl shadow-xs"

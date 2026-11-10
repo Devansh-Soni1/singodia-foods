@@ -1,9 +1,9 @@
-# Singodhia Foods — Desi Homemade Pickles E-commerce Platform
+# Singodia Foods — Desi Homemade Pickles E-commerce Platform
 *(स्वाद घर जैसा, परंपरा राजस्थान की)*
 
-![Singodhia Foods Logo](client/public/logo.svg)
+![Singodia Foods Logo](client/public/logo.svg)
 
-A complete, modern, premium, mobile-responsive e-commerce platform built for **Singodhia Foods**, an authentic Indian homemade pickle brand rooted in 40 years of Rajasthani culinary heritage.
+A complete, modern, premium, mobile-responsive e-commerce platform built for **Singodia Foods**, an authentic Indian homemade pickle brand rooted in 40 years of Rajasthani culinary heritage.
 
 Inspired by traditional D2C food brands (like FarmDidi), the website reflects an earthy, traditional, artisanal aesthetic: warm cream and off-white backgrounds, deep brand green, golden mustard yellow accents, terracotta chili red callouts, and glazed ceramic martaban (barni) imagery.
 
@@ -26,7 +26,7 @@ Inspired by traditional D2C food brands (like FarmDidi), the website reflects an
 - **Our Homemade Promise Section:** Narrative story explaining sun-curing in glazed martabans under Rajasthan sunlight.
 - **Featured Combo Packs & Hampers:** Curated gift hampers including *Dadi's Special Trial Box (5 Mini Barni Jars)* and *Rajasthani Shahi Martaban Hamper (Ceramic Barnis + Brass Spoon)*.
 - **"Build Your Own Pickle Combo" Tool (`/build-combo`):** Interactive custom box builder where customers choose box size (3 or 4 jars) and pick their favorite pickles into visual slots with bundle discounts.
-- **Why Choose Singodhia Foods:** 6 detailed brand standard pillars.
+- **Why Choose Singodia Foods:** 6 detailed brand standard pillars.
 - **How to Enjoy Our Pickles:** Authentic Indian meal pairing guides (Crispy Parathas, Dal-Chawal, Khichdi, Dal Baati).
 - **Customer Reviews & Testimonials:** Genuine buyer experiences with star ratings and regional locations (Jaipur, Delhi, Gurugram, Bengaluru).
 - **Welcome Offers & Newsletter:** 10% instant discount voucher coupon form.
@@ -100,7 +100,7 @@ Inspired by traditional D2C food brands (like FarmDidi), the website reflects an
 ## 📂 Project Structure
 
 ```
-singodhia-foods/
+singodia-foods/
 ├── client/
 │   ├── public/
 │   │   ├── logo.svg
@@ -212,10 +212,10 @@ singodhia-foods/
    ```env
    PORT=5000
    NODE_ENV=development
-   MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/singodhia_foods?retryWrites=true&w=majority
-   JWT_SECRET=singodhia_super_secret_jwt_key_2026_rajasthan
-   ADMIN_EMAIL=admin@singodhiafoods.com
-   ADMIN_PASSWORD=Admin@Singodhia2026
+   MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/singodia_foods?retryWrites=true&w=majority
+   JWT_SECRET=singodia_super_secret_jwt_key_2026_rajasthan
+   ADMIN_EMAIL=admin@singodiafoods.com
+   ADMIN_PASSWORD=Admin@Singodia2026
    RAZORPAY_KEY_ID=rzp_test_placeholder_key
    RAZORPAY_KEY_SECRET=rzp_test_placeholder_secret
    ```
@@ -253,7 +253,7 @@ singodhia-foods/
 
 | Role | Email | Password | Access |
 |---|---|---|---|
-| **Admin** | `admin@singodhiafoods.com` | `Admin@Singodhia2026` | Full Admin Dashboard (`/admin`), Product Editing, Order Management |
+| **Admin** | `admin@singodiafoods.com` | `Admin@Singodia2026` | Full Admin Dashboard (`/admin`), Product Editing, Order Management |
 | **Customer** | `customer@example.com` | `Password123` | Storefront browsing, Cart, Checkout, Order History |
 
 ---
@@ -288,5 +288,5 @@ To enable live or test payments with Razorpay:
 ---
 
 ## 📜 License
-Crafted for **Singodhia Foods** — Desi Homemade Pickles. Handcrafted in Rajasthan, India. All rights reserved.
+Crafted for **Singodia Foods** — Desi Homemade Pickles. Handcrafted in Rajasthan, India. All rights reserved.
 

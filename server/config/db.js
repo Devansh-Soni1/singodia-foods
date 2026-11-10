@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 export const connectDB = async () => {
   try {
-    const connUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/singodhia_foods';
+    const connUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/singodia_foods';
     console.log(`Connecting to MongoDB at: ${connUri.includes('@') ? connUri.split('@')[1] : connUri}...`);
     
     const conn = await mongoose.connect(connUri, {

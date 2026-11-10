@@ -8,7 +8,7 @@ const CartContext = createContext(null);
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
     try {
-      const saved = localStorage.getItem('singodhia_cart');
+      const saved = localStorage.getItem('singodia_cart') || localStorage.getItem('singodhia_cart');
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
       return [];
@@ -17,7 +17,7 @@ export const CartProvider = ({ children }) => {
 
   const [appliedCoupon, setAppliedCoupon] = useState(() => {
     try {
-      const saved = localStorage.getItem('singodhia_coupon');
+      const saved = localStorage.getItem('singodia_coupon') || localStorage.getItem('singodhia_coupon');
       return saved ? JSON.parse(saved) : null;
     } catch (e) {
       return null;
@@ -30,7 +30,7 @@ export const CartProvider = ({ children }) => {
   // Blinkit-style recent items tracker (max 2 items: when 3rd is added, 1st disappears)
   const [recentItems, setRecentItems] = useState(() => {
     try {
-      const saved = localStorage.getItem('singodhia_cart');
+      const saved = localStorage.getItem('singodia_cart') || localStorage.getItem('singodhia_cart');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -75,7 +75,7 @@ export const CartProvider = ({ children }) => {
   // Save cart to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem('singodhia_cart', JSON.stringify(cartItems));
+      localStorage.setItem('singodia_cart', JSON.stringify(cartItems));
     } catch (e) {
       console.error(e);
     }
@@ -84,8 +84,9 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     try {
       if (appliedCoupon) {
-        localStorage.setItem('singodhia_coupon', JSON.stringify(appliedCoupon));
+        localStorage.setItem('singodia_coupon', JSON.stringify(appliedCoupon));
       } else {
+        localStorage.removeItem('singodia_coupon');
         localStorage.removeItem('singodhia_coupon');
       }
     } catch (e) {

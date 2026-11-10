@@ -41,7 +41,7 @@ app.use('/products', express.static(path.join(process.cwd(), 'uploads')));
 app.get(['/', '/api'], (req, res) => {
   res.json({
     success: true,
-    message: '🥒 Singodhia Foods API Server is Live & Running!',
+    message: '🥒 Singodia Foods API Server is Live & Running!',
     endpoints: {
       health: '/api/health',
       products: '/api/products',
@@ -51,8 +51,8 @@ app.get(['/', '/api'], (req, res) => {
       adminSettings: '/api/admin/settings/public',
       shipping: '/api/shipping/status'
     },
-    service: 'Singodhia Foods E-commerce API',
-    brand: 'Singodhia Foods — Desi Homemade Pickles',
+    service: 'Singodia Foods E-commerce API',
+    brand: 'Singodia Foods — Desi Homemade Pickles',
     timestamp: new Date().toISOString()
   });
 });
@@ -62,8 +62,8 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'Singodhia Foods E-commerce API',
-    brand: 'Singodhia Foods — Desi Homemade Pickles'
+    service: 'Singodia Foods E-commerce API',
+    brand: 'Singodia Foods — Desi Homemade Pickles'
   });
 });
 

@@ -150,7 +150,7 @@ export const Footer = () => {
               </li>
               <li className="pt-1 flex flex-wrap gap-2">
                 <a
-                  href="https://wa.me/917597966707?text=Hello%20Singodhia%20Foods%2C%20I%20have%20an%20inquiry%20regarding%20products%20and%20orders."
+                  href="https://wa.me/917597966707?text=Hello%20Singodia%20Foods%2C%20I%20have%20an%20inquiry%20regarding%20products%20and%20orders."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#25D366] text-white font-bold text-xs hover:bg-[#20ba5a] transition-colors"
@@ -167,7 +167,7 @@ export const Footer = () => {
         {/* Bottom bar with payment badges and policies */}
         <div className="pt-4 sm:pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] sm:text-xs text-cream-200/70">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-4 text-center md:text-left">
-            <span>© {new Date().getFullYear()} Singodhia Foods. All Rights Reserved.</span>
+            <span>© {new Date().getFullYear()} Singodia Foods. All Rights Reserved.</span>
             <span className="hidden sm:inline">•</span>
             <span className="flex items-center gap-1">
               Handcrafted with <Heart className="w-3 h-3 text-chilli fill-current" /> in Rajasthan

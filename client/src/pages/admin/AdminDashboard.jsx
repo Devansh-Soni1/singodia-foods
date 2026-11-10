@@ -72,7 +72,7 @@ export const AdminDashboard = () => {
       <div>
         <h1 className="text-2xl font-bold text-gray-900 font-serif">Dashboard Overview</h1>
         <p className="text-xs text-gray-500 mt-1">
-          Real-time metrics, revenue, and order tracking for Singodhia Foods.
+          Real-time metrics, revenue, and order tracking for Singodia Foods.
         </p>
       </div>
 

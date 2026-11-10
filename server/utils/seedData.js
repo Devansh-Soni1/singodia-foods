@@ -535,7 +535,7 @@ export const sampleReviews = [
     reviewerName: 'Rohit Agrawal',
     rating: 5,
     title: 'Kair Sangri pickle is unbelievable',
-    comment: 'Real Kair Sangri is so hard to find outside Rajasthan. Singodhia Foods has nailed the authentic royal taste. The mustard oil aroma is fresh and pure.',
+    comment: 'Real Kair Sangri is so hard to find outside Rajasthan. Singodia Foods has nailed the authentic royal taste. The mustard oil aroma is fresh and pure.',
     location: 'Gurugram, Haryana',
     isVerifiedBuyer: true,
     isApproved: true
@@ -563,7 +563,7 @@ export const sampleReviews = [
 // Seed function for database
 export const seedDatabase = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/singodhia_foods';
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/singodia_foods';
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 5000 });
     }
@@ -611,20 +611,20 @@ export const seedDatabase = async () => {
     }
 
     // Seed default admin and test user if not exist
-    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase();
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@singodiafoods.com').toLowerCase();
     const existingAdmin = await User.findOne({ email: adminEmail });
     if (!existingAdmin) {
       await User.create({
-        name: 'Singodhia Admin',
+        name: 'Singodia Admin',
         email: adminEmail,
-        password: process.env.ADMIN_PASSWORD || 'Admin@Singodhia2026',
+        password: process.env.ADMIN_PASSWORD || 'Admin@Singodia2026',
         role: 'admin',
         phone: '+91 98765 43210',
         addresses: [
           {
-            fullName: 'Singodhia Master Admin',
+            fullName: 'Singodia Master Admin',
             phone: '+91 98765 43210',
-            addressLine1: 'Singodhia Bhawan, Heritage Lane',
+            addressLine1: 'Singodia Bhawan, Heritage Lane',
             city: 'Jaipur',
             state: 'Rajasthan',
             pincode: '302001',
@@ -632,7 +632,7 @@ export const seedDatabase = async () => {
           }
         ]
       });
-      console.log(`Created default admin account: ${adminEmail} (password: ${process.env.ADMIN_PASSWORD || 'Admin@Singodhia2026'})`);
+      console.log(`Created default admin account: ${adminEmail} (password: ${process.env.ADMIN_PASSWORD || 'Admin@Singodia2026'})`);
     }
 
     // Seed test customer account

@@ -397,7 +397,7 @@ export const CheckoutPage = () => {
           key: razorpayKey,
           amount: Math.round(finalPayableTotal * 100),
           currency: 'INR',
-          name: 'Singodhia Foods',
+          name: 'Singodia Foods',
           description: `Payment for Order ${createdOrder.orderNumber}`,
           image: window.location.origin + '/logo.png',
           order_id: createdOrder.razorpayOrderId || res.order?.razorpayOrderId || undefined,
@@ -592,7 +592,7 @@ export const CheckoutPage = () => {
                       type="text"
                       required
                       name="name"
-                      placeholder="e.g. Ramesh Chandra Singodhia"
+                      placeholder="e.g. Ramesh Chandra Singodia"
                       value={formData.name}
                       onChange={handleChange}
                       className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium text-charcoal"

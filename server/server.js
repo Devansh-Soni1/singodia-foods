@@ -22,14 +22,14 @@ const startServer = async () => {
         console.log('Fresh database detected. Initializing first-time seed data...');
         await seedDatabase();
       } else {
-        const adminEmail = (process.env.ADMIN_EMAIL || 'admin@singodhiafoods.com').toLowerCase();
+        const adminEmail = (process.env.ADMIN_EMAIL || 'admin@singodiafoods.com').toLowerCase();
         const adminExists = await User.findOne({ email: adminEmail });
         if (!adminExists) {
           console.log(`Admin user missing in DB, creating default admin account (${adminEmail})...`);
           await User.create({
-            name: 'Singodhia Admin',
+            name: 'Singodia Admin',
             email: adminEmail,
-            password: process.env.ADMIN_PASSWORD || 'Admin@Singodhia2026',
+            password: process.env.ADMIN_PASSWORD || 'Admin@Singodia2026',
             role: 'admin',
             phone: '+91 75979 66707',
             addresses: []
@@ -43,7 +43,7 @@ const startServer = async () => {
 
   app.listen(PORT, () => {
     console.log(`====================================================`);
-    console.log(`🥒 Singodhia Foods API Server is running on port ${PORT}`);
+    console.log(`🥒 Singodia Foods API Server is running on port ${PORT}`);
     console.log(`🌶️ Health check: http://localhost:${PORT}/api/health`);
     console.log(`📦 Mode: ${process.env.NODE_ENV || 'development'}`);
     console.log(`====================================================`);

@@ -43,7 +43,7 @@ export const HomemadePromiseSection = () => {
           <div className="lg:col-span-7 space-y-6">
             <div>
               <span className="text-xs font-bold text-mustard-dark uppercase tracking-widest block mb-2">
-                दादी के हाथों का शुद्ध स्वाद • The Singodhia Heritage
+                दादी के हाथों का शुद्ध स्वाद • The Singodia Heritage
               </span>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1E4334] font-serif leading-tight">
                 Our Homemade Promise: <br />
@@ -52,7 +52,7 @@ export const HomemadePromiseSection = () => {
             </div>
 
             <p className="text-sm sm:text-base text-earth-brown leading-relaxed">
-              At <strong>Singodhia Foods</strong>, we believe commercial factory pickles packed with artificial acetic acid and preservatives have robbed Indian homes of the genuine taste of our grandmothers’ kitchens. We refuse to cut corners.
+              At <strong>Singodia Foods</strong>, we believe commercial factory pickles packed with artificial acetic acid and preservatives have robbed Indian homes of the genuine taste of our grandmothers’ kitchens. We refuse to cut corners.
             </p>
 
             {/* The 4 pillars */}
