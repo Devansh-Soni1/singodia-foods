@@ -61,10 +61,10 @@ router.post('/generate-awb/:orderId', async (req, res) => {
 
     if (shipmentResult.success) {
       order.trackingNumber = shipmentResult.waybill;
-      order.carrier = shipmentResult.courierName || 'iThink Logistics Express';
+      order.carrier = shipmentResult.courierName || 'Express Courier Service';
       order.orderStatus = 'Dispatched';
       order.shipping = {
-        carrier: shipmentResult.courierName || 'iThink Logistics Express',
+        carrier: shipmentResult.courierName || 'Express Courier Service',
         trackingNumber: shipmentResult.waybill,
         trackingUrl: `https://my.ithinklogistics.com/track/${shipmentResult.waybill}`,
         dispatchedAt: new Date()

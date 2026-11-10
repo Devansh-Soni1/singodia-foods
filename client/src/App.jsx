@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
+import { ScrollToTop } from './components/common/ScrollToTop';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -113,6 +114,7 @@ const ProtectedAdminRoute = ({ children }) => {
 export const App = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Toaster
         position="top-right"
         toastOptions={{

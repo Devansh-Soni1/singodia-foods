@@ -35,7 +35,7 @@ export const getIThinkZoneRate = (toPincode, weightKg = 0.5) => {
   let addRate = 40;
   let zoneName = 'Zone D (Rest of India)';
   let days = '4 - 6 Business Days';
-  let courier = 'Delhivery Express (via iThink Logistics)';
+  let courier = 'Delhivery Express';
 
   if (/^331/.test(pin)) {
     // Local / Sujangarh / Churu District
@@ -43,28 +43,28 @@ export const getIThinkZoneRate = (toPincode, weightKg = 0.5) => {
     addRate = 20;
     zoneName = 'Zone A (Local / Sujangarh Region)';
     days = '1 - 2 Business Days';
-    courier = 'Local Express (via iThink Logistics)';
+    courier = 'Local Express Courier';
   } else if (/^3[0-4]/.test(pin)) {
     // Intra-State Rajasthan (Jaipur, Jodhpur, Bikaner, Sikar, Ajmer, Udaipur, Kota, etc.)
     baseRate = 50;
     addRate = 25;
     zoneName = 'Zone B (Intra-Rajasthan)';
     days = '2 - 3 Business Days';
-    courier = 'BlueDart / Delhivery (via iThink Logistics)';
+    courier = 'BlueDart / Delhivery';
   } else if (/^(11|12|13|14|15|16|20|21|22|23|24|25|26|27|28|38|39)/.test(pin)) {
     // North Zone & NCR / Punjab / Haryana / UP / Gujarat
     baseRate = 65;
     addRate = 35;
     zoneName = 'Zone C (North India & Metro)';
     days = '3 - 4 Business Days';
-    courier = 'Delhivery / DTDC (via iThink Logistics)';
+    courier = 'Delhivery / DTDC';
   } else if (/^(18|19|78|79|80|81|82|83|84|85|74|75|76|77)/.test(pin)) {
     // Special / East / North-East / J&K
     baseRate = 95;
     addRate = 50;
     zoneName = 'Zone E (Special & North-East)';
     days = '5 - 7 Business Days';
-    courier = 'Smartr / Delhivery Air (via iThink Logistics)';
+    courier = 'Smartr / Delhivery Air';
   }
 
   const finalCost = baseRate + (additionalHalfKgUnits * addRate);
@@ -142,7 +142,7 @@ export const calculateShippingRate = async ({
             if (!lowestRate || cost < lowestRate.rate) {
               lowestRate = {
                 rate: Math.round(cost),
-                courier: item.courier_name || 'iThink Logistics Express'
+                courier: item.courier_name || 'Express Courier'
               };
             }
           }
@@ -156,7 +156,7 @@ export const calculateShippingRate = async ({
           rate: lowestRate.rate,
           estimatedCost: lowestRate.rate,
           currency: 'INR',
-          courierName: `${lowestRate.courier} (via iThink Logistics)`,
+          courierName: lowestRate.courier || 'Express Courier Service',
           zone: fallbackResult.zone,
           expectedDeliveryDays: fallbackResult.expectedDeliveryDays,
           isSimulated: false
@@ -193,7 +193,7 @@ export const createShipmentOrder = async (order) => {
     return {
       success: true,
       waybill: simulatedAwb,
-      courierName: 'iThink Logistics Express',
+      courierName: 'Express Courier Service',
       refnum: order.orderNumber,
       isSimulated: true
     };
@@ -278,7 +278,7 @@ export const createShipmentOrder = async (order) => {
         return {
           success: true,
           waybill: firstResult.waybill,
-          courierName: firstResult.courier_name || 'iThink Logistics Express',
+          courierName: firstResult.courier_name || 'Express Courier Service',
           refnum: firstResult.refnum || order.orderNumber,
           isSimulated: false
         };
@@ -292,7 +292,7 @@ export const createShipmentOrder = async (order) => {
     return {
       success: true,
       waybill: simulatedAwb,
-      courierName: 'iThink Logistics Express',
+      courierName: 'Express Courier Service',
       refnum: order.orderNumber,
       isSimulated: true,
       apiNotice: responseData?.html_message || responseData?.message
@@ -302,7 +302,7 @@ export const createShipmentOrder = async (order) => {
     return {
       success: true,
       waybill: simulatedAwb,
-      courierName: 'iThink Logistics Express',
+      courierName: 'Express Courier Service',
       refnum: order.orderNumber,
       isSimulated: true,
       apiNotice: err.message
@@ -320,7 +320,7 @@ export const trackShipment = async (waybill) => {
       success: true,
       waybill,
       currentStatus: 'In Transit',
-      courierName: 'iThink Logistics Express',
+      courierName: 'Express Courier Service',
       events: [
         { status: 'Order Dispatched', location: 'Jaipur Hub', timestamp: new Date().toISOString() },
         { status: 'In Transit', location: 'Regional Sorting Facility', timestamp: new Date().toISOString() }

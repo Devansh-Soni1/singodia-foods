@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { 
   ShieldCheck, Truck, CreditCard, Banknote, ArrowRight, 
   CheckCircle, AlertCircle, ShoppingBag, Lock, UserCheck, CheckCircle2,
-  MapPin, Plus, Loader2, Sparkles, Home, Building2, Phone, Edit3
+  MapPin, Plus, Loader2, Sparkles, Home, Building2, Phone, Edit3,
+  X, Clock, Info
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -39,6 +40,7 @@ export const CheckoutPage = () => {
   // Address selection modal state
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [isDeliveryInfoOpen, setIsDeliveryInfoOpen] = useState(false);
 
   // Form states - All 8 address fields are mandatory
   const [formData, setFormData] = useState({
@@ -350,8 +352,8 @@ export const CheckoutPage = () => {
         discount: discountAmount,
         couponCode: appliedCoupon?.code || '',
         shippingFee: finalShippingFee,
-        carrier: shippingRateInfo?.courierName || 'iThink Logistics Express',
-        zone: shippingRateInfo?.zone || 'Zone B (Intra-Rajasthan)',
+        carrier: shippingRateInfo?.courierName || 'Express Courier Service',
+        zone: shippingRateInfo?.zone || 'Standard Domestic Zone',
         paymentMethod: formData.paymentMethod,
         customerNotes: formData.customerNotes
       };
@@ -680,9 +682,9 @@ export const CheckoutPage = () => {
                         <span>PIN Code (6-अंकों का पिनकोड)</span>
                         <span className="text-red-500 font-extrabold">*</span>
                       </span>
-                      <span className="text-[11px] text-brand-green font-bold flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" />
-                        <span>ऑटो लोकेशन और iThink रेट्स लाइव</span>
+                      <span className="text-[11px] text-gray-500 font-medium flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-amber-600" />
+                        <span>शहर व राज्य अपने आप भर जाएगा</span>
                       </span>
                     </label>
                     <div className="relative">
@@ -816,30 +818,39 @@ export const CheckoutPage = () => {
 
                 </div>
 
-                {/* iThink Logistics Live Rate Card Indicator */}
-                <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200/80 space-y-2">
+                {/* Clean Express Delivery Card */}
+                <div className="p-4 rounded-2xl bg-cream-50/80 border border-cream-200/90 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Truck className="w-4 h-4 text-[#002E6E]" />
-                      <span className="text-xs font-bold text-blue-950 font-serif">
-                        iThink Logistics Express Delivery
+                      <Truck className="w-4 h-4 text-brand-green" />
+                      <span className="text-xs font-bold text-charcoal font-serif">
+                        Express Home Delivery (होम डिलीवरी)
                       </span>
                     </div>
                     {shippingLoading ? (
-                      <span className="text-[11px] text-blue-700 flex items-center gap-1">
+                      <span className="text-[11px] text-brand-green flex items-center gap-1 font-semibold">
                         <Loader2 className="w-3 h-3 animate-spin" />
-                        <span>गणना जारी...</span>
+                        <span>जांच जारी...</span>
                       </span>
                     ) : (
-                      <span className="text-xs font-black text-brand-green bg-white px-2.5 py-0.5 rounded-full border border-blue-200">
-                        {formatPrice(finalShippingFee)}
+                      <span className="text-xs font-black text-brand-green bg-white px-2.5 py-0.5 rounded-full border border-cream-300 shadow-2xs">
+                        {finalShippingFee === 0 ? 'FREE' : formatPrice(finalShippingFee)}
                       </span>
                     )}
                   </div>
-                  <div className="text-[11px] text-blue-900 leading-relaxed flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <span>• {shippingRateInfo?.zone || 'Zone B (Intra-Rajasthan)'}</span>
-                    <span>• {shippingRateInfo?.courierName || 'BlueDart / Delhivery (via iThink Logistics)'}</span>
-                    <span>• अपेक्षित समय: {shippingRateInfo?.expectedDeliveryDays || '2 - 3 Business Days'}</span>
+                  <div className="text-[11px] text-gray-700 leading-relaxed flex flex-wrap items-center justify-between gap-y-1">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                      <span>• अपेक्षित समय: <strong>{shippingRateInfo?.expectedDeliveryDays || '2 - 4 कार्य दिवस'}</strong></span>
+                      <span>• 100% सुरक्षित पैकेजिंग</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsDeliveryInfoOpen(true)}
+                      className="text-[11px] font-bold text-brand-green hover:underline cursor-pointer flex items-center gap-1"
+                    >
+                      <Info className="w-3.5 h-3.5" />
+                      <span>डिलीवरी नियम व जानकारी</span>
+                    </button>
                   </div>
                 </div>
 
@@ -938,11 +949,13 @@ export const CheckoutPage = () => {
 
                   <div className="flex justify-between items-center">
                     <span className="text-earth-brown">
-                      Delivery (iThink Logistics):
+                      Delivery Charges (डिलीवरी शुल्क):
                     </span>
                     <span className="font-bold text-charcoal">
                       {shippingLoading ? (
                         <span className="text-gray-400 text-[11px]">Calculating...</span>
+                      ) : finalShippingFee === 0 ? (
+                        <span className="text-emerald-700 font-bold">FREE</span>
                       ) : (
                         formatPrice(finalShippingFee)
                       )}
@@ -975,7 +988,7 @@ export const CheckoutPage = () => {
 
                 <div className="p-3 bg-cream-50 rounded-xl text-[11px] text-earth-brown space-y-1">
                   <p className="flex items-center gap-1 font-semibold text-charcoal">
-                    <Truck className="w-3.5 h-3.5 text-brand-green" /> Express Dispatch via iThink Logistics from Sujangarh / Jaipur
+                    <Truck className="w-3.5 h-3.5 text-brand-green" /> Express Pan-India Dispatch directly from Sujangarh, Rajasthan
                   </p>
                   <p>• Carefully packed in leak-proof protective cushioning</p>
                   <p>• Live SMS and WhatsApp tracking will be shared upon dispatch</p>
@@ -999,6 +1012,72 @@ export const CheckoutPage = () => {
         onSaveNewAddress={handleSaveNewAddressFromModal}
         onSetDefault={handleSetDefaultInsideModal}
       />
+
+      {/* Clean Customer-Facing Delivery Info Popup Modal */}
+      {isDeliveryInfoOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-cream-200 space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-cream-100">
+              <div className="flex items-center gap-2">
+                <Truck className="w-5 h-5 text-brand-green" />
+                <h3 className="text-base font-bold text-charcoal font-serif">
+                  डिलीवरी व शिपिंग जानकारी
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDeliveryInfoOpen(false)}
+                className="text-gray-400 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2.5 text-xs text-gray-700 leading-relaxed">
+              <div className="flex items-start gap-2.5 p-3 bg-cream-50/90 rounded-2xl border border-cream-200/60">
+                <Clock className="w-4 h-4 text-brand-green shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-charcoal block">24 घंटे में डिस्पैच:</strong>
+                  आपका आर्डर सुजानगढ़ (राजस्थान) से 24 घंटे के भीतर ताज़ा पैक करके रवाना किया जाता है।
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-3 bg-cream-50/90 rounded-2xl border border-cream-200/60">
+                <Truck className="w-4 h-4 text-brand-green shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-charcoal block">विश्वसनीय कूरियर पार्टनर:</strong>
+                  Delhivery, BlueDart और DTDC जैसी प्रमुख कूरियर सेवाओं द्वारा सुरक्षित होम डिलीवरी।
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-3 bg-cream-50/90 rounded-2xl border border-cream-200/60">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-charcoal block">लीक-प्रूफ सेफ पैकेजिंग:</strong>
+                  अचार के जार को मल्टी-लेयर प्रोटेक्टिव कुशनिंग में पैक किया जाता है ताकि रास्ते में कोई लीकेज या टूट-फूट न हो।
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 p-3 bg-cream-50/90 rounded-2xl border border-cream-200/60">
+                <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-charcoal block">लाइव ट्रैकिंग:</strong>
+                  पार्सल डिस्पैच होते ही आपको WhatsApp व SMS पर लाइव ट्रैकिंग लिंक मिल जाता है।
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsDeliveryInfoOpen(false)}
+              className="w-full bg-brand-green hover:bg-brand-green-light text-white font-bold text-xs py-2.5 rounded-xl transition-colors cursor-pointer"
+            >
+              समझ गया (Close)
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

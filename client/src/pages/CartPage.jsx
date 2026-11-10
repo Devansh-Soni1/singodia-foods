@@ -80,7 +80,7 @@ export const CartPage = () => {
             <div className="bg-white p-4 rounded-2xl border border-cream-200 shadow-card flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 text-xs text-charcoal font-semibold">
                 <Truck className="w-4 h-4 text-brand-green flex-shrink-0" />
-                <span>Express Pan-India Delivery via <strong>iThink Logistics</strong> • Dispatched within 24 hours</span>
+                <span>Express Pan-India Delivery • Dispatched within 24 hours</span>
               </div>
               <span className="text-[11px] font-bold text-brand-green bg-cream-100 px-2.5 py-1 rounded-full shrink-0 border border-cream-200">
                 Safe Fragile Packaging
@@ -231,7 +231,7 @@ export const CartPage = () => {
                 )}
 
                 <div className="flex justify-between items-center">
-                  <span className="text-earth-brown">Delivery (iThink Logistics):</span>
+                  <span className="text-earth-brown">Delivery Charges:</span>
                   <span className="text-brand-green font-bold text-[11px]">Calculated at checkout</span>
                 </div>
 

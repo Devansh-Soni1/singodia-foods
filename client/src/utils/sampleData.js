@@ -637,7 +637,7 @@ export const SAMPLE_FAQS = [
   },
   {
     q: 'What is the shipping cost and delivery time?',
-    a: 'We dispatch orders across India via trusted logistics partners (iThink Logistics, BlueDart, DTDC). Standard shipping fees are calculated transparently at checkout. Most orders are dispatched within 24 hours in secure packaging and delivered in 3 to 5 business days.'
+    a: 'We dispatch orders across India via trusted logistics partners (Delhivery, BlueDart, DTDC). Standard shipping fees are calculated transparently at checkout. Most orders are dispatched within 24 hours in secure packaging and delivered in 3 to 5 business days.'
   },
   {
     q: 'What payment methods do you accept?',

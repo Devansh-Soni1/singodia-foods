@@ -45,7 +45,7 @@ export const AdminOrders = () => {
       const res = await shippingAPI.generateAWB(ord._id);
       if (res.success) {
         const waybill = res.waybill || res.trackingNumber;
-        const courier = res.courier || 'iThink Logistics Express';
+        const courier = res.courier || 'Express Courier Service';
         toast.success(`Shipment booked!\nAWB: ${waybill}\nCourier: ${courier}`);
         setOrders(prev => prev.map(o => o._id === ord._id ? {
           ...o,
@@ -67,7 +67,7 @@ export const AdminOrders = () => {
     setSelectedOrder(ord);
     setNewStatus(ord.orderStatus || 'Placed');
     setTrackingNumber(ord.trackingNumber || '');
-    setCourierPartner(ord.courierPartner || 'iThink Logistics Express');
+    setCourierPartner(ord.courierPartner || 'Express Courier Service');
   };
 
   const handleUpdateStatus = async (e) => {

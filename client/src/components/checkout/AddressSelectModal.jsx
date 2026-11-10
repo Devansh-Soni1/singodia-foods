@@ -452,7 +452,7 @@ export const AddressSelectModal = ({
 
         {/* Modal Footer */}
         <div className="p-4 bg-cream-50/80 border-t border-cream-200 text-center text-[11px] text-earth-brown">
-          🔒 आपका पता 100% सुरक्षित है एवं केवल iThink Logistics कूरियर डिलीवरी हेतु उपयोग किया जाएगा।
+          🔒 आपका पता 100% सुरक्षित है एवं केवल कूरियर डिलीवरी हेतु उपयोग किया जाएगा।
         </div>
 
       </div>

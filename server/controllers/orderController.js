@@ -281,9 +281,9 @@ export const createOrder = async (req, res, next) => {
         const shipRes = await createShipmentOrder(order);
         if (shipRes?.success && shipRes.waybill) {
           order.trackingNumber = shipRes.waybill;
-          order.carrier = shipRes.courierName || 'iThink Logistics Express';
+          order.carrier = shipRes.courierName || 'Express Courier Service';
           order.shipping = {
-            carrier: shipRes.courierName || 'iThink Logistics Express',
+            carrier: shipRes.courierName || 'Express Courier Service',
             trackingNumber: shipRes.waybill,
             trackingUrl: `https://my.ithinklogistics.com/track/${shipRes.waybill}`,
             dispatchedAt: new Date()
@@ -367,10 +367,10 @@ export const verifyPayment = async (req, res, next) => {
           const shipRes = await createShipmentOrder(order);
           if (shipRes?.success && shipRes.waybill) {
             order.trackingNumber = shipRes.waybill;
-            order.carrier = shipRes.courierName || 'iThink Logistics Express';
+            order.carrier = shipRes.courierName || 'Express Courier Service';
             order.orderStatus = 'Dispatched';
             order.shipping = {
-              carrier: shipRes.courierName || 'iThink Logistics Express',
+              carrier: shipRes.courierName || 'Express Courier Service',
               trackingNumber: shipRes.waybill,
               trackingUrl: `https://my.ithinklogistics.com/track/${shipRes.waybill}`,
               dispatchedAt: new Date()

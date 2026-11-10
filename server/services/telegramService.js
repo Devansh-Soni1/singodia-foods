@@ -84,7 +84,7 @@ export const notifyNewOrder = async (order) => {
 🛍️ <b>आइटम्स (Items Ordered):</b>
 ${itemsList || '  • Order details in Admin Panel'}
 
-🚚 <b>iThink Logistics Tracking:</b> <code>${tracking}</code>
+🚚 <b>Courier Tracking:</b> <code>${tracking}</code>
 ━━━━━━━━━━━━━━━━━━
 🌐 <a href="https://singodiafoodstore.in/admin/orders">Admin Panel में ऑर्डर देखें</a>
 `.trim();

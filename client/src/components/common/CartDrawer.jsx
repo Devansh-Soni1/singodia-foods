@@ -371,7 +371,7 @@ export const CartDrawer = () => {
                       </div>
                     )}
                     <div className="flex justify-between items-center">
-                      <span>Delivery (iThink Logistics):</span>
+                      <span>Delivery Charges:</span>
                       <span className="text-brand-green font-bold text-[11px]">
                         Calculated at checkout
                       </span>
@@ -411,11 +411,11 @@ export const CartDrawer = () => {
                 </div>
               </button>
 
-              {/* Footer Subtext: Razorpay & iThink Logistics */}
+              {/* Footer Subtext */}
               <div className="flex items-center justify-center gap-2 text-gray-400 text-[10.5px] pt-0.5">
                 <span>🔒 100% Secure Checkout via Razorpay</span>
                 <span>•</span>
-                <span>Delivered via iThink Logistics</span>
+                <span>Pan-India Safe Delivery</span>
               </div>
 
             </div>
