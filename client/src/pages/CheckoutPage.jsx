@@ -42,16 +42,17 @@ export const CheckoutPage = () => {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [isDeliveryInfoOpen, setIsDeliveryInfoOpen] = useState(false);
 
-  // Form states - All 8 address fields are mandatory
+  // Form states - All address fields are mandatory
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone ? String(user.phone).replace(/^(\+91|91|0)/, '').replace(/\D/g, '').slice(-10) : '',
-    pincode: '',
     addressLine1: '',
     addressLine2: '',
     landmark: '',
     city: '',
+    district: '',
+    pincode: '',
     state: 'Rajasthan',
     paymentMethod: 'razorpay',
     customerNotes: ''
@@ -130,11 +131,12 @@ export const CheckoutPage = () => {
           name: defaultAddr.fullName || user.name || prev.name,
           email: user.email || prev.email,
           phone: formattedPhone || prev.phone,
-          pincode: defaultAddr.pincode || prev.pincode,
           addressLine1: defaultAddr.addressLine1 || prev.addressLine1,
           addressLine2: defaultAddr.addressLine2 || prev.addressLine2,
           landmark: defaultAddr.landmark || prev.landmark,
           city: defaultAddr.city || prev.city,
+          district: defaultAddr.district || defaultAddr.city || prev.district || '',
+          pincode: defaultAddr.pincode || prev.pincode,
           state: defaultAddr.state || prev.state || 'Rajasthan'
         }));
 
@@ -162,11 +164,12 @@ export const CheckoutPage = () => {
       ...prev,
       name: addr.fullName || prev.name,
       phone: cleanPhone || prev.phone,
-      pincode: addr.pincode,
       addressLine1: addr.addressLine1,
       addressLine2: addr.addressLine2 || '',
       landmark: addr.landmark || '',
       city: addr.city,
+      district: addr.district || addr.city || '',
+      pincode: addr.pincode,
       state: addr.state
     }));
 
@@ -216,16 +219,17 @@ export const CheckoutPage = () => {
           calculateIThinkRate(val)
         ]);
 
-        if (pinData && pinData.district && pinData.state) {
+        if (pinData && pinData.state) {
           setFormData(prev => ({
             ...prev,
-            city: pinData.district,
+            city: prev.city || pinData.area || pinData.district || '',
+            district: pinData.district || prev.district || '',
             state: pinData.state,
             landmark: prev.landmark || pinData.area || ''
           }));
-          setPincodeStatus(`✓ स्थान प्राप्त हुआ: ${pinData.district}, ${pinData.state}`);
+          setPincodeStatus(`✓ ${pinData.district}, ${pinData.state}`);
         } else {
-          setPincodeStatus('⚠️ पिनकोड मिला नहीं, कृपया शहर व राज्य स्वयं चुनें।');
+          setPincodeStatus('');
         }
       } catch {
         // Fallback
@@ -303,12 +307,19 @@ export const CheckoutPage = () => {
       return;
     }
 
-    // 7. Strict City & State Validation
+    // 7. Strict City Validation
     if (!formData.city.trim()) {
-      setErrorMessage('कृपया शहर या जिला (City) दर्ज करें।');
+      setErrorMessage('कृपया शहर या कस्बा (City / Town) दर्ज करें।');
       return;
     }
 
+    // 8. Strict District Validation
+    if (!formData.district.trim()) {
+      setErrorMessage('कृपया अपना ज़िला (District) दर्ज करें।');
+      return;
+    }
+
+    // 9. Strict State Validation
     if (!formData.state.trim()) {
       setErrorMessage('कृपया राज्य (State) चुनें।');
       return;
@@ -335,6 +346,7 @@ export const CheckoutPage = () => {
           addressLine2: formData.addressLine2.trim(),
           landmark: formData.landmark.trim(),
           city: formData.city.trim(),
+          district: (formData.district || formData.city).trim(),
           state: formData.state.trim(),
           pincode: formData.pincode.trim(),
           phone: cleanPhone,
@@ -655,7 +667,7 @@ export const CheckoutPage = () => {
                       </div>
                       <div className="min-w-0">
                         <p className="font-bold text-charcoal truncate">
-                          {formData.addressLine1 || 'Saved Address'}, {formData.city} - {formData.pincode}
+                          {formData.addressLine1 || 'Saved Address'}, {formData.city}{formData.district && formData.district !== formData.city ? `, ${formData.district}` : ''} - {formData.pincode}
                         </p>
                         <p className="text-[11px] text-earth-brown truncate">
                           Recipient: {formData.name || user?.name} • +91 {formData.phone}
@@ -675,44 +687,6 @@ export const CheckoutPage = () => {
                 {/* Address Form Inputs */}
                 <div className="space-y-4">
                   
-                  {/* PIN Code with Instant Auto-Fetch */}
-                  <div>
-                    <label className="text-xs font-bold text-charcoal flex items-center justify-between mb-1.5">
-                      <span className="flex items-center gap-1">
-                        <span>PIN Code (6-अंकों का पिनकोड)</span>
-                        <span className="text-red-500 font-extrabold">*</span>
-                      </span>
-                      <span className="text-[11px] text-gray-500 font-medium flex items-center gap-1">
-                        <Sparkles className="w-3 h-3 text-amber-600" />
-                        <span>शहर व राज्य अपने आप भर जाएगा</span>
-                      </span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        required
-                        maxLength={6}
-                        name="pincode"
-                        placeholder="e.g. 302001 or 331507"
-                        value={formData.pincode}
-                        onChange={handlePincodeChange}
-                        className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-bold tracking-wider text-charcoal"
-                      />
-                      {pincodeLoading && (
-                        <div className="absolute right-3.5 top-2.5 text-brand-green">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        </div>
-                      )}
-                    </div>
-                    {pincodeStatus && (
-                      <p className={`text-[11px] mt-1 font-semibold ${
-                        pincodeStatus.startsWith('✓') ? 'text-emerald-700' : 'text-amber-800'
-                      }`}>
-                        {pincodeStatus}
-                      </p>
-                    )}
-                  </div>
-
                   {/* Address Line 1 */}
                   <div>
                     <label className="text-xs font-bold text-charcoal flex items-center gap-1 mb-1.5">
@@ -764,22 +738,72 @@ export const CheckoutPage = () => {
                     />
                   </div>
 
-                  {/* City & State (Auto-filled on Pincode) */}
+                  {/* City & District (Separated into distinct fields) */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-xs font-bold text-charcoal flex items-center gap-1 mb-1.5">
-                        <span>City / District (शहर / जिला)</span>
+                        <span>City / Town (शहर / कस्बा)</span>
                         <span className="text-red-500 font-extrabold">*</span>
                       </label>
                       <input
                         type="text"
                         required
                         name="city"
-                        placeholder="e.g. Sujangarh / Jaipur"
+                        placeholder="e.g. Sujangarh"
                         value={formData.city}
                         onChange={handleChange}
                         className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
                       />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-charcoal flex items-center gap-1 mb-1.5">
+                        <span>District (ज़िला)</span>
+                        <span className="text-red-500 font-extrabold">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        name="district"
+                        placeholder="e.g. Churu / Jaipur"
+                        value={formData.district}
+                        onChange={handleChange}
+                        className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  {/* PIN Code & State (Placed next to City & District) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-charcoal flex items-center gap-1 mb-1.5">
+                        <span>PIN Code (पिनकोड)</span>
+                        <span className="text-red-500 font-extrabold">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          required
+                          maxLength={6}
+                          name="pincode"
+                          placeholder="e.g. 331507 or 302001"
+                          value={formData.pincode}
+                          onChange={handlePincodeChange}
+                          className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-bold tracking-wider text-charcoal"
+                        />
+                        {pincodeLoading && (
+                          <div className="absolute right-3.5 top-2.5 text-brand-green">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          </div>
+                        )}
+                      </div>
+                      {pincodeStatus && (
+                        <p className={`text-[11px] mt-1 font-semibold ${
+                          pincodeStatus.startsWith('✓') ? 'text-emerald-700' : 'text-amber-800'
+                        }`}>
+                          {pincodeStatus}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -875,27 +899,69 @@ export const CheckoutPage = () => {
                       </div>
                       <div>
                         <span className="text-sm font-bold text-charcoal font-serif flex items-center gap-2">
-                          <span>Online Payment via Razorpay</span>
+                          <span>100% Secure Online Payment (ऑनलाइन पेमेंट)</span>
                           <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
                             Instant Confirmation
                           </span>
                         </span>
                         <p className="text-xs text-earth-brown mt-0.5">
-                          Pay securely using <strong>UPI (GPay, PhonePe, Paytm, BHIM)</strong>, Debit/Credit Cards, or Net Banking.
+                          UPI, Debit/Credit Cards व Net Banking द्वारा तुरंत और सुरक्षित भुगतान करें।
                         </p>
                       </div>
                     </div>
                     <CreditCard className="w-5 h-5 text-brand-green shrink-0" />
                   </div>
 
-                  {/* Supported Badges */}
-                  <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-cream-200/60">
-                    <span className="text-[10px] text-gray-500 font-semibold mr-1">Accepted:</span>
-                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">Google Pay</span>
-                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">PhonePe</span>
-                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">Paytm UPI</span>
-                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">BHIM UPI</span>
-                    <span className="text-[10px] font-bold text-gray-800 bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">All Cards & Net Banking</span>
+                  {/* Supported Payment Logos (No text names, clean brand badges) */}
+                  <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-cream-200/60">
+                    {/* Google Pay */}
+                    <div className="h-7 px-2.5 bg-white rounded-lg border border-gray-200 shadow-2xs flex items-center justify-center shrink-0" title="Google Pay">
+                      <span className="text-xs font-bold text-gray-800 flex items-center tracking-tight">
+                        <span className="text-[#4285F4] font-black">G</span>
+                        <span className="text-gray-700 font-semibold ml-0.5">Pay</span>
+                      </span>
+                    </div>
+
+                    {/* PhonePe */}
+                    <div className="h-7 px-2.5 bg-[#5f259f] rounded-lg shadow-2xs flex items-center justify-center gap-1 shrink-0" title="PhonePe">
+                      <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-[#5f259f] text-[9.5px] font-black leading-none">
+                        पे
+                      </div>
+                      <span className="text-white font-extrabold text-[11px] tracking-tight">PhonePe</span>
+                    </div>
+
+                    {/* Paytm */}
+                    <div className="h-7 px-2.5 bg-white rounded-lg border border-gray-200 shadow-2xs flex items-center justify-center shrink-0" title="Paytm">
+                      <span className="text-xs font-black tracking-tighter flex items-baseline">
+                        <span className="text-[#002E6E]">pay</span>
+                        <span className="text-[#00BAF2]">tm</span>
+                      </span>
+                    </div>
+
+                    {/* BHIM UPI */}
+                    <div className="h-7 px-2 bg-white rounded-lg border border-gray-200 shadow-2xs flex items-center justify-center gap-1 shrink-0" title="BHIM UPI">
+                      <span className="text-[10px] font-black tracking-wider text-[#002E6E]">UPI</span>
+                      <div className="w-2.5 h-3 flex flex-col justify-center gap-0.5">
+                        <span className="w-2.5 h-1 bg-[#F47920] skew-x-12 rounded-2xs block" />
+                        <span className="w-2.5 h-1 bg-[#0FA348] -skew-x-12 rounded-2xs block" />
+                      </div>
+                    </div>
+
+                    {/* RuPay */}
+                    <div className="h-7 px-2 bg-white rounded-lg border border-gray-200 shadow-2xs flex items-center justify-center shrink-0" title="RuPay">
+                      <span className="text-[10px] font-black tracking-tight text-[#0C2340]">Ru</span>
+                      <span className="text-[10px] font-black tracking-tight text-[#E31837]">Pay</span>
+                      <span className="text-[8px] font-black text-[#0C2340] ml-0.5">❯❯</span>
+                    </div>
+
+                    {/* VISA / Mastercard */}
+                    <div className="h-7 px-2 bg-white rounded-lg border border-gray-200 shadow-2xs flex items-center justify-center gap-1 shrink-0" title="Visa / Mastercard">
+                      <span className="text-[11px] font-black italic tracking-wider text-[#1A1F71]">VISA</span>
+                      <div className="flex -space-x-1 items-center ml-0.5">
+                        <div className="w-3 h-3 rounded-full bg-[#EB001B]" />
+                        <div className="w-3 h-3 rounded-full bg-[#F79E1B] opacity-90" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

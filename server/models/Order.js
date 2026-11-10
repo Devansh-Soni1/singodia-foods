@@ -23,6 +23,7 @@ const orderSchema = new mongoose.Schema({
     addressLine2: { type: String, default: '' },
     landmark: { type: String, default: '' },
     city: { type: String, required: true },
+    district: { type: String, default: '' },
     state: { type: String, required: true },
     pincode: { type: String, required: true }
   },

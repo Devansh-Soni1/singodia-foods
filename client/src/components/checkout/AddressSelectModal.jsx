@@ -23,11 +23,12 @@ export const AddressSelectModal = ({
   const [newAddr, setNewAddr] = useState({
     fullName: '',
     phone: '',
-    pincode: '',
     addressLine1: '',
     addressLine2: '',
     landmark: '',
     city: '',
+    district: '',
+    pincode: '',
     state: 'Rajasthan',
     isDefault: false
   });
@@ -44,16 +45,17 @@ export const AddressSelectModal = ({
       setPincodeLoading(true);
       try {
         const details = await shippingAPI.lookupPincode(val);
-        if (details && details.district && details.state) {
+        if (details && details.state) {
           setNewAddr(prev => ({
             ...prev,
-            city: details.district,
+            city: prev.city || details.area || details.district || '',
+            district: details.district || prev.district || '',
             state: details.state,
             landmark: prev.landmark || details.area || ''
           }));
-          setPincodeMessage(`✓ स्थान प्राप्त हुआ: ${details.district}, ${details.state}`);
+          setPincodeMessage(`✓ ${details.district}, ${details.state}`);
         } else {
-          setPincodeMessage('⚠️ पिनकोड मिला नहीं, कृपया शहर और राज्य मैन्युअली चुनें।');
+          setPincodeMessage('');
         }
       } catch {
         // Fallback
@@ -99,8 +101,18 @@ export const AddressSelectModal = ({
       return;
     }
 
-    if (!newAddr.city.trim() || !newAddr.state.trim()) {
-      setErrorMsg('कृपया शहर और राज्य दर्ज करें।');
+    if (!newAddr.city.trim()) {
+      setErrorMsg('कृपया शहर या कस्बा (City / Town) दर्ज करें।');
+      return;
+    }
+
+    if (!newAddr.district.trim()) {
+      setErrorMsg('कृपया अपना ज़िला (District) दर्ज करें।');
+      return;
+    }
+
+    if (!newAddr.state.trim()) {
+      setErrorMsg('कृपया राज्य दर्ज करें।');
       return;
     }
 
@@ -108,6 +120,7 @@ export const AddressSelectModal = ({
       const payload = {
         ...newAddr,
         phone: cleanPhone,
+        district: newAddr.district.trim(),
         isDefault: newAddr.isDefault || addresses.length === 0
       };
       await onSaveNewAddress(payload);
@@ -115,11 +128,12 @@ export const AddressSelectModal = ({
       setNewAddr({
         fullName: '',
         phone: '',
-        pincode: '',
         addressLine1: '',
         addressLine2: '',
         landmark: '',
         city: '',
+        district: '',
+        pincode: '',
         state: 'Rajasthan',
         isDefault: false
       });
@@ -222,7 +236,7 @@ export const AddressSelectModal = ({
                                 {addr.landmark && `, निकट ${addr.landmark}`}
                               </p>
                               <p className="font-bold text-brand-green">
-                                {addr.city}, {addr.state} — {addr.pincode}
+                                {addr.city}{addr.district && addr.district !== addr.city ? `, ज़िला ${addr.district}` : ''}, {addr.state} — {addr.pincode}
                               </p>
                             </div>
                           </div>
@@ -309,37 +323,6 @@ export const AddressSelectModal = ({
                 </div>
               </div>
 
-              {/* PIN Code with Auto-Fetch */}
-              <div>
-                <label className="text-xs font-bold text-charcoal flex items-center justify-between mb-1">
-                  <span>पिनकोड (6-Digit PIN Code) <span className="text-red-500">*</span></span>
-                  <span className="text-[10px] text-brand-green font-semibold">ऑटो-लोकेशन समर्थित ✨</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    required
-                    maxLength={6}
-                    placeholder="e.g. 302001 या 331507"
-                    value={newAddr.pincode}
-                    onChange={handlePincodeChange}
-                    className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-bold tracking-wider"
-                  />
-                  {pincodeLoading && (
-                    <div className="absolute right-3 top-2.5 text-brand-green">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    </div>
-                  )}
-                </div>
-                {pincodeMessage && (
-                  <p className={`text-[11px] mt-1 font-semibold ${
-                    pincodeMessage.startsWith('✓') ? 'text-emerald-700' : 'text-amber-700'
-                  }`}>
-                    {pincodeMessage}
-                  </p>
-                )}
-              </div>
-
               {/* Address Line 1 */}
               <div>
                 <label className="text-xs font-bold text-charcoal block mb-1">
@@ -385,19 +368,66 @@ export const AddressSelectModal = ({
                 />
               </div>
 
+              {/* City & District (Separated into distinct fields) */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-bold text-charcoal block mb-1">
-                    शहर / जिला (City) <span className="text-red-500">*</span>
+                    शहर / कस्बा (City / Town) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Jaipur"
+                    placeholder="e.g. Sujangarh"
                     value={newAddr.city}
                     onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })}
                     className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
                   />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-charcoal block mb-1">
+                    ज़िला (District) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Churu / Jaipur"
+                    value={newAddr.district}
+                    onChange={(e) => setNewAddr({ ...newAddr, district: e.target.value })}
+                    className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
+                  />
+                </div>
+              </div>
+
+              {/* PIN Code & State (Placed next to City & District) */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-charcoal block mb-1">
+                    पिनकोड (PIN Code) <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required
+                      maxLength={6}
+                      placeholder="e.g. 331507"
+                      value={newAddr.pincode}
+                      onChange={handlePincodeChange}
+                      className="w-full px-3.5 py-2 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-bold tracking-wider"
+                    />
+                    {pincodeLoading && (
+                      <div className="absolute right-3 top-2 text-brand-green">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  {pincodeMessage && (
+                    <p className={`text-[10.5px] mt-0.5 font-semibold ${
+                      pincodeMessage.startsWith('✓') ? 'text-emerald-700' : 'text-amber-700'
+                    }`}>
+                      {pincodeMessage}
+                    </p>
+                  )}
                 </div>
 
                 <div>

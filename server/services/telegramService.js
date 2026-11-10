@@ -79,7 +79,7 @@ export const notifyNewOrder = async (order) => {
 
 📍 <b>डिलीवरी पता (Address):</b>
   ${order.shippingAddress?.addressLine1 || ''} ${order.shippingAddress?.addressLine2 || ''}
-  ${city}, ${state} - <b>${pincode}</b>
+  ${city}${order.shippingAddress?.district && order.shippingAddress.district !== city ? `, ज़िला ${order.shippingAddress.district}` : ''}, ${state} - <b>${pincode}</b>
 
 🛍️ <b>आइटम्स (Items Ordered):</b>
 ${itemsList || '  • Order details in Admin Panel'}
