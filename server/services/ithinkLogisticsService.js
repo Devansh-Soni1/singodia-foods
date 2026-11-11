@@ -10,7 +10,8 @@ const getBaseUrl = () => {
 const getCredentials = () => {
   return {
     access_token: process.env.ITHINK_LOGISTICS_ACCESS_TOKEN || '',
-    secret_key: process.env.ITHINK_LOGISTICS_SECRET_KEY || ''
+    secret_key: process.env.ITHINK_LOGISTICS_SECRET_KEY || '',
+    pickup_address_id: process.env.ITHINK_LOGISTICS_PICKUP_ADDRESS_ID || '1293'
   };
 };
 
@@ -109,22 +110,22 @@ export const calculateShippingRate = async ({
   try {
     const payload = {
       data: {
-        access_token,
-        secret_key,
         from_pincode: String(fromPincode),
         to_pincode: String(toPincode),
-        shipping_weight_kg: String(weight),
-        shipping_length_cms: String(length),
-        shipping_width_cms: String(width),
-        shipping_height_cms: String(height),
-        weight: parseFloat(weight),
-        payment_mode: paymentMode,
+        shipping_length_cms: String(length || 15),
+        shipping_width_cms: String(width || 15),
+        shipping_height_cms: String(height || 15),
+        shipping_weight_kg: String(weight || 0.5),
+        order_type: 'forward',
         payment_method: paymentMode,
-        order_type: 'Forward'
+        service_type: 'Surface',
+        product_mrp: '299.00',
+        access_token,
+        secret_key
       }
     };
 
-    const res = await axios.post(`${getBaseUrl()}/api_v3/rate/zone_rate.json`, payload, {
+    const res = await axios.post(`${getBaseUrl()}/api_v3/rate/check.json`, payload, {
       headers: { 'Content-Type': 'application/json' },
       timeout: 8000
     });
@@ -142,7 +143,7 @@ export const calculateShippingRate = async ({
             if (!lowestRate || cost < lowestRate.rate) {
               lowestRate = {
                 rate: Math.round(cost),
-                courier: item.courier_name || 'Express Courier'
+                courier: item.logistic_name || item.courier_name || 'Express Courier'
               };
             }
           }
@@ -157,8 +158,8 @@ export const calculateShippingRate = async ({
           estimatedCost: lowestRate.rate,
           currency: 'INR',
           courierName: lowestRate.courier || 'Express Courier Service',
-          zone: fallbackResult.zone,
-          expectedDeliveryDays: fallbackResult.expectedDeliveryDays,
+          zone: res.data.zone ? `Zone ${res.data.zone}` : fallbackResult.zone,
+          expectedDeliveryDays: res.data.expected_delivery_date || fallbackResult.expectedDeliveryDays,
           isSimulated: false
         };
       }
@@ -199,18 +200,23 @@ export const createShipmentOrder = async (order) => {
     };
   }
 
-  const { access_token, secret_key } = getCredentials();
+  const { access_token, secret_key, pickup_address_id } = getCredentials();
   const address = order.shippingAddress || {};
   const isCOD = order.paymentMethod?.toLowerCase() === 'cod';
   const customerName = (order.customer?.name || address.fullName || `${address.firstName || ''} ${address.lastName || ''}`).trim() || 'Valued Customer';
-  const customerPhone = order.customer?.phone || address.phone || '9876543210';
-  const customerEmail = order.customer?.email || order.user?.email || 'customer@singodiafoodstore.in';
-  const warehouse = process.env.ITHINK_LOGISTICS_PICKUP_LOCATION || 'sujangarh';
+  const rawPhone = String(order.customer?.phone || address.phone || '7597966707').replace(/\D/g, '').slice(-10);
+  const customerPhone = Number(rawPhone) || 7597966707;
+  const customerEmail = order.customer?.email || order.user?.email || 'premsingodiya861@gmail.com';
+  const customerPincode = Number(address.pincode || address.postalCode || 331507) || 331507;
+
+  const d = new Date(order.createdAt || Date.now());
+  const pad = (n) => String(n).padStart(2, '0');
+  const formattedDate = `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 
   const orderItems = (order.items || []).map(item => ({
-    product_name: item.name || 'Homemade Pickle',
-    product_sku: item.sku || `SGF-${(item.weight || '500g').replace(/\s+/g, '')}`,
-    product_quantity: String(item.quantity || 1),
+    product_name: String(item.name || 'Homemade Pickle').slice(0, 100),
+    product_sku: String(item.sku || `SGF-${(item.weight || '500g').replace(/\s+/g, '')}`),
+    product_quantity: Number(item.quantity || 1),
     product_price: String(item.price || 249),
     product_tax_rate: '0',
     product_hsn_code: '20019000',
@@ -219,30 +225,54 @@ export const createShipmentOrder = async (order) => {
 
   const payload = {
     data: {
-      access_token,
-      secret_key,
-      pickup_address: {
-        warehouse_name: warehouse
-      },
       shipments: [
         {
-          order: order.orderNumber,
-          sub_order: order.orderNumber,
-          order_date: new Date(order.createdAt || Date.now()).toISOString().split('T')[0],
+          waybill: '',
+          order: String(order.orderNumber),
+          sub_order: 'A',
+          order_date: formattedDate,
           total_amount: String(order.totalAmount || 0),
+          payment_mode: isCOD ? 'COD' : 'Prepaid',
           name: customerName,
-          company_name: '',
+          company_name: 'Singodia Foods',
           add: String(address.addressLine1 || address.street || 'Sujangarh'),
           add2: String(address.addressLine2 || address.landmark || ''),
-          pin: String(address.pincode || address.postalCode || '331507'),
+          add3: '',
+          pin: customerPincode,
           city: String(address.city || 'Sujangarh'),
           state: String(address.state || 'Rajasthan'),
           country: 'India',
           phone: customerPhone,
           alt_phone: '',
           email: customerEmail,
-          is_insurance: '0',
-          payment_mode: isCOD ? 'COD' : 'Prepaid',
+          is_billing_same_as_shipping: 'yes',
+          billing_name: customerName,
+          billing_company_name: 'Singodia Foods',
+          billing_add: String(address.addressLine1 || address.street || 'Sujangarh'),
+          billing_add2: String(address.addressLine2 || address.landmark || ''),
+          billing_add3: '',
+          billing_pin: customerPincode,
+          billing_city: String(address.city || 'Sujangarh'),
+          billing_state: String(address.state || 'Rajasthan'),
+          billing_country: 'India',
+          billing_phone: customerPhone,
+          billing_alt_phone: '',
+          billing_email: customerEmail,
+          products: orderItems.length > 0 ? orderItems : [
+            {
+              product_name: 'Rajasthani Homemade Pickle',
+              product_sku: 'SGF-PICKLE',
+              product_quantity: 1,
+              product_price: String(order.totalAmount || 249),
+              product_tax_rate: '0',
+              product_hsn_code: '20019000',
+              product_discount: '0'
+            }
+          ],
+          shipment_length: '15',
+          shipment_width: '15',
+          shipment_height: '15',
+          weight: '0.5',
           shipping_charges: '0',
           giftwrap_charges: '0',
           transaction_charges: '0',
@@ -251,15 +281,23 @@ export const createShipmentOrder = async (order) => {
           cod_charges: '0',
           advance_amount: '0',
           cod_amount: isCOD ? String(order.totalAmount || 0) : '0',
-          weight: '0.5',
-          dimensions: '15x15x15',
-          order_type: 'Forward',
-          return_address: {
-            warehouse_name: warehouse
-          },
-          product_details: orderItems
+          reseller_name: '',
+          eway_bill_number: '',
+          gst_number: '',
+          return_address_id: String(pickup_address_id),
+          pickup_address_id: String(pickup_address_id),
+          logistics: '',
+          order_type: 'forward',
+          s_type: 'surface'
         }
-      ]
+      ],
+      pickup_address_id: String(pickup_address_id),
+      return_address_id: String(pickup_address_id),
+      access_token,
+      secret_key,
+      logistics: '',
+      s_type: 'surface',
+      order_type: 'forward'
     }
   };
 
@@ -274,11 +312,11 @@ export const createShipmentOrder = async (order) => {
     // Check for success response
     if (responseData?.status === 'success' && responseData.data) {
       const firstResult = Object.values(responseData.data)[0];
-      if (firstResult?.status === 'Success' || firstResult?.waybill) {
+      if (firstResult?.status?.toLowerCase() === 'success' || firstResult?.waybill) {
         return {
           success: true,
-          waybill: firstResult.waybill,
-          courierName: firstResult.courier_name || 'Express Courier Service',
+          waybill: String(firstResult.waybill),
+          courierName: firstResult.logistic_name || firstResult.courier_name || 'Delhivery',
           refnum: firstResult.refnum || order.orderNumber,
           isSimulated: false
         };
@@ -336,7 +374,8 @@ export const trackShipment = async (waybill) => {
       data: {
         access_token,
         secret_key,
-        waybill
+        awb_numbers: String(waybill),
+        waybill: String(waybill)
       }
     }, { timeout: 10000 });
 
