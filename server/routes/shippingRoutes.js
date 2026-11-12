@@ -16,7 +16,7 @@ router.get('/status', (req, res) => {
     success: true,
     provider: 'iThink Logistics',
     isIntegrated: isConfigured(),
-    warehousePincode: process.env.ITHINK_LOGISTICS_FROM_PINCODE || '302001',
+    warehousePincode: process.env.ITHINK_LOGISTICS_FROM_PINCODE || '331507',
     mode: process.env.NODE_ENV === 'production' ? 'Production' : 'Staging / Simulated'
   });
 });

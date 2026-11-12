@@ -33,7 +33,16 @@ const loadRazorpayScript = () => {
 };
 
 export const CheckoutPage = () => {
-  const { cartItems, subtotal, discountAmount, appliedCoupon, clearCart } = useCart();
+  const { 
+    cartItems, 
+    subtotal, 
+    discountAmount, 
+    appliedCoupon, 
+    clearCart,
+    isFreeShipping,
+    freeShippingThreshold,
+    freeShippingEnabled
+  } = useCart();
   const { user, isAuthenticated, addAddress, setDefaultAddress } = useAuth();
   const navigate = useNavigate();
 
@@ -254,8 +263,8 @@ export const CheckoutPage = () => {
     setErrorMessage('');
   };
 
-  // Active shipping fee and total payable
-  const finalShippingFee = dynamicShippingFee !== null ? dynamicShippingFee : 50;
+  // Active shipping fee and total payable (respecting free shipping rule & iThink dynamic rates)
+  const finalShippingFee = isFreeShipping ? 0 : (dynamicShippingFee !== null ? dynamicShippingFee : 50);
   const finalPayableTotal = Math.max(0, subtotal - discountAmount + finalShippingFee);
 
   const handlePlaceOrder = async (e) => {
@@ -857,14 +866,24 @@ export const CheckoutPage = () => {
                         <span>जांच जारी...</span>
                       </span>
                     ) : (
-                      <span className="text-xs font-black text-brand-green bg-white px-2.5 py-0.5 rounded-full border border-cream-300 shadow-2xs">
-                        {finalShippingFee === 0 ? 'FREE' : formatPrice(finalShippingFee)}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {isFreeShipping && (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-300">
+                            मुफ़्त डिलीवरी
+                          </span>
+                        )}
+                        <span className="text-xs font-black text-brand-green bg-white px-2.5 py-0.5 rounded-full border border-cream-300 shadow-2xs">
+                          {finalShippingFee === 0 ? 'FREE' : formatPrice(finalShippingFee)}
+                        </span>
+                      </div>
                     )}
                   </div>
                   <div className="text-[11px] text-gray-700 leading-relaxed flex flex-wrap items-center justify-between gap-y-1">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
                       <span>• अपेक्षित समय: <strong>{shippingRateInfo?.expectedDeliveryDays || '2 - 4 कार्य दिवस'}</strong></span>
+                      {shippingRateInfo?.courierName && (
+                        <span>• कूरियर: <strong className="capitalize">{shippingRateInfo.courierName}</strong></span>
+                      )}
                       <span>• 100% सुरक्षित पैकेजिंग</span>
                     </div>
                     <button

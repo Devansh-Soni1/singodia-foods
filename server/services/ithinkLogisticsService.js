@@ -132,45 +132,31 @@ export const calculateShippingRate = async ({
 
     const isApiOk = res.data?.status === 'success' || (res.data?.status_code === 200 && res.data?.status !== 'error' && !res.data?.html_message?.includes('Invalid'));
 
-    if (isApiOk) {
-      const rateData = res.data.data;
-      let lowestRate = null;
+    let courierName = fallbackResult.courierName;
+    let expectedDeliveryDays = fallbackResult.expectedDeliveryDays;
+    let zone = fallbackResult.zone;
 
-      if (Array.isArray(rateData)) {
-        for (const item of rateData) {
-          const cost = parseFloat(item.rate || item.freight_charge || item.total_charge);
-          if (!isNaN(cost) && cost > 0) {
-            if (!lowestRate || cost < lowestRate.rate) {
-              lowestRate = {
-                rate: Math.round(cost),
-                courier: item.logistic_name || item.courier_name || 'Express Courier'
-              };
-            }
-          }
-        }
+    if (isApiOk && Array.isArray(res.data?.data) && res.data.data.length > 0) {
+      const topCarrier = res.data.data[0];
+      courierName = topCarrier?.logistic_name || topCarrier?.courier_name || fallbackResult.courierName;
+      if (res.data.expected_delivery_date) {
+        expectedDeliveryDays = res.data.expected_delivery_date;
       }
-
-      if (lowestRate) {
-        return {
-          success: true,
-          serviceable: true,
-          rate: lowestRate.rate,
-          estimatedCost: lowestRate.rate,
-          currency: 'INR',
-          courierName: lowestRate.courier || 'Express Courier Service',
-          zone: res.data.zone ? `Zone ${res.data.zone}` : fallbackResult.zone,
-          expectedDeliveryDays: res.data.expected_delivery_date || fallbackResult.expectedDeliveryDays,
-          isSimulated: false
-        };
+      if (res.data.zone) {
+        zone = `Zone ${res.data.zone}`;
       }
     }
 
-    // Fallback to official iThink rate card on API error or empty couriers
     return {
       success: true,
       serviceable: true,
-      ...fallbackResult,
-      isSimulated: true
+      rate: fallbackResult.rate,
+      estimatedCost: fallbackResult.rate,
+      currency: 'INR',
+      courierName,
+      zone,
+      expectedDeliveryDays,
+      isSimulated: !isApiOk
     };
   } catch (err) {
     console.warn('iThink API live rate notice, using official rate card:', err.message);
@@ -227,12 +213,10 @@ export const createShipmentOrder = async (order) => {
     data: {
       shipments: [
         {
-          waybill: '',
           order: String(order.orderNumber),
           sub_order: 'A',
           order_date: formattedDate,
           total_amount: String(order.totalAmount || 0),
-          payment_mode: isCOD ? 'COD' : 'Prepaid',
           name: customerName,
           company_name: 'Singodia Foods',
           add: String(address.addressLine1 || address.street || 'Sujangarh'),
@@ -245,6 +229,8 @@ export const createShipmentOrder = async (order) => {
           phone: customerPhone,
           alt_phone: '',
           email: customerEmail,
+          is_insurance: '0',
+          payment_mode: isCOD ? 'COD' : 'Prepaid',
           is_billing_same_as_shipping: 'yes',
           billing_name: customerName,
           billing_company_name: 'Singodia Foods',
@@ -284,11 +270,7 @@ export const createShipmentOrder = async (order) => {
           reseller_name: '',
           eway_bill_number: '',
           gst_number: '',
-          return_address_id: String(pickup_address_id),
-          pickup_address_id: String(pickup_address_id),
-          logistics: '',
-          order_type: 'forward',
-          s_type: 'surface'
+          return_address_id: String(pickup_address_id)
         }
       ],
       pickup_address_id: String(pickup_address_id),
@@ -323,7 +305,6 @@ export const createShipmentOrder = async (order) => {
       }
     }
 
-    // If iThink returns an error (e.g. pending KYC / inactive API keys)
     console.warn('[iThink Logistics] API response notice:', responseData?.html_message || responseData?.message || 'Shipment creation pending');
     
     // Provide simulated tracking so the customer order flow is NEVER broken
@@ -374,8 +355,7 @@ export const trackShipment = async (waybill) => {
       data: {
         access_token,
         secret_key,
-        awb_numbers: String(waybill),
-        waybill: String(waybill)
+        awb_numbers: String(waybill)
       }
     }, { timeout: 10000 });
 
@@ -432,4 +412,3 @@ export default {
   cancelShipment,
   isConfigured
 };
-
