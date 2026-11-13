@@ -95,7 +95,7 @@ export const ProductDetailPage = () => {
   const [pincodeError, setPincodeError] = useState('');
 
   const checkDelivery = useCallback(async (targetPin) => {
-    const cleanPin = String(targetPin || pincodeInput || '').trim().replace(/\D/g, '');
+    const cleanPin = String(targetPin || '').trim().replace(/\D/g, '');
     if (!/^\d{6}$/.test(cleanPin)) {
       setPincodeError('कृपया 6 अंकों का सही पिनकोड दर्ज करें');
       return;
@@ -132,6 +132,7 @@ export const ProductDetailPage = () => {
       }
 
       setPincode(cleanPin);
+      setPincodeInput(cleanPin);
       localStorage.setItem('singodia_user_pincode', cleanPin);
       setIsEditingPincode(false);
     } catch (err) {
@@ -146,20 +147,18 @@ export const ProductDetailPage = () => {
     } finally {
       setCheckingPincode(false);
     }
-  }, [pincodeInput]);
+  }, []);
 
   useEffect(() => {
-    if (user?.addresses?.length > 0) {
-      const def = user.addresses.find(a => a.isDefault) || user.addresses[0];
-      if (def?.pincode && /^\d{6}$/.test(def.pincode)) {
-        setPincode(def.pincode);
-        setPincodeInput(def.pincode);
-        checkDelivery(def.pincode);
-        return;
-      }
+    const defaultAddressPin = user?.addresses?.find(a => a.isDefault)?.pincode;
+    const firstAddressPin = user?.addresses?.[0]?.pincode;
+    const savedPin = defaultAddressPin || firstAddressPin || localStorage.getItem('singodia_user_pincode') || '302001';
+    
+    if (/^\d{6}$/.test(String(savedPin))) {
+      setPincode(String(savedPin));
+      setPincodeInput(String(savedPin));
+      checkDelivery(String(savedPin));
     }
-    const savedPin = localStorage.getItem('singodia_user_pincode') || '302001';
-    checkDelivery(savedPin);
   }, [user, checkDelivery]);
 
   useEffect(() => {
