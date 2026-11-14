@@ -232,70 +232,108 @@ export const Footer = () => {
             </span>
           </div>
 
-          {/* Payment Method Brand Logos */}
-          <div className="flex flex-wrap items-center justify-center gap-2 select-none">
+          {/* Payment Method Brand Logos - Round Shape */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 select-none">
             {/* Google Pay */}
-            <div className="h-7 px-2.5 bg-white rounded-md shadow-xs flex items-center justify-center hover:scale-105 transition-transform" title="Google Pay">
-              <span className="text-xs font-bold text-gray-800 flex items-center tracking-tight">
-                <span className="text-[#4285F4] font-black text-sm">G</span>
-                <span className="text-gray-700 font-semibold ml-0.5">Pay</span>
-              </span>
+            <div 
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white flex items-center justify-center shadow-xs border border-white/20 shrink-0 hover:scale-110 transition-transform cursor-pointer" 
+              title="Google Pay"
+            >
+              <svg className="w-4 h-4 sm:w-4.5 sm:h-4.5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+              </svg>
             </div>
 
             {/* PhonePe */}
-            <div className="h-7 px-2.5 bg-[#5f259f] rounded-md shadow-xs flex items-center justify-center gap-1 hover:scale-105 transition-transform" title="PhonePe">
-              <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-[#5f259f] text-[9.5px] font-black leading-none">
+            <div 
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#5f259f] flex items-center justify-center shadow-xs border border-white/20 shrink-0 hover:scale-110 transition-transform cursor-pointer" 
+              title="PhonePe"
+            >
+              <span className="text-white font-black text-sm sm:text-base leading-none select-none font-sans">
                 पे
-              </div>
-              <span className="text-white font-extrabold text-[11px] tracking-tight">PhonePe</span>
+              </span>
             </div>
 
             {/* Paytm */}
-            <div className="h-7 px-2.5 bg-white rounded-md shadow-xs flex items-center justify-center hover:scale-105 transition-transform" title="Paytm">
-              <span className="text-xs font-black tracking-tighter flex items-baseline">
+            <div 
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white flex items-center justify-center shadow-xs border border-white/20 shrink-0 hover:scale-110 transition-transform cursor-pointer px-1" 
+              title="Paytm"
+            >
+              <span className="text-[9.5px] sm:text-[10.5px] font-black tracking-tighter flex items-baseline">
                 <span className="text-[#002E6E]">pay</span>
                 <span className="text-[#00BAF2]">tm</span>
               </span>
             </div>
 
             {/* BHIM UPI */}
-            <div className="h-7 px-2.5 bg-white rounded-md shadow-xs flex items-center justify-center gap-1 hover:scale-105 transition-transform" title="BHIM UPI">
-              <span className="text-[10px] font-black tracking-wider text-[#002E6E]">UPI</span>
-              <div className="w-2.5 h-3 flex flex-col justify-center gap-0.5">
-                <span className="w-2.5 h-1 bg-[#F47920] skew-x-12 rounded-2xs block" />
-                <span className="w-2.5 h-1 bg-[#0FA348] -skew-x-12 rounded-2xs block" />
+            <div 
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white flex items-center justify-center shadow-xs border border-white/20 shrink-0 hover:scale-110 transition-transform cursor-pointer" 
+              title="BHIM UPI"
+            >
+              <div className="flex flex-col items-center justify-center -space-y-0.5">
+                <span className="text-[8.5px] sm:text-[9.5px] font-black tracking-wider text-[#002E6E] leading-none">UPI</span>
+                <div className="flex gap-0.5 mt-0.5">
+                  <span className="w-1.5 h-1 bg-[#F47920] skew-x-12 rounded-2xs block" />
+                  <span className="w-1.5 h-1 bg-[#0FA348] -skew-x-12 rounded-2xs block" />
+                </div>
               </div>
             </div>
 
             {/* RuPay */}
-            <div className="h-7 px-2.5 bg-white rounded-md shadow-xs flex items-center justify-center hover:scale-105 transition-transform" title="RuPay">
-              <span className="text-[10px] font-black tracking-tight text-[#0C2340]">Ru</span>
-              <span className="text-[10px] font-black tracking-tight text-[#E31837]">Pay</span>
-              <span className="text-[8px] font-black text-[#0C2340] ml-0.5">❯❯</span>
+            <div 
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white flex items-center justify-center shadow-xs border border-white/20 shrink-0 hover:scale-110 transition-transform cursor-pointer" 
+              title="RuPay"
+            >
+              <span className="text-[9px] sm:text-[10px] font-black tracking-tighter flex items-center">
+                <span className="text-[#0C2340]">Ru</span>
+                <span className="text-[#E31837]">Pay</span>
+              </span>
             </div>
 
             {/* VISA */}
-            <div className="h-7 px-2.5 bg-white rounded-md shadow-xs flex items-center justify-center hover:scale-105 transition-transform" title="Visa">
-              <span className="text-[11px] font-black italic tracking-wider text-[#1A1F71]">VISA</span>
+            <div 
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white flex items-center justify-center shadow-xs border border-white/20 shrink-0 hover:scale-110 transition-transform cursor-pointer" 
+              title="Visa"
+            >
+              <span className="text-[10px] sm:text-[11px] font-black italic tracking-tighter text-[#1A1F71]">VISA</span>
             </div>
 
             {/* Mastercard */}
-            <div className="h-7 px-2 bg-white rounded-md shadow-xs flex items-center justify-center gap-0.5 hover:scale-105 transition-transform" title="Mastercard">
+            <div 
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white flex items-center justify-center shadow-xs border border-white/20 shrink-0 hover:scale-110 transition-transform cursor-pointer" 
+              title="Mastercard"
+            >
               <div className="flex -space-x-1.5 items-center">
-                <div className="w-3.5 h-3.5 rounded-full bg-[#EB001B]" />
-                <div className="w-3.5 h-3.5 rounded-full bg-[#F79E1B] opacity-90" />
+                <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-[#EB001B]" />
+                <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-[#F79E1B] opacity-90" />
               </div>
             </div>
 
             {/* Net Banking */}
-            <div className="h-7 px-2 bg-white rounded-md shadow-xs flex items-center justify-center gap-1 text-[10px] font-bold text-gray-800 hover:scale-105 transition-transform" title="Net Banking">
-              <Building2 className="w-3.5 h-3.5 text-emerald-700" />
-              <span>NetBanking</span>
+            <div 
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white flex items-center justify-center shadow-xs border border-white/20 shrink-0 hover:scale-110 transition-transform cursor-pointer text-emerald-800" 
+              title="Net Banking"
+            >
+              <Building2 className="w-4 h-4 text-emerald-800" />
             </div>
 
             {/* Cash on Delivery (COD) */}
-            <div className="h-7 px-2 bg-amber-500 text-white rounded-md shadow-xs flex items-center justify-center gap-1 text-[10px] font-black tracking-wide hover:scale-105 transition-transform" title="Cash on Delivery Available">
-              <span>COD</span>
+            <div 
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-amber-500 to-amber-600 text-white flex items-center justify-center shadow-xs border border-white/20 shrink-0 hover:scale-110 transition-transform cursor-pointer font-black text-[9px] sm:text-[10px] tracking-tight" 
+              title="Cash on Delivery Available"
+            >
+              COD
+            </div>
+
+            {/* 100% Secure via Razorpay */}
+            <div 
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-emerald-700 text-white flex items-center justify-center shadow-xs border border-white/20 shrink-0 hover:scale-110 transition-transform cursor-pointer" 
+              title="100% Secure SSL Payment"
+            >
+              <ShieldCheck className="w-4 h-4 text-white" />
             </div>
           </div>
         </div>
