@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, MessageCircle, ShieldCheck, Heart, Sparkles, Star, ExternalLink } from 'lucide-react';
+import { MapPin, Phone, Mail, MessageCircle, ShieldCheck, Heart, Sparkles, Star, ExternalLink, Building2 } from 'lucide-react';
 import footerLogo from '../../assets/footer-logo.png';
 import { InstagramIcon, YouTubeIcon, FacebookIcon } from './SocialLinks';
 
@@ -223,8 +223,85 @@ export const Footer = () => {
 
         </div>
 
-        {/* Bottom bar with payment badges and policies */}
-        <div className="pt-4 sm:pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] sm:text-xs text-cream-200/70 border-t border-white/5 mt-2">
+        {/* Dedicated 100% Secure Payment Logos Strip */}
+        <div className="pt-6 pb-4 border-t border-white/10 mt-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-cream-200/80 uppercase tracking-wider flex items-center gap-1.5">
+              <span>🔒 100% Secure Payments Powered by</span>
+              <span className="text-white font-extrabold tracking-normal">Razorpay</span>
+            </span>
+          </div>
+
+          {/* Payment Method Brand Logos */}
+          <div className="flex flex-wrap items-center justify-center gap-2 select-none">
+            {/* Google Pay */}
+            <div className="h-7 px-2.5 bg-white rounded-md shadow-xs flex items-center justify-center hover:scale-105 transition-transform" title="Google Pay">
+              <span className="text-xs font-bold text-gray-800 flex items-center tracking-tight">
+                <span className="text-[#4285F4] font-black text-sm">G</span>
+                <span className="text-gray-700 font-semibold ml-0.5">Pay</span>
+              </span>
+            </div>
+
+            {/* PhonePe */}
+            <div className="h-7 px-2.5 bg-[#5f259f] rounded-md shadow-xs flex items-center justify-center gap-1 hover:scale-105 transition-transform" title="PhonePe">
+              <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center text-[#5f259f] text-[9.5px] font-black leading-none">
+                पे
+              </div>
+              <span className="text-white font-extrabold text-[11px] tracking-tight">PhonePe</span>
+            </div>
+
+            {/* Paytm */}
+            <div className="h-7 px-2.5 bg-white rounded-md shadow-xs flex items-center justify-center hover:scale-105 transition-transform" title="Paytm">
+              <span className="text-xs font-black tracking-tighter flex items-baseline">
+                <span className="text-[#002E6E]">pay</span>
+                <span className="text-[#00BAF2]">tm</span>
+              </span>
+            </div>
+
+            {/* BHIM UPI */}
+            <div className="h-7 px-2.5 bg-white rounded-md shadow-xs flex items-center justify-center gap-1 hover:scale-105 transition-transform" title="BHIM UPI">
+              <span className="text-[10px] font-black tracking-wider text-[#002E6E]">UPI</span>
+              <div className="w-2.5 h-3 flex flex-col justify-center gap-0.5">
+                <span className="w-2.5 h-1 bg-[#F47920] skew-x-12 rounded-2xs block" />
+                <span className="w-2.5 h-1 bg-[#0FA348] -skew-x-12 rounded-2xs block" />
+              </div>
+            </div>
+
+            {/* RuPay */}
+            <div className="h-7 px-2.5 bg-white rounded-md shadow-xs flex items-center justify-center hover:scale-105 transition-transform" title="RuPay">
+              <span className="text-[10px] font-black tracking-tight text-[#0C2340]">Ru</span>
+              <span className="text-[10px] font-black tracking-tight text-[#E31837]">Pay</span>
+              <span className="text-[8px] font-black text-[#0C2340] ml-0.5">❯❯</span>
+            </div>
+
+            {/* VISA */}
+            <div className="h-7 px-2.5 bg-white rounded-md shadow-xs flex items-center justify-center hover:scale-105 transition-transform" title="Visa">
+              <span className="text-[11px] font-black italic tracking-wider text-[#1A1F71]">VISA</span>
+            </div>
+
+            {/* Mastercard */}
+            <div className="h-7 px-2 bg-white rounded-md shadow-xs flex items-center justify-center gap-0.5 hover:scale-105 transition-transform" title="Mastercard">
+              <div className="flex -space-x-1.5 items-center">
+                <div className="w-3.5 h-3.5 rounded-full bg-[#EB001B]" />
+                <div className="w-3.5 h-3.5 rounded-full bg-[#F79E1B] opacity-90" />
+              </div>
+            </div>
+
+            {/* Net Banking */}
+            <div className="h-7 px-2 bg-white rounded-md shadow-xs flex items-center justify-center gap-1 text-[10px] font-bold text-gray-800 hover:scale-105 transition-transform" title="Net Banking">
+              <Building2 className="w-3.5 h-3.5 text-emerald-700" />
+              <span>NetBanking</span>
+            </div>
+
+            {/* Cash on Delivery (COD) */}
+            <div className="h-7 px-2 bg-amber-500 text-white rounded-md shadow-xs flex items-center justify-center gap-1 text-[10px] font-black tracking-wide hover:scale-105 transition-transform" title="Cash on Delivery Available">
+              <span>COD</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom bar with copyright and policies */}
+        <div className="pt-4 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] sm:text-xs text-cream-200/70 border-t border-white/5">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-4 text-center md:text-left">
             <span>© {new Date().getFullYear()} Singodia Foods. All Rights Reserved.</span>
             <span className="hidden sm:inline">•</span>
@@ -244,16 +321,6 @@ export const Footer = () => {
             <Link to="/shipping-policy" className="hover:text-mustard transition-colors">Shipping</Link>
             <span>•</span>
             <Link to="/refund-policy" className="hover:text-mustard transition-colors">Refund & Return</Link>
-          </div>
-
-          {/* Payment Methods */}
-          <div className="flex flex-wrap items-center justify-center gap-1.5 text-[10px]">
-            <span className="text-cream-200/60 uppercase mr-1">Accepted:</span>
-            <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">UPI</span>
-            <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">GPay</span>
-            <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">PhonePe</span>
-            <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">Cards</span>
-            <span className="px-2 py-0.5 bg-white/10 rounded font-semibold">NetBanking</span>
           </div>
         </div>
 
