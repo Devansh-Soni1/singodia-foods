@@ -1,8 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldCheck, FileText, ArrowLeft, Mail, Phone, MapPin, Clock } from 'lucide-react';
+import { useSEO } from '../hooks/useSEO';
 
 export const TermsPage = () => {
+  useSEO({
+    title: 'Terms & Conditions (नियम एवं शर्तें) | Singodia Foods',
+    description: 'Terms and conditions governing orders, payments, shipping, intellectual property, and jurisdiction on Singodia Foods (singodiafoodstore.in).',
+    url: '/terms'
+  });
   return (
     <div className="py-10 sm:py-16 bg-[#FAF6EF] min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

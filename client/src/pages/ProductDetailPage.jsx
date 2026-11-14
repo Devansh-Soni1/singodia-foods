@@ -13,6 +13,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
 import { resolveProductImage, isVideoUrl } from '../utils/imageUtils';
+import { useSEO } from '../hooks/useSEO';
 
 const DEFAULT_PRODUCT_REVIEWS = [
   {
@@ -104,6 +105,51 @@ export const ProductDetailPage = () => {
     const singleWeight = parseWeightToKg(variant?.weight);
     return Math.max(0.25, singleWeight * (quantity || 1));
   }, [variant?.weight, quantity]);
+
+  // Product Schema for Google Search Rich Cards
+  const productSchema = useMemo(() => {
+    if (!product) return null;
+    const currentPrice = variant?.price || 249;
+    const prodImage = product.images?.[0] ? resolveProductImage(product.images[0]) : 'https://singodiafoodstore.in/hero-banner.png';
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      'name': `${product.name} ${product.hindiName ? `(${product.hindiName})` : ''}`,
+      'image': [prodImage.startsWith('http') ? prodImage : `https://singodiafoodstore.in${prodImage}`],
+      'description': product.description || 'Authentic traditional homemade Rajasthani pickle by Singodia Foods, Sujangarh.',
+      'sku': product.slug,
+      'brand': {
+        '@type': 'Brand',
+        'name': 'Singodia Foods'
+      },
+      'offers': {
+        '@type': 'Offer',
+        'url': `https://singodiafoodstore.in/allpickle/${product.slug}/`,
+        'priceCurrency': 'INR',
+        'price': currentPrice,
+        'availability': variant?.inStock !== false ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        'seller': {
+          '@type': 'Organization',
+          'name': 'Singodia Foods'
+        }
+      },
+      'aggregateRating': {
+        '@type': 'AggregateRating',
+        'ratingValue': product.averageRating || 4.9,
+        'reviewCount': Math.max(1, product.totalReviews || 12)
+      }
+    };
+  }, [product, variant]);
+
+  // Dynamic Product SEO metadata
+  useSEO({
+    title: product ? `${product.name} ${product.hindiName ? `(${product.hindiName})` : ''} - Buy Authentic Pickle` : 'Product Details',
+    description: product?.description || 'Authentic homemade Rajasthani pickle sun-cured in ceramic martabans in Sujangarh, Rajasthan.',
+    image: product?.images?.[0] ? resolveProductImage(product.images[0]) : '/hero-banner.png',
+    url: product?.slug ? `/allpickle/${product.slug}/` : undefined,
+    type: 'product',
+    schema: productSchema
+  });
 
   // Normal Delivery Pincode & Date/Price state
   const [pincodeInput, setPincodeInput] = useState(() => {

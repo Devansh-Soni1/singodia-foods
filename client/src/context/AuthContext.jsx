@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { authAPI } from '../services/api';
+import { getCookie, setCookie, deleteCookie } from '../utils/cookieUtils';
 
 const AuthContext = createContext(null);
 
@@ -10,13 +11,18 @@ const ADMIN_INACTIVITY_LIMIT_MS = 15 * 60 * 1000;
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     try {
-      const savedUser = localStorage.getItem('singodia_user') || localStorage.getItem('singodhia_user');
+      const savedUser = localStorage.getItem('singodia_user') || localStorage.getItem('singodhia_user') || getCookie('singodia_user');
       return savedUser ? JSON.parse(savedUser) : null;
     } catch {
       return null;
     }
   });
-  const [token, setToken] = useState(localStorage.getItem('singodia_token') || localStorage.getItem('singodhia_token') || null);
+  const [token, setToken] = useState(
+    localStorage.getItem('singodia_token') || 
+    localStorage.getItem('singodhia_token') || 
+    getCookie('singodia_token') || 
+    null
+  );
   const [loading, setLoading] = useState(!user);
 
   const logout = () => {
@@ -26,6 +32,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('singodhia_token');
     localStorage.removeItem('singodhia_user');
     localStorage.removeItem('singodhia_admin_last_activity');
+    deleteCookie('singodia_token');
+    deleteCookie('singodia_user');
     setToken(null);
     setUser(null);
   };
@@ -116,6 +124,8 @@ export const AuthProvider = ({ children }) => {
     if (res.token) {
       localStorage.setItem('singodia_token', res.token);
       localStorage.setItem('singodia_user', JSON.stringify(res.user));
+      setCookie('singodia_token', res.token, 30);
+      setCookie('singodia_user', JSON.stringify(res.user), 30);
       if (res.user?.role === 'admin') {
         localStorage.setItem('singodia_admin_last_activity', Date.now().toString());
       }
@@ -134,6 +144,8 @@ export const AuthProvider = ({ children }) => {
     if (res.token) {
       localStorage.setItem('singodia_token', res.token);
       localStorage.setItem('singodia_user', JSON.stringify(res.user));
+      setCookie('singodia_token', res.token, 30);
+      setCookie('singodia_user', JSON.stringify(res.user), 30);
       if (res.user?.role === 'admin') {
         localStorage.setItem('singodia_admin_last_activity', Date.now().toString());
       }
@@ -148,6 +160,8 @@ export const AuthProvider = ({ children }) => {
     if (res.token) {
       localStorage.setItem('singodia_token', res.token);
       localStorage.setItem('singodia_user', JSON.stringify(res.user));
+      setCookie('singodia_token', res.token, 30);
+      setCookie('singodia_user', JSON.stringify(res.user), 30);
       setToken(res.token);
       setUser(res.user);
     }
@@ -159,6 +173,8 @@ export const AuthProvider = ({ children }) => {
     if (res.token) {
       localStorage.setItem('singodia_token', res.token);
       localStorage.setItem('singodia_user', JSON.stringify(res.user));
+      setCookie('singodia_token', res.token, 30);
+      setCookie('singodia_user', JSON.stringify(res.user), 30);
       setToken(res.token);
       setUser(res.user);
     }

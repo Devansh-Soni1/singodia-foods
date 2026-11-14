@@ -10,8 +10,15 @@ import { FaqSection } from '../components/home/FaqSection';
 import { QuickViewModal } from '../components/product/QuickViewModal';
 import { productAPI } from '../services/api';
 import { INITIAL_PRODUCTS } from '../data/initialProducts';
+import { useSEO } from '../hooks/useSEO';
 
 export const HomePage = () => {
+  useSEO({
+    title: 'Singodia Foods — शुद्ध मारवाड़ी देसी अचार | Sujangarh, Rajasthan',
+    description: 'स्वाद घर जैसा, परंपरा राजस्थान की! सिंगोदिया फूड्स के प्रामाणिक घरेलू अचार — आम का अचार, बनारसी भरवां लाल मिर्च, कैर सांगरी, नीम्बू और तीखी हरी मिर्च। 100% शुद्ध सरसों का तेल।',
+    url: '/'
+  });
+
   const [featuredProducts, setFeaturedProducts] = useState(INITIAL_PRODUCTS.slice(0, 4));
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const location = useLocation();

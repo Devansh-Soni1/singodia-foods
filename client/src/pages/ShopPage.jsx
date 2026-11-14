@@ -6,6 +6,7 @@ import { QuickViewModal } from '../components/product/QuickViewModal';
 import { productAPI, categoryAPI } from '../services/api';
 import { getTasteInfo } from '../constants/tasteSubCategories';
 import { INITIAL_PRODUCTS } from '../data/initialProducts';
+import { useSEO } from '../hooks/useSEO';
 
 export const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,6 +43,16 @@ export const ShopPage = () => {
   const searchParam = searchParams.get('q') || '';
   const bestsellersParam = searchParams.get('bestsellers') === 'true';
   const jainParam = searchParams.get('jain') === 'true';
+
+  const catTitle = categoryParam !== 'all' 
+    ? `${categoryParam.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} Pickles`
+    : 'All Authentic Homemade Pickles';
+
+  useSEO({
+    title: `${catTitle} — Singodia Foods`,
+    description: `Browse authentic traditional homemade ${catTitle.toLowerCase()} prepared with desi cold-pressed mustard oil and sun-cured spices in Sujangarh, Rajasthan.`,
+    url: categoryParam !== 'all' ? `/category/${categoryParam}/` : '/allpickles'
+  });
 
   useEffect(() => {
     const loadCategories = async () => {

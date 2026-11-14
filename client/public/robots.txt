@@ -1,0 +1,16 @@
+# Singodia Foods - Official Robots.txt
+# Website: https://singodiafoodstore.in
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /checkout
+Disallow: /account
+Disallow: /order-confirmation/*
+
+# Crawl delay
+Crawl-delay: 1
+
+# XML Sitemaps
+Sitemap: https://singodiafoodstore.in/sitemap.xml

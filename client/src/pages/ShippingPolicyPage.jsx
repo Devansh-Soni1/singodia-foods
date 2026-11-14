@@ -1,8 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Truck, Package, Clock, ShieldCheck, ArrowLeft, MapPin, AlertCircle, Phone, Mail } from 'lucide-react';
+import { useSEO } from '../hooks/useSEO';
 
 export const ShippingPolicyPage = () => {
+  useSEO({
+    title: 'Shipping & Delivery Policy (शिपिंग नीति) | Singodia Foods',
+    description: 'Pan-India shipping across 26,000+ pincodes via iThink Logistics (Blue Dart, Delhivery, DTDC). Dispatched from Sujangarh, Rajasthan within 24 to 48 business hours.',
+    url: '/shipping-policy'
+  });
   return (
     <div className="py-10 sm:py-16 bg-[#FAF6EF] min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

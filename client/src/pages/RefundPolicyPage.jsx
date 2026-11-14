@@ -14,8 +14,14 @@ import {
   Ban, 
   CreditCard 
 } from 'lucide-react';
+import { useSEO } from '../hooks/useSEO';
 
 export const RefundPolicyPage = () => {
+  useSEO({
+    title: 'Replacement & Cancellation Policy (रिप्लेसमेंट नीति) | Singodia Foods',
+    description: 'Order cancellation before dispatch by phone call only. 100% free replacement on continuous unboxing video proof. Strict no cash refund policy for consumable food items.',
+    url: '/refund-policy'
+  });
   return (
     <div className="py-10 sm:py-16 bg-[#FAF6EF] min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

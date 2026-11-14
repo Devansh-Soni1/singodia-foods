@@ -1,8 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldCheck, Lock, ArrowLeft, Mail, Phone, MapPin, Eye, CheckCircle2 } from 'lucide-react';
+import { useSEO } from '../hooks/useSEO';
 
 export const PrivacyPolicyPage = () => {
+  useSEO({
+    title: 'Privacy Policy (गोपनीयता नीति) | Singodia Foods',
+    description: 'Learn how Singodia Foods collects, stores, and protects your personal data, shipping information, cookies, and online payment confidentiality.',
+    url: '/privacy-policy'
+  });
   return (
     <div className="py-10 sm:py-16 bg-[#FAF6EF] min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

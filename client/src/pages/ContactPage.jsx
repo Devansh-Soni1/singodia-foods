@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, MessageCircle, Send, Check } from 'lucide-react';
 import { InstagramIcon, YouTubeIcon, FacebookIcon } from '../components/common/SocialLinks';
+import { useSEO } from '../hooks/useSEO';
 
 export const ContactPage = () => {
+  useSEO({
+    title: 'संपर्क करें (Contact Us) — Support & Bulk Orders | Singodia Foods',
+    description: 'Connect with Singodia Foods in Sujangarh, Rajasthan. Call or WhatsApp +91 75979 66707 for product inquiries, live order tracking, and custom wedding/gift hampers.',
+    url: '/contact'
+  });
   const [sent, setSent] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
 

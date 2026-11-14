@@ -2,8 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Sun, Heart, Sparkles, ShieldCheck, Award, ArrowRight, CheckCircle2, Users, Flame, Truck } from 'lucide-react';
 import { TrustBadges } from '../components/common/TrustBadges';
+import { useSEO } from '../hooks/useSEO';
 
 export const AboutPage = () => {
+  useSEO({
+    title: 'हमारी कहानी (Our Story) — Traditional Homemade Rajasthani Pickles | Singodia Foods',
+    description: 'Born in Sujangarh, Rajasthan, Singodia Foods is dedicated to the traditional heritage of sun-cured, artisanal homemade pickles made without preservatives or synthetic chemicals.',
+    url: '/about'
+  });
   return (
     <div className="py-12 sm:py-20 bg-[#FAF6EF]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

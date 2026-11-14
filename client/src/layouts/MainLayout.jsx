@@ -9,6 +9,7 @@ import { CartDrawer } from '../components/common/CartDrawer';
 import { SearchModal } from '../components/common/SearchModal';
 import { BlinkitCartBar } from '../components/common/BlinkitCartBar';
 import { RajasthaniAudioPlayer } from '../components/common/RajasthaniAudioPlayer';
+import { CookieConsentBanner } from '../components/common/CookieConsentBanner';
 
 export const MainLayout = () => {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -42,6 +43,9 @@ export const MainLayout = () => {
 
       {/* Ambient Soft Rajasthani Background Tune with Mute/Unmute Control */}
       <RajasthaniAudioPlayer />
+
+      {/* Cookie Consent Banner */}
+      <CookieConsentBanner />
     </div>
   );
 };

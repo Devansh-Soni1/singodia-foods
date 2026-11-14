@@ -1,19 +1,112 @@
 <!doctype html>
-<html lang="en">
+<html lang="hi-IN">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
-    <title>Singodia Foods — Desi Homemade Pickles | स्वाद घर जैसा, परंपरा राजस्थान की</title>
-    <meta name="description" content="Authentic Rajasthani homemade pickles hand-crafted with traditional recipes, whole spices, and sun-cured in traditional ceramic barnis. Banarasi Lal Mirch, Aam Ka Achar, Kair Sangri, and more." />
+    <meta name="theme-color" content="#1F4D36" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+    <!-- Primary SEO Meta Tags -->
+    <title>Singodia Foods — शुद्ध मारवाड़ी देसी अचार | Sujangarh, Rajasthan</title>
+    <meta name="title" content="Singodia Foods — शुद्ध मारवाड़ी देसी अचार | Sujangarh, Rajasthan" />
+    <meta name="description" content="स्वाद घर जैसा, परंपरा राजस्थान की! सिंगोदिया फूड्स के प्रामाणिक घरेलू अचार — आम का अचार, बनारसी भरवां लाल मिर्च, कैर सांगरी, नीम्बू और तीखी हरी मिर्च। 100% शुद्ध सरसों का तेल, बिना केमिकल प्रिजर्वेटिव।" />
+    <meta name="keywords" content="Singodia Foods, singodiafoodstore.in, rajasthani achar, aam ka achar, marwadi achar, ker sangri, lal mirch achar, homemade pickles online, sujangarh achar, शुद्ध मारवाड़ी अचार" />
+    <meta name="author" content="Singodia Foods, Sujangarh, Rajasthan" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="https://singodiafoodstore.in/" />
+
+    <!-- Open Graph / Facebook / WhatsApp Preview -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://singodiafoodstore.in/" />
+    <meta property="og:title" content="Singodia Foods — शुद्ध मारवाड़ी देसी अचार | Sujangarh, Rajasthan" />
+    <meta property="og:description" content="स्वाद घर जैसा, परंपरा राजस्थान की! शुद्ध देसी मसालों और सरसों के तेल से तैयार पारंपरिक घरेलू अचार। अभी ऑर्डर करें — पूरे भारत में सुरक्षित होम डिलीवरी।" />
+    <meta property="og:image" content="https://singodiafoodstore.in/hero-banner.png" />
+    <meta property="og:site_name" content="Singodia Foods" />
+    <meta property="og:locale" content="hi_IN" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://singodiafoodstore.in/" />
+    <meta name="twitter:title" content="Singodia Foods — शुद्ध मारवाड़ी देसी अचार" />
+    <meta name="twitter:description" content="परंपरागत मारवाड़ी स्वाद, 100% शुद्ध सरसों के तेल में धूप में पके घरेलू अचार। सुजानगढ़, राजस्थान से सीधे आपके घर।" />
+    <meta name="twitter:image" content="https://singodiafoodstore.in/hero-banner.png" />
+
+    <!-- Geo Location Tags for Local SEO -->
+    <meta name="geo.region" content="IN-RJ" />
+    <meta name="geo.placename" content="Sujangarh, Churu, Rajasthan" />
+    <meta name="geo.position" content="27.7011;74.4566" />
+    <meta name="ICBM" content="27.7011, 74.4566" />
+
     <!-- Preconnect Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Razorpay Checkout SDK -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
     <!-- Google Identity Services (One-Tap & OAuth) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Master Schema Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Store",
+          "@id": "https://singodiafoodstore.in/#store",
+          "name": "Singodia Foods",
+          "url": "https://singodiafoodstore.in",
+          "logo": "https://singodiafoodstore.in/logo.png",
+          "image": "https://singodiafoodstore.in/hero-banner.png",
+          "description": "Authentic homemade Rajasthani pickles hand-crafted with traditional recipes and sun-cured in ceramic martabans in Sujangarh, Rajasthan.",
+          "telephone": "+91 75979 66707",
+          "email": "premsingodiya861@gmail.com",
+          "priceRange": "₹₹",
+          "paymentAccepted": "UPI, Credit Card, Debit Card, Net Banking",
+          "currenciesAccepted": "INR",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Sujangarh",
+            "addressLocality": "Sujangarh",
+            "addressRegion": "Rajasthan",
+            "postalCode": "331507",
+            "addressCountry": "IN"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "27.7011",
+            "longitude": "74.4566"
+          },
+          "openingHoursSpecification": {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": [
+              "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+            ],
+            "opens": "09:00",
+            "closes": "20:00"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://singodiafoodstore.in/#website",
+          "url": "https://singodiafoodstore.in",
+          "name": "Singodia Foods",
+          "description": "Desi Homemade Rajasthani Pickles Online Store",
+          "publisher": { "@id": "https://singodiafoodstore.in/#store" },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://singodiafoodstore.in/allpickles?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+    </script>
   </head>
   <body class="bg-[#FAF6EF] text-[#22201D] font-sans antialiased selection:bg-[#F3A222] selection:text-white">
     <div id="root"></div>
