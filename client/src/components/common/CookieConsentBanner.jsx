@@ -37,7 +37,7 @@ export const CookieConsentBanner = () => {
   return (
     <aside 
       aria-label="Cookie Consent"
-      className="fixed bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-auto sm:max-w-md z-50 animate-cart-slide-up"
+      className="fixed bottom-3 sm:bottom-5 left-3 sm:left-5 right-3 sm:right-auto sm:max-w-md z-50 animate-cookie-slide-up"
     >
       <div className="bg-white/95 backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-cream-300 shadow-2xl space-y-3 ring-1 ring-black/5 text-charcoal">
         <div className="flex items-start justify-between gap-3">
