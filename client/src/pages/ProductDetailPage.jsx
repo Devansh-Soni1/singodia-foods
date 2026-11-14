@@ -170,6 +170,7 @@ export const ProductDetailPage = () => {
   useEffect(() => {
     const fetchProductData = async () => {
       setLoading(true);
+      setActiveImageIdx(0);
       const cleanSlug = (slug || '').toLowerCase().replace(/\/$/, '');
       try {
         const res = await productAPI.getProductBySlug(cleanSlug);
@@ -195,6 +196,27 @@ export const ProductDetailPage = () => {
     };
     fetchProductData();
   }, [slug]);
+
+  const imagesList = (product?.images && product.images.length > 0) ? product.images : ['/hero-banner.png'];
+  const totalImages = imagesList.length;
+
+  const touchStartXRef = useRef(null);
+  const touchEndXRef = useRef(null);
+
+  const handleNextImage = useCallback(() => {
+    setActiveImageIdx((prev) => (prev + 1) % totalImages);
+  }, [totalImages]);
+
+  const handlePrevImage = useCallback(() => {
+    setActiveImageIdx((prev) => (prev - 1 + totalImages) % totalImages);
+  }, [totalImages]);
+
+  useEffect(() => {
+    const thumbEl = document.getElementById(`product-thumb-${activeImageIdx}`);
+    if (thumbEl) {
+      thumbEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }
+  }, [activeImageIdx]);
 
   if (loading) {
     return (
@@ -283,27 +305,6 @@ export const ProductDetailPage = () => {
     setNewTitle('');
     setNewComment('');
   };
-
-  const touchStartXRef = useRef(null);
-  const touchEndXRef = useRef(null);
-
-  const imagesList = product.images && product.images.length > 0 ? product.images : ['/hero-banner.png'];
-  const totalImages = imagesList.length;
-
-  const handleNextImage = useCallback(() => {
-    setActiveImageIdx((prev) => (prev + 1) % totalImages);
-  }, [totalImages]);
-
-  const handlePrevImage = useCallback(() => {
-    setActiveImageIdx((prev) => (prev - 1 + totalImages) % totalImages);
-  }, [totalImages]);
-
-  useEffect(() => {
-    const thumbEl = document.getElementById(`product-thumb-${activeImageIdx}`);
-    if (thumbEl) {
-      thumbEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-    }
-  }, [activeImageIdx]);
 
   const handleTouchStart = (e) => {
     touchStartXRef.current = e.touches[0].clientX;
