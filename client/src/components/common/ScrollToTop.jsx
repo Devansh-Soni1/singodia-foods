@@ -1,20 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
 /**
  * Global Scroll-to-Top Component
- * Ensures every page navigation starts cleanly at the top of the viewport
- * instead of preserving bottom/footer scroll offsets.
+ * Ensures page navigations (different routes) start at the top of the viewport
+ * while preserving scroll position when simply switching tabs or query params on the same page.
  */
 export const ScrollToTop = () => {
-  const { pathname, search, hash } = useLocation();
+  const { pathname, hash } = useLocation();
+  const prevPathRef = useRef(pathname);
 
   useEffect(() => {
-    // Disable browser's automatic scroll restoration on SPA navigations
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
-    }
-
     // If an anchor hash exists (e.g. #trial-pack), scroll smoothly to that section
     if (hash) {
       const targetId = hash.replace('#', '');
@@ -25,27 +21,32 @@ export const ScrollToTop = () => {
       }
     }
 
-    // Instantly reset window, html, and body scroll offsets to the absolute top
-    const scrollToTopImmediate = () => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-      if (document.documentElement) document.documentElement.scrollTop = 0;
-      if (document.body) document.body.scrollTop = 0;
-    };
+    // Only scroll to top when navigating to a DIFFERENT page/route
+    if (prevPathRef.current !== pathname) {
+      prevPathRef.current = pathname;
 
-    scrollToTopImmediate();
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'manual';
+      }
 
-    // Micro-delay frame callbacks to handle any async images or layout reflows
-    const rafId = requestAnimationFrame(scrollToTopImmediate);
-    const timer = setTimeout(scrollToTopImmediate, 30);
+      const scrollToTopImmediate = () => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        if (document.documentElement) document.documentElement.scrollTop = 0;
+        if (document.body) document.body.scrollTop = 0;
+      };
 
-    return () => {
-      cancelAnimationFrame(rafId);
-      clearTimeout(timer);
-    };
-  }, [pathname, search, hash]);
+      scrollToTopImmediate();
+      const rafId = requestAnimationFrame(scrollToTopImmediate);
+      const timer = setTimeout(scrollToTopImmediate, 30);
+
+      return () => {
+        cancelAnimationFrame(rafId);
+        clearTimeout(timer);
+      };
+    }
+  }, [pathname, hash]);
 
   return null;
 };
 
 export default ScrollToTop;
-

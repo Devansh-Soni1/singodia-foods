@@ -18,9 +18,19 @@ export const AccountPage = () => {
   const { wishlist } = useWishlist();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const urlTab = searchParams.get('tab') || 'orders';
+  const [activeTab, setActiveTabState] = useState(urlTab);
 
-  const activeTab = searchParams.get('tab') || 'orders';
-  const setActiveTab = (tab) => setSearchParams({ tab });
+  useEffect(() => {
+    if (urlTab && urlTab !== activeTab) {
+      setActiveTabState(urlTab);
+    }
+  }, [urlTab]);
+
+  const setActiveTab = (tab) => {
+    setActiveTabState(tab);
+    setSearchParams({ tab }, { replace: true, preventScrollReset: true });
+  };
 
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
@@ -248,29 +258,32 @@ export const AccountPage = () => {
         </div>
 
         {/* Layout: Tab Navigation Sidebar + Main Panel */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start">
           
-          {/* Navigation Tabs */}
-          <div className="lg:col-span-3 bg-white rounded-2xl p-3 border border-cream-200 shadow-card space-y-1">
+          {/* Navigation Tabs (Horizontal Strip on Mobile, Vertical Sidebar on Desktop) */}
+          <div className="lg:col-span-3 bg-white rounded-2xl p-2 sm:p-3 border border-cream-200 shadow-card flex flex-row lg:flex-col gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none select-none">
             {[
-              { id: 'orders', label: 'Order History', icon: Package },
-              { id: 'addresses', label: 'Saved Addresses', icon: MapPin },
-              { id: 'wishlist', label: `My Wishlist (${wishlist.length})`, icon: Heart },
-              { id: 'profile', label: 'Profile Details', icon: User },
+              { id: 'orders', label: 'Order History', mobileLabel: 'Orders', icon: Package },
+              { id: 'addresses', label: 'Saved Addresses', mobileLabel: 'Addresses', icon: MapPin },
+              { id: 'wishlist', label: `My Wishlist (${wishlist.length})`, mobileLabel: `Wishlist (${wishlist.length})`, icon: Heart },
+              { id: 'profile', label: 'Profile Details', mobileLabel: 'Profile', icon: User },
             ].map((tab) => {
               const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
+                  type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all text-left ${
-                    activeTab === tab.id
+                  className={`flex-1 min-w-[110px] sm:min-w-[130px] lg:min-w-0 lg:w-full flex items-center justify-center lg:justify-start gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                    isActive
                       ? 'bg-brand-green text-white shadow-xs'
-                      : 'text-charcoal hover:bg-cream-100'
+                      : 'text-charcoal bg-cream-50/70 lg:bg-transparent hover:bg-cream-100 hover:text-brand-green'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span>{tab.label}</span>
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.mobileLabel}</span>
                 </button>
               );
             })}
