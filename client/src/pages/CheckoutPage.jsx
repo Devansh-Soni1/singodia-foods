@@ -1155,33 +1155,6 @@ export const CheckoutPage = () => {
                   </div>
                 </div>
 
-                {/* Terms & Policies Consent Box */}
-                <div className="p-3.5 bg-cream-50/90 rounded-2xl border border-cream-200 text-[11px] text-earth-brown leading-relaxed space-y-1.5">
-                  <p className="text-charcoal font-medium">
-                    ऑर्डर करके आप सिंगोदिया फूड्स की{' '}
-                    <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-brand-green font-bold underline hover:text-brand-green-light">
-                      Terms & Conditions
-                    </Link>
-                    ,{' '}
-                    <Link to="/refund-policy" target="_blank" rel="noopener noreferrer" className="text-brand-green font-bold underline hover:text-brand-green-light">
-                      Replacement Policy
-                    </Link>
-                    ,{' '}
-                    <Link to="/shipping-policy" target="_blank" rel="noopener noreferrer" className="text-brand-green font-bold underline hover:text-brand-green-light">
-                      Shipping Policy
-                    </Link>{' '}
-                    और{' '}
-                    <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-brand-green font-bold underline hover:text-brand-green-light">
-                      Privacy Policy
-                    </Link>{' '}
-                    से सहमत होते हैं।
-                  </p>
-                  <p className="text-[10px] text-earth-brown/90 leading-tight">
-                    • <strong>केवल रिप्लेसमेंट (No Cash Refund):</strong> डैमेज/लीकेज पर डिलीवरी के 48 घंटे में अनबॉक्सिंग वीडियो भेजने पर नया जार भेजा जाएगा।<br />
-                    • <strong>कैंसलेशन:</strong> डिस्पैच से पहले केवल कॉल (<a href="tel:+917597966707" className="text-brand-green font-bold underline">+91 75979 66707</a>) करके ही ऑर्डर रद्द करवाया जा सकता है।
-                  </p>
-                </div>
-
                 {/* Submit button */}
                 <button
                   type="submit"
