@@ -60,7 +60,7 @@ export const AboutPage = () => {
               Grandmother’s Sunlit Terrace in Sujangarh
             </h2>
             <p>
-              Decades ago, every summer in Sujangarh began with the seasonal arrival of fresh raw Ramkela mangoes, thick Banarasi red chillies, and sun-dried Kair Sangri from the Thar desert.
+              Decades ago, every summer in Sujangarh began with the seasonal arrival of fresh raw Ramkela mangoes, thick Rajasthani red chillies, and sun-dried Kair Sangri from the Thar desert.
             </p>
             <p>
               Our grandmother (दादी मां) would lead the women of the family in hand-chopping, salting, and stone-roasting whole spices. Ceramic martabans (चीनी मिट्टी की बरनियां) wrapped with red cotton cloths were lined up across the white terrace under the intense desert sunshine for weeks.
