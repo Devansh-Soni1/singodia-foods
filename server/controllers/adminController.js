@@ -145,6 +145,51 @@ export const deleteCustomer = async (req, res, next) => {
   }
 };
 
+export const getPublicSettings = async (req, res, next) => {
+  try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    let allSettings = {};
+    if (mongoose.connection.readyState === 1) {
+      const records = await Setting.find();
+      records.forEach(r => { allSettings[r.key] = r.value; });
+    }
+    
+    // Merge defaults
+    sampleSettings.forEach(s => {
+      if (allSettings[s.key] === undefined) {
+        allSettings[s.key] = s.value;
+      }
+    });
+
+    // Whitelist ONLY public storefront keys - NEVER leak internal database keys or credentials
+    const ALLOWED_PUBLIC_KEYS = [
+      'freeShippingEnabled',
+      'freeShippingThreshold',
+      'standardShippingFee',
+      'announcementEnabled',
+      'announcementText',
+      'whatsappNumber',
+      'supportPhone',
+      'supportEmail',
+      'storeAddress',
+      'heroBannerImage',
+      'trialPackItems',
+      'trialPackPricing'
+    ];
+
+    const safeSettings = {};
+    ALLOWED_PUBLIC_KEYS.forEach(k => {
+      if (allSettings[k] !== undefined) {
+        safeSettings[k] = allSettings[k];
+      }
+    });
+
+    res.json({ success: true, settings: safeSettings });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getSettings = async (req, res, next) => {
   try {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');

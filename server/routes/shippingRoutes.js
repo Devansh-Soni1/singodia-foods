@@ -7,6 +7,7 @@ import {
   isConfigured
 } from '../services/ithinkLogisticsService.js';
 import Order from '../models/Order.js';
+import { protect, adminOnly } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -41,8 +42,8 @@ router.post('/calculate-rate', async (req, res) => {
   }
 });
 
-// POST /api/shipping/generate-awb/:orderId - Generate AWB & Dispatch order
-router.post('/generate-awb/:orderId', async (req, res) => {
+// POST /api/shipping/generate-awb/:orderId - Generate AWB & Dispatch order (Protected Admin)
+router.post('/generate-awb/:orderId', protect, adminOnly, async (req, res) => {
   try {
     const order = await Order.findById(req.params.orderId);
     if (!order) {
@@ -96,8 +97,8 @@ router.get('/track/:waybill', async (req, res) => {
   }
 });
 
-// POST /api/shipping/cancel/:waybill - Cancel shipment
-router.post('/cancel/:waybill', async (req, res) => {
+// POST /api/shipping/cancel/:waybill - Cancel shipment (Protected Admin)
+router.post('/cancel/:waybill', protect, adminOnly, async (req, res) => {
   try {
     const result = await cancelShipment(req.params.waybill);
     res.json(result);

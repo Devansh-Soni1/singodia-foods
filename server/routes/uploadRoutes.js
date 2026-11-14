@@ -1,12 +1,13 @@
 import express from 'express';
 import { v2 as cloudinary } from 'cloudinary';
 import { upload } from '../middleware/upload.js';
+import { protect, adminOnly } from '../middleware/auth.js';
 import axios from 'axios';
 import fs from 'fs';
 
 const router = express.Router();
 
-router.post('/', (req, res) => {
+router.post('/', protect, adminOnly, (req, res) => {
   upload.any()(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ success: false, message: err.message });

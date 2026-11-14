@@ -222,6 +222,7 @@ export const ProductDetailPage = () => {
     const cleanPin = String(targetPin || '').trim().replace(/\D/g, '');
     if (!/^\d{6}$/.test(cleanPin)) {
       if (!isSilent) setPincodeError('कृपया 6 अंकों का सही पिनकोड दर्ज करें');
+      setCheckingPincode(false);
       return;
     }
 
@@ -231,17 +232,26 @@ export const ProductDetailPage = () => {
     const calcWeight = weightToUse !== null ? weightToUse : currentWeightKg;
     const fallback = getZoneFallback(cleanPin, calcWeight);
 
+    // Hard safety watchdog: guarantee button NEVER stays on "Checking..." for more than 2.2 seconds
+    const safetyWatchdog = setTimeout(() => {
+      setCheckingPincode(false);
+    }, 2200);
+
+    let timeoutId;
     try {
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('timeout')), 1800);
+      });
+
       const ratePromise = shippingAPI.calculateRate({
         toPincode: cleanPin,
         weight: calcWeight,
         paymentMethod: 'Prepaid'
       });
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('timeout')), 3000)
-      );
 
       const rateData = await Promise.race([ratePromise, timeoutPromise]);
+      clearTimeout(timeoutId);
+
       const daysStr = rateData?.expectedDeliveryDays || '3 to 4 Days';
       const numbers = String(daysStr).match(/\d+/g);
       const daysToAdd = numbers && numbers.length > 0 ? (parseInt(numbers[numbers.length - 1], 10) || 4) : 4;
@@ -259,10 +269,12 @@ export const ProductDetailPage = () => {
       setDeliveryFee(cost);
       localStorage.setItem('singodia_user_pincode', cleanPin);
     } catch {
+      clearTimeout(timeoutId);
       setDeliveryDate(fallback.dateStr);
       setDeliveryFee(fallback.fee);
       localStorage.setItem('singodia_user_pincode', cleanPin);
     } finally {
+      clearTimeout(safetyWatchdog);
       setCheckingPincode(false);
     }
   }, [currentWeightKg]);
@@ -273,7 +285,7 @@ export const ProductDetailPage = () => {
     if (/^\d{6}$/.test(cleanPin) && initialCheckedRef.current) {
       checkDelivery(cleanPin, true, currentWeightKg);
     }
-  }, [selectedVariantIdx, quantity, currentWeightKg, checkDelivery, pincodeInput]);
+  }, [selectedVariantIdx, quantity, currentWeightKg, checkDelivery]);
 
   // Run only once on initial mount if saved pin exists (silent check)
   useEffect(() => {
@@ -332,7 +344,11 @@ export const ProductDetailPage = () => {
     if (!mainImageRef.current) return;
     const updateHeight = () => {
       if (mainImageRef.current) {
-        setMainImageHeight(mainImageRef.current.offsetHeight);
+        const rect = mainImageRef.current.getBoundingClientRect();
+        const h = rect.height || mainImageRef.current.offsetHeight;
+        if (h > 0) {
+          setMainImageHeight(Math.round(h));
+        }
       }
     };
     updateHeight();
@@ -343,7 +359,7 @@ export const ProductDetailPage = () => {
       ro.disconnect();
       window.removeEventListener('resize', updateHeight);
     };
-  }, [product]);
+  }, [product, activeImageIdx]);
 
   const handleNextImage = useCallback(() => {
     setActiveImageIdx((prev) => (prev + 1) % totalImages);
@@ -501,35 +517,40 @@ export const ProductDetailPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             
             {/* Left: Gallery (Vertical Thumbnails on the left + Swipeable Main Viewport with Arrows) */}
-            <div className="lg:col-span-6 flex flex-row gap-2 sm:gap-4 items-start">
+            <div className="lg:col-span-6 flex flex-row gap-2 sm:gap-4 items-stretch relative">
               
-              {/* Left Column: Vertical Thumbnails Strip (Scrollable - max 4-5 items visible, rest scrolls) */}
+              {/* Left Column: Vertical Thumbnails Strip (Scrollable - strictly locked to main image height, 4-5 items visible) */}
               {totalImages > 1 && (
                 <div 
-                  className="flex flex-col gap-1.5 sm:gap-2.5 overflow-y-auto w-12 xs:w-14 sm:w-20 shrink-0 scrollbar-none py-0.5 select-none"
+                  className="w-12 xs:w-14 sm:w-20 shrink-0 relative self-stretch"
                   style={{ 
-                    maxHeight: mainImageHeight > 0 ? `${mainImageHeight}px` : '360px',
-                    height: mainImageHeight > 0 ? `${mainImageHeight}px` : 'auto',
-                    scrollbarWidth: 'none', 
-                    msOverflowStyle: 'none' 
+                    maxHeight: mainImageHeight > 0 ? `${mainImageHeight}px` : undefined,
+                    height: mainImageHeight > 0 ? `${mainImageHeight}px` : undefined
                   }}
                 >
-                  {imagesList.map((mediaUrl, idx) => {
-                    const isVid = isVideoUrl(mediaUrl);
-                    const isActive = activeImageIdx === idx;
-                    return (
-                      <button
-                        key={idx}
-                        id={`product-thumb-${idx}`}
-                        type="button"
-                        onClick={() => setActiveImageIdx(idx)}
-                        className={`relative w-12 h-12 xs:w-14 xs:h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
-                          isActive
-                            ? 'border-brand-green ring-2 ring-brand-green/30 scale-[1.03] shadow-md'
-                            : 'border-cream-200 opacity-75 hover:opacity-100 hover:border-amber-400'
-                        }`}
-                        title={`View ${isVid ? 'video' : 'photo'} ${idx + 1}`}
-                      >
+                  <div 
+                    className="absolute inset-0 flex flex-col gap-1.5 sm:gap-2.5 overflow-y-auto scrollbar-none py-0.5 select-none touch-pan-y"
+                    style={{ 
+                      scrollbarWidth: 'none', 
+                      msOverflowStyle: 'none' 
+                    }}
+                  >
+                    {imagesList.map((mediaUrl, idx) => {
+                      const isVid = isVideoUrl(mediaUrl);
+                      const isActive = activeImageIdx === idx;
+                      return (
+                        <button
+                          key={idx}
+                          id={`product-thumb-${idx}`}
+                          type="button"
+                          onClick={() => setActiveImageIdx(idx)}
+                          className={`relative w-full aspect-square rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
+                            isActive
+                              ? 'border-brand-green ring-2 ring-brand-green/30 scale-[1.03] shadow-md'
+                              : 'border-cream-200 opacity-75 hover:opacity-100 hover:border-amber-400'
+                          }`}
+                          title={`View ${isVid ? 'video' : 'photo'} ${idx + 1}`}
+                        >
                         {isVid ? (
                           <div className="w-full h-full bg-black/90 flex items-center justify-center relative">
                             <video src={mediaUrl} className="w-full h-full object-cover opacity-60" muted playsInline />
@@ -550,6 +571,7 @@ export const ProductDetailPage = () => {
                       </button>
                     );
                   })}
+                  </div>
                 </div>
               )}
 

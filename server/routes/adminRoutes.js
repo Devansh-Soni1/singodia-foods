@@ -3,6 +3,7 @@ import {
   getDashboardStats, 
   getCustomers, 
   deleteCustomer,
+  getPublicSettings,
   getSettings, 
   updateSettings,
   uploadImage,
@@ -13,8 +14,8 @@ import { upload } from '../middleware/upload.js';
 
 const router = express.Router();
 
-// Publicly read settings (for announcements, shipping threshold, whatsapp)
-router.get('/settings/public', getSettings);
+// Publicly read settings (filtered safe storefront keys only)
+router.get('/settings/public', getPublicSettings);
 
 // Protected admin routes
 router.get('/dashboard-stats', protect, adminOnly, getDashboardStats);

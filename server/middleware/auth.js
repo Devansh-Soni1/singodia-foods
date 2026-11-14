@@ -59,6 +59,38 @@ export const protect = async (req, res, next) => {
   }
 };
 
+/**
+ * Optional Auth - extracts user if valid Bearer token provided, otherwise proceeds as guest
+ */
+export const optionalAuth = async (req, res, next) => {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      let decoded;
+      try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET || 'singodia_super_secret_jwt_key_2026_rajasthan');
+      } catch (e) {
+        decoded = jwt.verify(token, 'singodhia_super_secret_jwt_key_2026_rajasthan');
+      }
+
+      if (decoded?.id && mongoose.connection.readyState === 1 && mongoose.isValidObjectId(decoded.id)) {
+        req.user = await User.findById(decoded.id).select('-password');
+      }
+      if (!req.user && decoded?.id) {
+        req.user = {
+          _id: decoded.id,
+          role: decoded.role || 'customer',
+          name: decoded.name || 'User',
+          email: decoded.email
+        };
+      }
+    } catch (e) {
+      // Token invalid or expired - proceed as unauthenticated guest safely
+    }
+  }
+  next();
+};
+
 export const adminOnly = (req, res, next) => {
   const singleAdminEmail = (process.env.ADMIN_EMAIL || 'admin@singodiafoods.com').toLowerCase().trim();
   const validAdminEmails = [singleAdminEmail, 'admin@singodiafoods.com', 'admin@singodhiafoods.com'];

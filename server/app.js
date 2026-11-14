@@ -13,19 +13,49 @@ import adminRoutes from './routes/adminRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import shippingRoutes from './routes/shippingRoutes.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
+import { 
+  apiRateLimiter, 
+  securityHeaders, 
+  botScraperProtection 
+} from './middleware/security.js';
 
 const app = express();
 
-// Middlewares
+// Allowed Storefront Origins Whitelist
+const ALLOWED_ORIGINS = [
+  'https://singodiafoodstore.in',
+  'https://www.singodiafoodstore.in',
+  'https://singodia-foods.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:5000'
+];
+
+// 1. Strict CORS Middleware
 app.use(cors({
   origin: (origin, callback) => {
-    // Dynamically allow requesting origin for credentials support
-    callback(null, true);
+    // Allow non-browser requests (e.g. mobile apps, curl, server-to-server) or whitelisted storefront origins
+    if (
+      !origin || 
+      ALLOWED_ORIGINS.includes(origin) || 
+      /^https:\/\/singodia-foods.*\.vercel\.app$/.test(origin)
+    ) {
+      return callback(null, true);
+    }
+    return callback(new Error('Blocked by CORS security policy: Origin not allowed.'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Client-Signature']
 }));
+
+// 2. HTTP Security Headers & Bot Protection
+app.use(securityHeaders);
+app.use(botScraperProtection);
+
+// 3. API Rate Limiting (150 requests / min / IP)
+app.use('/api', apiRateLimiter);
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -37,21 +67,11 @@ if (process.env.NODE_ENV !== 'test') {
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use('/products', express.static(path.join(process.cwd(), 'uploads')));
 
-// Root & API status endpoint (prevents 404 on browser navigation)
+// Minimal Root & API Status Endpoint (does not leak internal endpoints)
 app.get(['/', '/api'], (req, res) => {
   res.json({
-    success: true,
-    message: '🥒 Singodia Foods API Server is Live & Running!',
-    endpoints: {
-      health: '/api/health',
-      products: '/api/products',
-      categories: '/api/categories',
-      coupons: '/api/coupons',
-      reviews: '/api/reviews',
-      adminSettings: '/api/admin/settings/public',
-      shipping: '/api/shipping/status'
-    },
-    service: 'Singodia Foods E-commerce API',
+    status: 'online',
+    service: 'Singodia Foods API',
     brand: 'Singodia Foods — Desi Homemade Pickles',
     timestamp: new Date().toISOString()
   });
@@ -62,8 +82,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'Singodia Foods E-commerce API',
-    brand: 'Singodia Foods — Desi Homemade Pickles'
+    service: 'Singodia Foods E-commerce API'
   });
 });
 
@@ -83,4 +102,3 @@ app.use(notFound);
 app.use(errorHandler);
 
 export default app;
-

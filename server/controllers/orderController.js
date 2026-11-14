@@ -430,9 +430,37 @@ export const getOrderById = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
+    const orderObj = order.toObject ? order.toObject() : { ...order };
+
+    // Security check: Only Admin or the Order Owner can view unmasked full contact info
+    const isAdmin = req.user?.role === 'admin';
+    const isOwner = req.user && (
+      (orderObj.user?._id && orderObj.user._id.toString() === req.user._id.toString()) ||
+      (orderObj.user && orderObj.user.toString() === req.user._id.toString()) ||
+      (orderObj.customer?.email && orderObj.customer.email.toLowerCase() === req.user.email?.toLowerCase())
+    );
+
+    if (!isAdmin && !isOwner) {
+      // Mask sensitive contact details for unauthorized viewers/scrapers
+      if (orderObj.customer?.phone) {
+        const ph = String(orderObj.customer.phone);
+        orderObj.customer.phone = ph.length > 4 ? `******${ph.slice(-4)}` : '******';
+      }
+      if (orderObj.customer?.email) {
+        const parts = orderObj.customer.email.split('@');
+        orderObj.customer.email = parts[0].slice(0, 2) + '***@' + (parts[1] || 'domain.com');
+      }
+      if (orderObj.shippingAddress?.addressLine1) {
+        orderObj.shippingAddress.addressLine1 = '*** (सुरक्षित)';
+      }
+      if (orderObj.shippingAddress?.addressLine2) {
+        orderObj.shippingAddress.addressLine2 = '';
+      }
+    }
+
     res.json({
       success: true,
-      order
+      order: orderObj
     });
   } catch (error) {
     next(error);
