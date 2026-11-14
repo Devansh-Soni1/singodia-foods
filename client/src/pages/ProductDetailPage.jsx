@@ -113,9 +113,13 @@ export const ProductDetailPage = () => {
         paymentMethod: 'Prepaid'
       });
 
-      // Date calculated as exactly 4 days after check date
+      // Calculate delivery date accurately from iThink Logistics expected delivery days
+      const daysStr = rateData?.expectedDeliveryDays || '3 to 4 Days';
+      const numbers = String(daysStr).match(/\d+/g);
+      const daysToAdd = numbers && numbers.length > 0 ? (parseInt(numbers[numbers.length - 1], 10) || 4) : 4;
+
       const d = new Date();
-      d.setDate(d.getDate() + 4);
+      d.setDate(d.getDate() + daysToAdd);
       const dateStr = d.toLocaleDateString('en-IN', {
         weekday: 'short',
         day: 'numeric',
@@ -127,8 +131,15 @@ export const ProductDetailPage = () => {
       setDeliveryFee(cost);
       localStorage.setItem('singodia_user_pincode', cleanPin);
     } catch (err) {
+      // Zone-based fallback days
+      let fallbackDays = 4;
+      if (/^331/.test(cleanPin)) fallbackDays = 2; // Local Sujangarh
+      else if (/^3[0-4]/.test(cleanPin)) fallbackDays = 3; // Rajasthan
+      else if (/^(11|12|13|14|15|16|20|21|22|23|24|25|26|27|28|38|39)/.test(cleanPin)) fallbackDays = 4; // North / Metro
+      else fallbackDays = 5;
+
       const d = new Date();
-      d.setDate(d.getDate() + 4);
+      d.setDate(d.getDate() + fallbackDays);
       const dateStr = d.toLocaleDateString('en-IN', {
         weekday: 'short',
         day: 'numeric',
