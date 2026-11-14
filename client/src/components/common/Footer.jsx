@@ -171,7 +171,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link to="/refund-policy" className="hover:text-mustard transition-colors">
-                  Refund & Return (रिफंड)
+                  Replacement Policy (रिप्लेसमेंट नीति)
                 </Link>
               </li>
             </ul>
@@ -318,14 +318,6 @@ export const Footer = () => {
               title="Net Banking"
             >
               <Building2 className="w-4 h-4 text-emerald-800" />
-            </div>
-
-            {/* Cash on Delivery (COD) */}
-            <div 
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-amber-500 to-amber-600 text-white flex items-center justify-center shadow-xs border border-white/20 shrink-0 hover:scale-110 transition-transform cursor-pointer font-black text-[9px] sm:text-[10px] tracking-tight" 
-              title="Cash on Delivery Available"
-            >
-              COD
             </div>
 
             {/* 100% Secure via Razorpay */}

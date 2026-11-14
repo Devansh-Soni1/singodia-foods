@@ -82,7 +82,7 @@ export const TermsPage = () => {
               All prices listed on the website are in <strong>Indian Rupees (INR ₹)</strong> and are inclusive of applicable goods and service taxes. We reserve the right to revise prices or discontinue products at any time without prior notice.
             </p>
             <p>
-              An order confirmation email and SMS/WhatsApp alert will be automatically generated once your payment or Cash on Delivery (COD) order is placed. Singodia Foods reserves the right to decline or cancel any order if there is an error in pricing, inventory unavailability, or unserviceable pincode.
+              An order confirmation email and SMS/WhatsApp alert will be automatically generated once your 100% online prepaid payment is successfully verified. Singodia Foods reserves the right to decline or cancel any order if there is an error in pricing, inventory unavailability, or unserviceable pincode.
             </p>
           </section>
 
@@ -90,10 +90,13 @@ export const TermsPage = () => {
           <section className="space-y-2">
             <h2 className="text-base sm:text-lg font-bold text-charcoal font-serif flex items-center gap-2">
               <span className="text-brand-green">4.</span>
-              <span>Secure Payments (सुरक्षित भुगतान)</span>
+              <span>100% Secure Prepaid Payments (सुरक्षित ऑनलाइन भुगतान)</span>
             </h2>
             <p>
-              Online transactions are processed via leading RBI-authorized and PCI-DSS compliant payment gateways (including Razorpay, UPI, Google Pay, PhonePe, Paytm, Net Banking, and Debit/Credit Cards).
+              All orders are strictly 100% prepaid. Online transactions are securely processed via leading RBI-authorized and PCI-DSS compliant payment gateways (Razorpay, supporting UPI like Google Pay, PhonePe, Paytm, BHIM, Net Banking, and Debit/Credit Cards).
+            </p>
+            <p>
+              <strong>Cash on Delivery (COD) is not offered or accepted anywhere on Singodia Foods.</strong>
             </p>
             <p>
               Singodia Foods does not store, record, or have access to your sensitive banking details, CVV, or card PINs. All financial communication is encrypted using 256-bit SSL protocols.
@@ -118,13 +121,16 @@ export const TermsPage = () => {
           <section className="space-y-2">
             <h2 className="text-base sm:text-lg font-bold text-charcoal font-serif flex items-center gap-2">
               <span className="text-brand-green">6.</span>
-              <span>Cancellations, Returns & Replacements (रद्दीकरण एवं रिप्लेसमेंट)</span>
+              <span>Cancellations, Returns & Replacements (कैंसलेशन एवं रिप्लेसमेंट नीति)</span>
             </h2>
             <p>
-              Given that pickles are perishable artisanal consumable food items, opened or consumed jars cannot be returned for safety and hygiene reasons under FSSAI regulations.
+              Given that pickles are perishable artisanal consumable food items, opened or consumed jars cannot be returned for safety and hygiene reasons under FSSAI regulations. <strong>We maintain a strict No Cash Refund policy.</strong>
             </p>
             <p>
-              However, if your order arrives damaged, leaking in transit, or if an incorrect item was delivered, we provide a <strong>100% Free Replacement or Full Refund</strong> upon receiving photo/video proof within 48 hours of delivery. Please read our full <Link to="/refund-policy" className="text-brand-green font-semibold hover:underline">Return & Refund Policy</Link>.
+              <strong>Order Cancellation:</strong> Orders can ONLY be cancelled before dispatch by placing a direct phone call to <a href="tel:+917597966707" className="text-brand-green font-bold hover:underline">+91 75979 66707</a>. Once handed over to the courier (dispatched), an order cannot be cancelled.
+            </p>
+            <p>
+              <strong>100% Free Replacement on Continuous Unboxing Video:</strong> If your order arrives damaged, leaking in transit, or if an incorrect item was delivered, we provide a <strong>100% Free Replacement (नया जar)</strong>. The customer must record a clear, continuous unboxing video while opening the parcel showing the shipping label and the damage, and share it with us via WhatsApp (<a href="https://wa.me/917597966707" className="text-brand-green font-bold hover:underline">+91 75979 66707</a>) within 48 hours of delivery. Please read our complete <Link to="/refund-policy" className="text-brand-green font-semibold hover:underline">Replacement & Cancellation Policy</Link>.
             </p>
           </section>
 

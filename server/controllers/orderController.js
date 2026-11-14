@@ -116,7 +116,7 @@ export const createOrder = async (req, res, next) => {
         console.error('Razorpay keys not configured on server (RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET missing)');
         return res.status(500).json({ 
           success: false, 
-          message: 'Razorpay payment gateway server par configure nahi hai. Kripya Cash on Delivery chunein.' 
+          message: 'Payment gateway par sampark nahi ho paya. Kripya thodi der baad dubara koshish karein ya customer care (+91 75979 66707) par sampark karein.' 
         });
       }
 
@@ -136,7 +136,7 @@ export const createOrder = async (req, res, next) => {
         console.error('Razorpay Order Creation Error:', rzpErr);
         return res.status(500).json({ 
           success: false, 
-          message: `Razorpay transaction initiate nahi ho paya: ${rzpErr.error?.description || rzpErr.message || 'Payment gateway par error aayi'}. Kripya Cash on Delivery chunein ya dubara koshish karein.` 
+          message: `Online payment initiate nahi ho paya: ${rzpErr.error?.description || rzpErr.message || 'Payment gateway par error aayi'}. Kripya dubara koshish karein ya help desk (+91 75979 66707) par sampark karein.` 
         });
       }
     }

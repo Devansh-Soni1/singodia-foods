@@ -13,7 +13,7 @@ export const AdminSettings = () => {
     freeShippingEnabled: false,
     freeShippingThreshold: 499,
     standardShippingFee: 60,
-    codEnabled: true,
+    codEnabled: false,
     announcementEnabled: true,
     announcementText: '',
     whatsappNumber: '917597966707',
@@ -141,7 +141,7 @@ export const AdminSettings = () => {
       <div>
         <h1 className="text-2xl font-bold text-gray-900 font-serif">Store Configuration & Settings</h1>
         <p className="text-xs text-gray-500 mt-1">
-          Manage hero banner image, shipping rates, Cash on Delivery, WhatsApp contact, and announcements.
+          Manage hero banner image, shipping rates, online payments, WhatsApp contact, and announcements.
         </p>
       </div>
 
