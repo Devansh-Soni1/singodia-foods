@@ -83,6 +83,28 @@ export const ProductDetailPage = () => {
 
   const variant = product?.variants?.[selectedVariantIdx] || { weight: '250g', price: 249, originalPrice: 299 };
 
+  // Parse variant weight to kg helper
+  const parseWeightToKg = (weightStr) => {
+    if (!weightStr) return 0.5;
+    const s = String(weightStr).toLowerCase().trim();
+    if (s.includes('kg')) {
+      const val = parseFloat(s.replace(/[^0-9.]/g, ''));
+      return isNaN(val) || val <= 0 ? 1.0 : val;
+    }
+    if (s.includes('g') || s.includes('gm')) {
+      const val = parseFloat(s.replace(/[^0-9.]/g, ''));
+      return isNaN(val) || val <= 0 ? 0.5 : val / 1000;
+    }
+    const val = parseFloat(s.replace(/[^0-9.]/g, ''));
+    return isNaN(val) || val <= 0 ? 0.5 : (val > 10 ? val / 1000 : val);
+  };
+
+  // Dynamic calculated weight for currently selected variant & quantity
+  const currentWeightKg = useMemo(() => {
+    const singleWeight = parseWeightToKg(variant?.weight);
+    return Math.max(0.25, singleWeight * (quantity || 1));
+  }, [variant?.weight, quantity]);
+
   // Normal Delivery Pincode & Date/Price state
   const [pincodeInput, setPincodeInput] = useState(() => {
     return localStorage.getItem('singodia_user_pincode') || '';
@@ -93,25 +115,42 @@ export const ProductDetailPage = () => {
   const [pincodeError, setPincodeError] = useState('');
   const initialCheckedRef = useRef(false);
 
-  const isFreeDelivery = Boolean(freeShippingThreshold && ((variant.price || 0) * quantity >= freeShippingThreshold));
-  const activeDeliveryFee = isFreeDelivery ? 0 : (deliveryFee !== null ? deliveryFee : 50);
+  // Free delivery only applies if explicitly enabled in admin settings AND meets threshold
+  const isFreeDelivery = Boolean(
+    freeShippingEnabled && 
+    freeShippingThreshold && 
+    ((variant.price || 0) * quantity >= freeShippingThreshold)
+  );
 
-  const getZoneFallback = (cleanPin) => {
+  // Official iThink Logistics zone rates based on destination pincode and weight
+  const getZoneFallback = (cleanPin, weightKg = 0.5) => {
+    const pin = String(cleanPin || '').trim();
+    const weight = Math.max(0.25, Number(weightKg) || 0.5);
+    const additionalUnits = Math.max(0, Math.ceil((weight - 0.5) / 0.5));
+
     let fallbackDays = 4;
-    let fee = 50;
-    if (/^331/.test(cleanPin)) {
-      fallbackDays = 2; // Local Sujangarh
-      fee = 40;
-    } else if (/^3[0-4]/.test(cleanPin)) {
+    let baseRate = 80;
+    let addRate = 40;
+
+    if (/^331/.test(pin)) {
+      fallbackDays = 2; // Local Sujangarh / Churu
+      baseRate = 40;
+      addRate = 20;
+    } else if (/^3[0-4]/.test(pin)) {
       fallbackDays = 3; // Rajasthan
-      fee = 50;
-    } else if (/^(11|12|13|14|15|16|20|21|22|23|24|25|26|27|28|38|39)/.test(cleanPin)) {
-      fallbackDays = 4; // North / Metro
-      fee = 60;
-    } else {
-      fallbackDays = 5;
-      fee = 70;
+      baseRate = 50;
+      addRate = 25;
+    } else if (/^(11|12|13|14|15|16|20|21|22|23|24|25|26|27|28|38|39)/.test(pin)) {
+      fallbackDays = 4; // North & Metro
+      baseRate = 65;
+      addRate = 35;
+    } else if (/^(18|19|78|79|80|81|82|83|84|85|74|75|76|77)/.test(pin)) {
+      fallbackDays = 6; // Special / North East
+      baseRate = 95;
+      addRate = 50;
     }
+
+    const fee = baseRate + (additionalUnits * addRate);
 
     const d = new Date();
     d.setDate(d.getDate() + fallbackDays);
@@ -123,22 +162,33 @@ export const ProductDetailPage = () => {
     return { dateStr, fee };
   };
 
-  const checkDelivery = useCallback(async (targetPin, isSilent = false) => {
+  const fallbackFee = useMemo(() => {
+    const cleanPin = String(pincodeInput || '').trim().replace(/\D/g, '');
+    if (/^\d{6}$/.test(cleanPin)) {
+      return getZoneFallback(cleanPin, currentWeightKg).fee;
+    }
+    return getZoneFallback('302001', currentWeightKg).fee;
+  }, [pincodeInput, currentWeightKg]);
+
+  const activeDeliveryFee = isFreeDelivery ? 0 : (deliveryFee !== null ? deliveryFee : fallbackFee);
+
+  const checkDelivery = useCallback(async (targetPin, isSilent = false, weightToUse = null) => {
     const cleanPin = String(targetPin || '').trim().replace(/\D/g, '');
     if (!/^\d{6}$/.test(cleanPin)) {
-      setPincodeError('कृपया 6 अंकों का सही पिनकोड दर्ज करें');
+      if (!isSilent) setPincodeError('कृपया 6 अंकों का सही पिनकोड दर्ज करें');
       return;
     }
 
     if (!isSilent) setCheckingPincode(true);
     setPincodeError('');
 
-    const fallback = getZoneFallback(cleanPin);
+    const calcWeight = weightToUse !== null ? weightToUse : currentWeightKg;
+    const fallback = getZoneFallback(cleanPin, calcWeight);
 
     try {
       const ratePromise = shippingAPI.calculateRate({
         toPincode: cleanPin,
-        weight: 0.5,
+        weight: calcWeight,
         paymentMethod: 'Prepaid'
       });
       const timeoutPromise = new Promise((_, reject) =>
@@ -169,7 +219,15 @@ export const ProductDetailPage = () => {
     } finally {
       setCheckingPincode(false);
     }
-  }, []);
+  }, [currentWeightKg]);
+
+  // Dynamically recalculate delivery fee when variant or quantity changes
+  useEffect(() => {
+    const cleanPin = String(pincodeInput || '').trim().replace(/\D/g, '');
+    if (/^\d{6}$/.test(cleanPin) && initialCheckedRef.current) {
+      checkDelivery(cleanPin, true, currentWeightKg);
+    }
+  }, [selectedVariantIdx, quantity, currentWeightKg, checkDelivery, pincodeInput]);
 
   // Run only once on initial mount if saved pin exists (silent check)
   useEffect(() => {

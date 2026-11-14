@@ -421,12 +421,12 @@ export const AdminSettings = () => {
                 type="checkbox"
                 checked={settings.freeShippingEnabled === true}
                 onChange={(e) => setSettings({ ...settings, freeShippingEnabled: e.target.checked })}
-                className="rounded text-brand-green w-4 h-4"
+                className="rounded text-brand-green w-4 h-4 cursor-pointer"
               />
               <span>Offer Free Delivery to Customers (फ्री डिलीवरी ऑन/ऑफ़)</span>
             </label>
             <span className="text-[10px] text-gray-500 mt-0.5 block pl-6">
-              Agar uncheck karenge to sabhi orders par standard delivery charge lagega.
+              अगर अनचेक (Off) रखेंगे तो सभी ऑर्डर्स पर iThink Logistics के अनुसार डिलीवरी चार्ज लगेगा। अगर चेक (On) रखेंगे तो नीचे दिए गए अमाउंट (जैसे ₹499) से ऊपर के ऑर्डर्स पर ग्राहकों को मुफ़्त डिलीवरी मिलेगी।
             </span>
           </div>
 

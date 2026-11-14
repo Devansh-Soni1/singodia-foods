@@ -106,12 +106,39 @@ export const CheckoutPage = () => {
     }, 0);
   }, [cartItems]);
 
+  // Official iThink Logistics zone rates based on destination pincode and weight
+  const getZoneFallbackRate = (toPincode, weightKg = 0.5) => {
+    const pin = String(toPincode || '').trim();
+    const weight = Math.max(0.25, Number(weightKg) || 0.5);
+    const additionalUnits = Math.max(0, Math.ceil((weight - 0.5) / 0.5));
+
+    let baseRate = 80;
+    let addRate = 40;
+
+    if (/^331/.test(pin)) {
+      baseRate = 40; // Local Sujangarh / Churu
+      addRate = 20;
+    } else if (/^3[0-4]/.test(pin)) {
+      baseRate = 50; // Rajasthan
+      addRate = 25;
+    } else if (/^(11|12|13|14|15|16|20|21|22|23|24|25|26|27|28|38|39)/.test(pin)) {
+      baseRate = 65; // North & Metro
+      addRate = 35;
+    } else if (/^(18|19|78|79|80|81|82|83|84|85|74|75|76|77)/.test(pin)) {
+      baseRate = 95; // Special / North East
+      addRate = 50;
+    }
+
+    return baseRate + (additionalUnits * addRate);
+  };
+
   // Fetch live iThink Logistics shipping rate for destination pincode
   const calculateIThinkRate = useCallback(async (destinationPincode) => {
     const cleanPin = String(destinationPincode || '').trim();
     if (!/^\d{6}$/.test(cleanPin)) return;
 
     setShippingLoading(true);
+    const fallbackCost = getZoneFallbackRate(cleanPin, totalCartWeightKg || 0.5);
     try {
       const res = await shippingAPI.calculateRate({
         toPincode: cleanPin,
@@ -120,16 +147,15 @@ export const CheckoutPage = () => {
       });
 
       if (res && res.success) {
-        const cost = Number(res.rate || res.estimatedCost) || 50;
+        const cost = Number(res.rate || res.estimatedCost) || fallbackCost;
         setDynamicShippingFee(cost);
         setShippingRateInfo(res);
       } else {
-        // Fallback default
-        setDynamicShippingFee(60);
+        setDynamicShippingFee(fallbackCost);
       }
     } catch (err) {
       console.warn('Shipping rate calculation notice:', err);
-      setDynamicShippingFee(60);
+      setDynamicShippingFee(fallbackCost);
     } finally {
       setShippingLoading(false);
     }

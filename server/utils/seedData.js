@@ -509,6 +509,7 @@ export const sampleCoupons = [
 ];
 
 export const sampleSettings = [
+  { key: 'freeShippingEnabled', value: false, description: 'Offer Free Delivery to Customers' },
   { key: 'freeShippingThreshold', value: 499, description: 'Minimum order value for free delivery in INR' },
   { key: 'standardShippingFee', value: 60, description: 'Standard shipping charge for orders below threshold' },
   { key: 'codEnabled', value: false, description: 'Enable Cash on Delivery' },
