@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   Heart, ShoppingBag, Truck, ShieldCheck, Check, Sparkles, 
@@ -91,12 +91,13 @@ export const ProductDetailPage = () => {
   const [deliveryDate, setDeliveryDate] = useState('');
   const [deliveryFee, setDeliveryFee] = useState(null);
   const [pincodeError, setPincodeError] = useState('');
+  const initialCheckedRef = useRef(false);
 
   const isFreeDelivery = Boolean(freeShippingThreshold && ((variant.price || 0) * quantity >= freeShippingThreshold));
   const activeDeliveryFee = isFreeDelivery ? 0 : (deliveryFee !== null ? deliveryFee : 50);
 
   const checkDelivery = useCallback(async (targetPin) => {
-    const cleanPin = String(targetPin || pincodeInput || '').trim().replace(/\D/g, '');
+    const cleanPin = String(targetPin || '').trim().replace(/\D/g, '');
     if (!/^\d{6}$/.test(cleanPin)) {
       setPincodeError('कृपया 6 अंकों का सही पिनकोड दर्ज करें');
       return;
@@ -124,7 +125,6 @@ export const ProductDetailPage = () => {
       setDeliveryDate(dateStr);
       const cost = Number(rateData?.rate || rateData?.estimatedCost) || 50;
       setDeliveryFee(cost);
-      setPincodeInput(cleanPin);
       localStorage.setItem('singodia_user_pincode', cleanPin);
     } catch (err) {
       const d = new Date();
@@ -139,9 +139,13 @@ export const ProductDetailPage = () => {
     } finally {
       setCheckingPincode(false);
     }
-  }, [pincodeInput]);
+  }, []);
 
+  // Run only once on initial mount if saved pin exists
   useEffect(() => {
+    if (initialCheckedRef.current) return;
+    initialCheckedRef.current = true;
+
     const defaultAddressPin = user?.addresses?.find(a => a.isDefault)?.pincode;
     const firstAddressPin = user?.addresses?.[0]?.pincode;
     const savedPin = defaultAddressPin || firstAddressPin || localStorage.getItem('singodia_user_pincode');
