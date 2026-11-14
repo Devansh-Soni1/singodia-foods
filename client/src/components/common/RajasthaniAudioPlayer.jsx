@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Volume2, VolumeX, Music } from 'lucide-react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 
 export const RajasthaniAudioPlayer = () => {
@@ -186,59 +186,27 @@ export const RajasthaniAudioPlayer = () => {
         <source src="/audio/rajasthani-tune.mp3" type="audio/mpeg" />
       </audio>
 
-      {/* Floating Audio Controller */}
-      <aside aria-label="Rajasthani Music Controller">
-        <div
-          className={`fixed z-40 transition-all duration-300 flex items-center gap-2 left-4 sm:left-6 ${
+      {/* Floating Audio Controller - Only Round Normal Mute/Unmute Logo */}
+      <aside aria-label="Music Controller">
+        <button
+          type="button"
+          onClick={toggleMusic}
+          aria-label={isPlaying ? 'Mute Music' : 'Unmute Music'}
+          title={isPlaying ? 'Mute' : 'Play Music'}
+          className={`fixed z-40 transition-all duration-300 transform active:scale-95 cursor-pointer flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full select-none shadow-md left-4 sm:left-6 ${
             isCartBarVisible ? 'bottom-16 sm:bottom-20' : 'bottom-5 sm:bottom-6'
+          } ${
+            isPlaying
+              ? 'bg-gradient-to-tr from-[#92400E] to-[#B45309] text-white shadow-[0_4px_16px_rgba(180,83,9,0.35)] hover:scale-105 border border-amber-300/40'
+              : 'bg-[#292524]/90 backdrop-blur-md text-stone-300 border border-stone-600/60 shadow-[0_4px_14px_rgba(0,0,0,0.3)] hover:bg-[#1C1917] hover:text-white hover:scale-105'
           }`}
         >
-          <button
-            type="button"
-            onClick={toggleMusic}
-            aria-label={isPlaying ? 'Mute Audio' : 'Unmute Audio'}
-            title={isPlaying ? 'Mute Rajasthani Music' : 'Play Rajasthani Music'}
-            className={`transition-all duration-300 transform active:scale-95 cursor-pointer flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full select-none shadow-md ${
-              isPlaying
-                ? 'bg-gradient-to-tr from-[#92400E] to-[#B45309] text-white shadow-[0_4px_16px_rgba(180,83,9,0.45)] hover:shadow-[0_6px_22px_rgba(180,83,9,0.6)] border-2 border-amber-300/40 hover:scale-105'
-                : 'bg-[#292524]/90 backdrop-blur-md text-stone-300 border border-stone-600/60 shadow-[0_4px_14px_rgba(0,0,0,0.35)] hover:bg-[#1C1917] hover:text-white hover:scale-105'
-            }`}
-          >
-            {isPlaying ? (
-              <Volume2 className="w-5 h-5 sm:w-6 sm:h-6 text-white stroke-[2.2] animate-pulse" />
-            ) : (
-              <VolumeX className="w-5 h-5 sm:w-6 sm:h-6 text-stone-300 stroke-[2.2]" />
-            )}
-          </button>
-
-          {/* Desktop/Laptop Pill Indicator */}
-          <button
-            type="button"
-            onClick={toggleMusic}
-            className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs backdrop-blur-md cursor-pointer select-none"
-            style={{
-              backgroundColor: isPlaying ? 'rgba(254, 243, 199, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-              borderColor: isPlaying ? '#FCD34D' : '#E5E7EB',
-              borderWidth: '1px'
-            }}
-          >
-            {isPlaying ? (
-              <>
-                <span className="flex items-center gap-0.5 h-3">
-                  <span className="w-0.5 h-3 bg-amber-700 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                  <span className="w-0.5 h-2.5 bg-amber-700 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                  <span className="w-0.5 h-3.5 bg-amber-700 rounded-full animate-bounce" />
-                </span>
-                <span className="text-amber-900 font-serif">राजस्थानी धुन 🎵</span>
-              </>
-            ) : (
-              <>
-                <Music className="w-3.5 h-3.5 text-stone-600" />
-                <span className="text-stone-700">संगीत चलाएं 🎵</span>
-              </>
-            )}
-          </button>
-        </div>
+          {isPlaying ? (
+            <Volume2 className="w-5 h-5 text-white stroke-[2.2]" />
+          ) : (
+            <VolumeX className="w-5 h-5 text-stone-300 stroke-[2.2]" />
+          )}
+        </button>
       </aside>
     </>
   );
