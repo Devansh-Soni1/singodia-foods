@@ -96,24 +96,56 @@ export const ProductDetailPage = () => {
   const isFreeDelivery = Boolean(freeShippingThreshold && ((variant.price || 0) * quantity >= freeShippingThreshold));
   const activeDeliveryFee = isFreeDelivery ? 0 : (deliveryFee !== null ? deliveryFee : 50);
 
-  const checkDelivery = useCallback(async (targetPin) => {
+  const getZoneFallback = (cleanPin) => {
+    let fallbackDays = 4;
+    let fee = 50;
+    if (/^331/.test(cleanPin)) {
+      fallbackDays = 2; // Local Sujangarh
+      fee = 40;
+    } else if (/^3[0-4]/.test(cleanPin)) {
+      fallbackDays = 3; // Rajasthan
+      fee = 50;
+    } else if (/^(11|12|13|14|15|16|20|21|22|23|24|25|26|27|28|38|39)/.test(cleanPin)) {
+      fallbackDays = 4; // North / Metro
+      fee = 60;
+    } else {
+      fallbackDays = 5;
+      fee = 70;
+    }
+
+    const d = new Date();
+    d.setDate(d.getDate() + fallbackDays);
+    const dateStr = d.toLocaleDateString('en-IN', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short'
+    });
+    return { dateStr, fee };
+  };
+
+  const checkDelivery = useCallback(async (targetPin, isSilent = false) => {
     const cleanPin = String(targetPin || '').trim().replace(/\D/g, '');
     if (!/^\d{6}$/.test(cleanPin)) {
       setPincodeError('कृपया 6 अंकों का सही पिनकोड दर्ज करें');
       return;
     }
 
-    setCheckingPincode(true);
+    if (!isSilent) setCheckingPincode(true);
     setPincodeError('');
 
+    const fallback = getZoneFallback(cleanPin);
+
     try {
-      const rateData = await shippingAPI.calculateRate({
+      const ratePromise = shippingAPI.calculateRate({
         toPincode: cleanPin,
         weight: 0.5,
         paymentMethod: 'Prepaid'
       });
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), 3000)
+      );
 
-      // Calculate delivery date accurately from iThink Logistics expected delivery days
+      const rateData = await Promise.race([ratePromise, timeoutPromise]);
       const daysStr = rateData?.expectedDeliveryDays || '3 to 4 Days';
       const numbers = String(daysStr).match(/\d+/g);
       const daysToAdd = numbers && numbers.length > 0 ? (parseInt(numbers[numbers.length - 1], 10) || 4) : 4;
@@ -127,32 +159,19 @@ export const ProductDetailPage = () => {
       });
 
       setDeliveryDate(dateStr);
-      const cost = Number(rateData?.rate || rateData?.estimatedCost) || 50;
+      const cost = Number(rateData?.rate || rateData?.estimatedCost) || fallback.fee;
       setDeliveryFee(cost);
       localStorage.setItem('singodia_user_pincode', cleanPin);
-    } catch (err) {
-      // Zone-based fallback days
-      let fallbackDays = 4;
-      if (/^331/.test(cleanPin)) fallbackDays = 2; // Local Sujangarh
-      else if (/^3[0-4]/.test(cleanPin)) fallbackDays = 3; // Rajasthan
-      else if (/^(11|12|13|14|15|16|20|21|22|23|24|25|26|27|28|38|39)/.test(cleanPin)) fallbackDays = 4; // North / Metro
-      else fallbackDays = 5;
-
-      const d = new Date();
-      d.setDate(d.getDate() + fallbackDays);
-      const dateStr = d.toLocaleDateString('en-IN', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short'
-      });
-      setDeliveryDate(dateStr);
-      setDeliveryFee(50);
+    } catch {
+      setDeliveryDate(fallback.dateStr);
+      setDeliveryFee(fallback.fee);
+      localStorage.setItem('singodia_user_pincode', cleanPin);
     } finally {
       setCheckingPincode(false);
     }
   }, []);
 
-  // Run only once on initial mount if saved pin exists
+  // Run only once on initial mount if saved pin exists (silent check)
   useEffect(() => {
     if (initialCheckedRef.current) return;
     initialCheckedRef.current = true;
@@ -163,7 +182,7 @@ export const ProductDetailPage = () => {
     
     if (savedPin && /^\d{6}$/.test(String(savedPin))) {
       setPincodeInput(String(savedPin));
-      checkDelivery(String(savedPin));
+      checkDelivery(String(savedPin), true);
     }
   }, [user, checkDelivery]);
 
@@ -202,6 +221,25 @@ export const ProductDetailPage = () => {
 
   const touchStartXRef = useRef(null);
   const touchEndXRef = useRef(null);
+  const mainImageRef = useRef(null);
+  const [mainImageHeight, setMainImageHeight] = useState(0);
+
+  useEffect(() => {
+    if (!mainImageRef.current) return;
+    const updateHeight = () => {
+      if (mainImageRef.current) {
+        setMainImageHeight(mainImageRef.current.offsetHeight);
+      }
+    };
+    updateHeight();
+    const ro = new ResizeObserver(updateHeight);
+    ro.observe(mainImageRef.current);
+    window.addEventListener('resize', updateHeight);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', updateHeight);
+    };
+  }, [product]);
 
   const handleNextImage = useCallback(() => {
     setActiveImageIdx((prev) => (prev + 1) % totalImages);
@@ -359,13 +397,18 @@ export const ProductDetailPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             
             {/* Left: Gallery (Vertical Thumbnails on the left + Swipeable Main Viewport with Arrows) */}
-            <div className="lg:col-span-6 flex flex-row gap-2.5 sm:gap-4 items-start">
+            <div className="lg:col-span-6 flex flex-row gap-2 sm:gap-4 items-start">
               
-              {/* Left Column: Vertical Thumbnails Strip (Scrollable) */}
+              {/* Left Column: Vertical Thumbnails Strip (Scrollable - max 4-5 items visible, rest scrolls) */}
               {totalImages > 1 && (
                 <div 
-                  className="flex flex-col gap-2 sm:gap-2.5 overflow-y-auto w-14 sm:w-20 shrink-0 max-h-[360px] sm:max-h-[500px] scrollbar-none py-1 select-none"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  className="flex flex-col gap-1.5 sm:gap-2.5 overflow-y-auto w-12 xs:w-14 sm:w-20 shrink-0 scrollbar-none py-0.5 select-none"
+                  style={{ 
+                    maxHeight: mainImageHeight > 0 ? `${mainImageHeight}px` : '360px',
+                    height: mainImageHeight > 0 ? `${mainImageHeight}px` : 'auto',
+                    scrollbarWidth: 'none', 
+                    msOverflowStyle: 'none' 
+                  }}
                 >
                   {imagesList.map((mediaUrl, idx) => {
                     const isVid = isVideoUrl(mediaUrl);
@@ -376,7 +419,7 @@ export const ProductDetailPage = () => {
                         id={`product-thumb-${idx}`}
                         type="button"
                         onClick={() => setActiveImageIdx(idx)}
-                        className={`relative w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
+                        className={`relative w-12 h-12 xs:w-14 xs:h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
                           isActive
                             ? 'border-brand-green ring-2 ring-brand-green/30 scale-[1.03] shadow-md'
                             : 'border-cream-200 opacity-75 hover:opacity-100 hover:border-amber-400'
@@ -408,6 +451,7 @@ export const ProductDetailPage = () => {
 
               {/* Right: Main Image / Video Viewport with Touch/Mouse Swipe & Navigation Arrows */}
               <div 
+                ref={mainImageRef}
                 className="flex-1 w-full relative aspect-square rounded-2xl sm:rounded-3xl overflow-hidden bg-cream-50 border border-cream-200 shadow-xs select-none touch-pan-y"
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
@@ -670,15 +714,22 @@ export const ProductDetailPage = () => {
                         setPincodeInput(e.target.value.replace(/\D/g, '').slice(0, 6));
                         setPincodeError('');
                       }}
-                      placeholder="Enter Pincode"
+                      placeholder="Enter 6-digit Pincode"
                       className="flex-1 px-3.5 py-2 text-sm bg-white rounded-lg border border-gray-300 focus:outline-none focus:border-brand-green font-medium"
                     />
                     <button
                       type="submit"
-                      disabled={checkingPincode}
-                      className="px-5 py-2 bg-brand-green hover:bg-brand-green-light text-white text-sm font-bold rounded-lg transition-colors cursor-pointer disabled:opacity-60 shrink-0"
+                      disabled={checkingPincode || pincodeInput.length !== 6}
+                      className="px-4 sm:px-5 py-2 bg-brand-green hover:bg-brand-green-light text-white text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer disabled:opacity-60 shrink-0 flex items-center justify-center gap-1.5 min-w-[92px]"
                     >
-                      {checkingPincode ? 'Checking...' : 'Check'}
+                      {checkingPincode ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Checking...</span>
+                        </>
+                      ) : (
+                        <span>Check</span>
+                      )}
                     </button>
                   </div>
 
@@ -689,16 +740,26 @@ export const ProductDetailPage = () => {
                   )}
 
                   {deliveryDate && (
-                    <div className="text-sm text-charcoal font-semibold flex items-center gap-2 pt-1">
-                      <span>Delivery by <strong className="text-brand-green">{deliveryDate}</strong></span>
-                      <span className="text-gray-300">|</span>
-                      <span>
-                        {activeDeliveryFee === 0 ? (
-                          <strong className="text-emerald-700">FREE Delivery</strong>
-                        ) : (
-                          <>Delivery: <strong className="text-brand-green">{formatPrice(activeDeliveryFee)}</strong></>
-                        )}
-                      </span>
+                    <div className="pt-2 text-xs sm:text-sm text-charcoal font-medium">
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <Truck className="w-3.5 h-3.5 text-brand-green shrink-0" />
+                          <span>Delivery by <strong className="text-brand-green font-bold">{deliveryDate}</strong></span>
+                        </div>
+                        <span className="text-gray-300 hidden xs:inline">•</span>
+                        <div className="flex items-center gap-1">
+                          <span>Delivery:</span>
+                          {activeDeliveryFee === 0 ? (
+                            <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                              FREE
+                            </span>
+                          ) : (
+                            <strong className="text-brand-green font-bold bg-cream-100 px-2 py-0.5 rounded">
+                              {formatPrice(activeDeliveryFee)}
+                            </strong>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </form>
