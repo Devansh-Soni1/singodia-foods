@@ -25,44 +25,40 @@ export const HeroBanner = ({ customHeroImage }) => {
   }, [customHeroImage]);
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#F5EEDB] via-[#FAF6EF] to-[#FAF6EF] pt-2 pb-2.5 sm:pt-4 sm:pb-6 border-b border-cream-200">
+    <section className="relative w-full p-0 m-0 overflow-hidden bg-[#FAF6EF] leading-none">
       
       {/* Background warm ambient glows */}
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-10 left-1/4 w-80 h-80 bg-red-500/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* MAIN HERO BANNER IMAGE (Clickable directly to shop) */}
-        <Link 
-          to="/shop" 
-          className="group block relative w-full overflow-hidden rounded-xl sm:rounded-3xl border border-amber-200/90 shadow-[0_8px_30px_rgba(204,18,38,0.08)] hover:shadow-[0_12px_40px_rgba(204,18,38,0.18)] transition-all duration-300 bg-amber-50"
-          title="Click to Shop Singodia Foods Homemade Pickles"
-        >
-          {/* Dynamic Hero Banner Image */}
-          <img
-            src={heroImage}
-            alt="Singodia Foods - पारंपरिक देसी घर के बने अचार"
-            className="w-full h-auto min-h-[145px] xs:min-h-[180px] sm:min-h-0 object-cover sm:object-contain object-center block transition-transform duration-500 group-hover:scale-[1.008]"
-            loading="eager"
-            fetchPriority="high"
-            onError={(e) => {
-              if (heroImage !== '/hero-banner.png') {
-                setHeroImage('/hero-banner.png');
-              }
-            }}
-          />
+      {/* FULL WIDTH EDGE-TO-EDGE HERO BANNER (Zero margins, zero padding) */}
+      <Link 
+        to="/shop" 
+        className="group block relative w-full p-0 m-0 overflow-hidden border-0 rounded-none shadow-none transition-all duration-300"
+        title="Click to Shop Singodia Foods Homemade Pickles"
+      >
+        {/* Dynamic Hero Banner Image - Completely Flush Edge-to-Edge */}
+        <img
+          src={heroImage}
+          alt="Singodia Foods - पारंपरिक देसी घर के बने अचार"
+          className="w-full h-auto block m-0 p-0 border-0 rounded-none object-cover sm:object-contain object-center transition-transform duration-500 group-hover:scale-[1.006]"
+          loading="eager"
+          fetchPriority="high"
+          onError={() => {
+            if (heroImage !== '/hero-banner.png') {
+              setHeroImage('/hero-banner.png');
+            }
+          }}
+        />
 
-          {/* Subtle hover sheen overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4 sm:pb-6 pointer-events-none">
-            <span className="hidden sm:inline-flex items-center gap-2 bg-white/95 text-brand-green font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-full shadow-lg border border-amber-300 transform translate-y-2 group-hover:translate-y-0 transition-transform">
-              <span>Explore All Pickles (अचार की पूरी वेरायटी देखें)</span>
-              <ArrowRight className="w-4 h-4 text-amber-600" />
-            </span>
-          </div>
-        </Link>
-
-      </div>
+        {/* Subtle hover sheen overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4 sm:pb-8 pointer-events-none">
+          <span className="hidden sm:inline-flex items-center gap-2 bg-white/95 text-brand-green font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-full shadow-lg border border-amber-300 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+            <span>Explore All Pickles (अचार की पूरी वेरायटी देखें)</span>
+            <ArrowRight className="w-4 h-4 text-amber-600" />
+          </span>
+        </div>
+      </Link>
 
     </section>
   );
