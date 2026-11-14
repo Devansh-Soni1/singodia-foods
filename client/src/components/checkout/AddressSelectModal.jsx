@@ -441,7 +441,7 @@ export const AddressSelectModal = ({
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Flat 302, Prem Niwas, Tower B"
+                  placeholder="e.g. Flat 302, Shanti Kunj, Tower B"
                   value={newAddr.addressLine1}
                   onChange={(e) => setNewAddr({ ...newAddr, addressLine1: e.target.value })}
                   className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green"
@@ -456,7 +456,7 @@ export const AddressSelectModal = ({
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Bagreche Bass, Near Station Road"
+                  placeholder="e.g. Station Road, Near Main Market"
                   value={newAddr.addressLine2}
                   onChange={(e) => setNewAddr({ ...newAddr, addressLine2: e.target.value })}
                   className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green"

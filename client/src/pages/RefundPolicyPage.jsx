@@ -139,7 +139,7 @@ export const RefundPolicyPage = () => {
               <p className="font-bold text-charcoal">Singodia Foods Care Desk</p>
               <p className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 text-brand-green flex-shrink-0" />
-                <span>Prem Niwas, Bagreche Bass, Sujangarh, District Churu, Rajasthan – 331507</span>
+                <span>Sujangarh, Rajasthan 331507</span>
               </p>
               <p className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-brand-green flex-shrink-0" />

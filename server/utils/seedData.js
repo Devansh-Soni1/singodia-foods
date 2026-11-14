@@ -515,7 +515,7 @@ export const sampleSettings = [
   { key: 'codFee', value: 0, description: 'Extra fee for COD in INR' },
   { key: 'announcementText', value: '🌶️ Traditional Rajasthani Handcrafted Pickles • Direct From Grandma\'s Barni • Use Code: DESI10 for 10% OFF', description: 'Header announcement marquee' },
   { key: 'whatsappNumber', value: '917597966707', description: 'Business WhatsApp phone number for customer queries' },
-  { key: 'storeAddress', value: 'Prem Niwas, Bagreche Bass, Sujangarh, Rajasthan 331507', description: 'Physical store address' },
+  { key: 'storeAddress', value: 'Sujangarh, Rajasthan 331507', description: 'Physical store address' },
   { key: 'supportPhone', value: '+91 75979 66707', description: 'Support helpline phone' },
   { key: 'supportEmail', value: 'premsingodiya861@gmail.com', description: 'Customer support email' },
   { key: 'heroBannerImage', value: '/hero-banner.png', description: 'Hero banner image displayed on homepage' }

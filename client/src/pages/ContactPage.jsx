@@ -44,7 +44,7 @@ export const ContactPage = () => {
                   <div>
                     <h4 className="font-bold">Our Kitchen & Heritage Store</h4>
                     <p className="text-earth-brown mt-0.5">
-                      Prem Niwas, Bagreche Bass, Sujangarh, Rajasthan 331507, India
+                      Sujangarh, Rajasthan 331507, India
                     </p>
                   </div>
                 </div>

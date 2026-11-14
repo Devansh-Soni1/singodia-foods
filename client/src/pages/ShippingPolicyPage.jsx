@@ -49,7 +49,7 @@ export const ShippingPolicyPage = () => {
               <span>Dispatch Origin & Coverage (डिस्पैच केंद्र एवं कवरेज)</span>
             </h2>
             <p>
-              All orders are prepared and freshly dispatched directly from our traditional artisan kitchen located at <strong>Prem Niwas, Bagreche Bass, Sujangarh, District Churu, Rajasthan – 331507</strong>.
+              All orders are prepared and freshly dispatched directly from our traditional artisan kitchen located at <strong>Sujangarh, Rajasthan 331507</strong>.
             </p>
             <p>
               We deliver across India covering over <strong>26,000+ postal PIN codes</strong> in all States and Union Territories through tier-1 courier networks (including Blue Dart, Delhivery, DTDC, Xpressbees, and India Post Speed Post).

@@ -783,7 +783,7 @@ export const CheckoutPage = () => {
                       type="text"
                       required
                       name="addressLine1"
-                      placeholder="e.g. Flat 302, Prem Niwas, Block B"
+                      placeholder="e.g. Flat 302, Shanti Kunj, Block B"
                       value={formData.addressLine1}
                       onChange={handleChange}
                       className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
@@ -800,7 +800,7 @@ export const CheckoutPage = () => {
                       type="text"
                       required
                       name="addressLine2"
-                      placeholder="e.g. Station Road, Bagreche Bass"
+                      placeholder="e.g. Station Road, Near Main Market"
                       value={formData.addressLine2}
                       onChange={handleChange}
                       className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"

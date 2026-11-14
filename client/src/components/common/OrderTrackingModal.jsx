@@ -50,7 +50,7 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
               lastLocation: 'Singodia Foods Kitchen, Sujangarh (331507)',
               events: [
                 { status: 'Order Placed & Confirmed', location: 'Singodia Foods Storefront', timestamp: new Date(order.createdAt).toLocaleDateString('en-IN') },
-                { status: 'Preparing & Packing Achar in Glass/Jar Packaging', location: 'Prem Niwas, Sujangarh Kitchen (331507)', timestamp: 'In Progress' }
+                { status: 'Preparing & Packing Achar in Glass/Jar Packaging', location: 'Sujangarh Kitchen, Rajasthan (331507)', timestamp: 'In Progress' }
               ]
             });
           }

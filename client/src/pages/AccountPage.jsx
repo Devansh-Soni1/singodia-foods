@@ -546,7 +546,7 @@ export const AccountPage = () => {
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Flat 302, Prem Niwas, Tower B"
+                        placeholder="e.g. Flat 302, Shanti Kunj, Tower B"
                         value={newAddress.addressLine1}
                         onChange={(e) => setNewAddress({ ...newAddress, addressLine1: e.target.value })}
                         className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
@@ -561,7 +561,7 @@ export const AccountPage = () => {
                       <input
                         type="text"
                         required
-                        placeholder="e.g. Bagreche Bass, Near Station Road"
+                        placeholder="e.g. Station Road, Near Main Market"
                         value={newAddress.addressLine2}
                         onChange={(e) => setNewAddress({ ...newAddress, addressLine2: e.target.value })}
                         className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"

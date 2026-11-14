@@ -49,7 +49,7 @@ export const TermsPage = () => {
               <span>General Information & Ownership (सामान्य जानकारी)</span>
             </h2>
             <p>
-              The platform <a href="https://singodiafoodstore.in" className="text-brand-green font-semibold hover:underline">singodiafoodstore.in</a> is owned and operated by <strong>Singodia Foods</strong>, having its artisanal manufacturing kitchen and registered operational address at <strong>Prem Niwas, Bagreche Bass, Sujangarh, District Churu, Rajasthan – 331507, India</strong>.
+              The platform <a href="https://singodiafoodstore.in" className="text-brand-green font-semibold hover:underline">singodiafoodstore.in</a> is owned and operated by <strong>Singodia Foods</strong>, having its artisanal manufacturing kitchen and registered operational address at <strong>Sujangarh, Rajasthan 331507, India</strong>.
             </p>
             <p>
               Throughout the site, the terms "we", "us", and "our" refer to Singodia Foods. Singodia Foods offers this website, including all information, tools, and services available from this site to you, the user, conditioned upon your acceptance of all terms, conditions, policies, and notices stated here.
@@ -159,7 +159,7 @@ export const TermsPage = () => {
               <p className="font-bold text-charcoal">Singodia Foods Care Desk</p>
               <p className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 text-brand-green flex-shrink-0" />
-                <span>Prem Niwas, Bagreche Bass, Sujangarh, District Churu, Rajasthan – 331507</span>
+                <span>Sujangarh, Rajasthan 331507</span>
               </p>
               <p className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-brand-green flex-shrink-0" />
