@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { ScrollToTop } from './components/common/ScrollToTop';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -150,7 +151,8 @@ export const App = () => {
       <AuthProvider>
         <CartProvider>
           <WishlistProvider>
-            <Routes>
+            <ErrorBoundary>
+              <Routes>
               
               {/* Customer Front Storefront */}
               <Route path="/" element={<MainLayout />}>
@@ -213,7 +215,8 @@ export const App = () => {
               <Route path="*" element={<Navigate to="/" replace />} />
 
             </Routes>
-          </WishlistProvider>
+          </ErrorBoundary>
+        </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>
