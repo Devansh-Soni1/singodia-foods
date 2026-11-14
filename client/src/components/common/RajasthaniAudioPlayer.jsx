@@ -9,6 +9,7 @@ export const RajasthaniAudioPlayer = () => {
   const [isMuted, setIsMuted] = useState(false);
   const isPlayingRef = useRef(false);
   const isAttemptingRef = useRef(false);
+  const userMutedRef = useRef(false);
 
   const { cartItems, isCartOpen } = useCart();
   const location = useLocation();
@@ -22,8 +23,8 @@ export const RajasthaniAudioPlayer = () => {
     location.pathname !== '/cart' &&
     !location.pathname.startsWith('/admin');
 
-  // Ambient Target Volume: 35% (0.35) for clear, pleasant audibility on both laptop speakers and mobile phones
-  const TARGET_VOLUME = 0.35;
+  // Ambient Target Volume: 40% (0.40) for clear, rich, and pleasant audibility on both laptops and mobile devices
+  const TARGET_VOLUME = 0.40;
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -32,11 +33,8 @@ export const RajasthaniAudioPlayer = () => {
     audio.volume = TARGET_VOLUME;
 
     const playAudio = () => {
-      if (!audio || isPlayingRef.current || isAttemptingRef.current) return;
-
-      // Don't auto-play if user explicitly clicked mute previously
-      const userPref = localStorage.getItem('singodia_music_pref');
-      if (userPref === 'muted') return;
+      // Don't auto-resume if user actively muted during this session
+      if (!audio || isPlayingRef.current || isAttemptingRef.current || userMutedRef.current) return;
 
       isAttemptingRef.current = true;
       audio.volume = TARGET_VOLUME;
@@ -52,12 +50,13 @@ export const RajasthaniAudioPlayer = () => {
           })
           .catch(() => {
             isAttemptingRef.current = false;
-            // Autoplay waiting for user gesture (click/touch/mouse/scroll)
+            // Awaiting first user gesture (touch, click, scroll, mouse movement)
           });
       }
     };
 
     const unlockAudioAndPlay = () => {
+      if (userMutedRef.current) return;
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (AudioCtx) {
@@ -70,26 +69,26 @@ export const RajasthaniAudioPlayer = () => {
       playAudio();
     };
 
-    // 1. Initial play attempt on mount
+    // 1. Immediate play attempt as soon as component mounts (site landing)
     playAudio();
 
-    // 2. Play attempt when audio metadata is ready
+    // 2. Play attempt when audio data is ready
     audio.addEventListener('canplay', playAudio, { once: true });
     audio.addEventListener('loadeddata', playAudio, { once: true });
 
-    // 3. User interaction capture events (covers laptops, desktops, and mobile devices)
+    // 3. Capture interaction events across all devices (Mobile & Laptop)
     const interactionEvents = [
       'click',
-      'mousedown',
-      'mouseup',
-      'pointerdown',
-      'pointerup',
-      'mousemove',
       'touchstart',
       'touchend',
+      'pointerdown',
+      'pointerup',
+      'mousedown',
+      'mouseup',
       'keydown',
       'wheel',
-      'scroll'
+      'scroll',
+      'mousemove'
     ];
 
     const handleInteraction = () => {
@@ -107,11 +106,6 @@ export const RajasthaniAudioPlayer = () => {
       isPlayingRef.current = true;
       setIsPlaying(true);
       setIsMuted(false);
-      // Clean up interaction listeners once audio is successfully playing
-      interactionEvents.forEach((evt) => {
-        window.removeEventListener(evt, handleInteraction, { capture: true });
-        document.removeEventListener(evt, handleInteraction, { capture: true });
-      });
     };
 
     const handleAudioPause = () => {
@@ -134,22 +128,22 @@ export const RajasthaniAudioPlayer = () => {
     };
   }, []);
 
-  // Mute / Unmute Toggle Button
+  // Mute / Unmute Toggle Button (Normal round shape)
   const toggleMusic = (e) => {
     e.stopPropagation();
     const audio = audioRef.current;
     if (!audio) return;
 
     if (isPlaying && !audio.paused) {
-      // Pause & Remember user preference
+      // Pause & Remember user explicitly muted
       audio.pause();
+      userMutedRef.current = true;
       isPlayingRef.current = false;
       setIsPlaying(false);
       setIsMuted(true);
-      localStorage.setItem('singodia_music_pref', 'muted');
     } else {
-      // Play & Clear mute preference
-      localStorage.removeItem('singodia_music_pref');
+      // Play & Reset user mute preference
+      userMutedRef.current = false;
       audio.volume = TARGET_VOLUME;
       audio
         .play()
@@ -166,7 +160,7 @@ export const RajasthaniAudioPlayer = () => {
 
   return (
     <>
-      {/* Background Audio Source with loop and preload */}
+      {/* Background Audio Source with loop and cache-buster */}
       <audio
         ref={audioRef}
         autoPlay
@@ -183,17 +177,17 @@ export const RajasthaniAudioPlayer = () => {
           setIsPlaying(false);
         }}
       >
-        <source src="/audio/rajasthani-tune.mp3" type="audio/mpeg" />
+        <source src="/audio/rajasthani-tune.mp3?v=2" type="audio/mpeg" />
       </audio>
 
-      {/* Floating Audio Controller - Only Round Normal Mute/Unmute Logo */}
+      {/* Floating Audio Controller - Only Round Normal Logo */}
       <aside aria-label="Music Controller">
         <button
           type="button"
           onClick={toggleMusic}
           aria-label={isPlaying ? 'Mute Music' : 'Unmute Music'}
           title={isPlaying ? 'Mute' : 'Play Music'}
-          className={`fixed z-40 transition-all duration-300 transform active:scale-95 cursor-pointer flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full select-none shadow-md left-4 sm:left-6 ${
+          className={`fixed z-40 transition-all duration-300 transform active:scale-95 cursor-pointer flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full select-none shadow-md left-4 sm:left-6 ${
             isCartBarVisible ? 'bottom-16 sm:bottom-20' : 'bottom-5 sm:bottom-6'
           } ${
             isPlaying
@@ -202,9 +196,9 @@ export const RajasthaniAudioPlayer = () => {
           }`}
         >
           {isPlaying ? (
-            <Volume2 className="w-5 h-5 text-white stroke-[2.2]" />
+            <Volume2 className="w-5 h-5 sm:w-6 sm:h-6 text-white stroke-[2.2]" />
           ) : (
-            <VolumeX className="w-5 h-5 text-stone-300 stroke-[2.2]" />
+            <VolumeX className="w-5 h-5 sm:w-6 sm:h-6 text-stone-300 stroke-[2.2]" />
           )}
         </button>
       </aside>
