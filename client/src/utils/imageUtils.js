@@ -1,6 +1,19 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 const BACKEND_URL = API_BASE_URL.replace(/\/api\/?$/, '');
 
+export const isVideoUrl = (url = '') => {
+  if (!url || typeof url !== 'string') return false;
+  const clean = url.toLowerCase().split('?')[0];
+  return (
+    clean.endsWith('.mp4') ||
+    clean.endsWith('.webm') ||
+    clean.endsWith('.mov') ||
+    clean.endsWith('.mkv') ||
+    clean.startsWith('data:video/') ||
+    url.includes('/video/upload/')
+  );
+};
+
 export const resolveProductImage = (imgUrl, fallback = 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=400&q=75') => {
   if (!imgUrl) return fallback;
   // Intercept the masala spice image so it never shows to customers

@@ -28,7 +28,8 @@ router.post('/', (req, res) => {
         });
         const uploadPromises = req.files.map(file => {
           return cloudinary.uploader.upload(file.path, {
-            folder: targetFolder
+            folder: targetFolder,
+            resource_type: 'auto'
           });
         });
         const results = await Promise.all(uploadPromises);

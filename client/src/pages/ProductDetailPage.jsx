@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   Heart, ShoppingBag, Truck, ShieldCheck, Check, Sparkles, 
-  RotateCcw, Star, Sun, Info, ChevronRight, Send, AlertCircle,
+  RotateCcw, Star, Sun, Info, ChevronRight, ChevronLeft, Play, Send, AlertCircle,
   MapPin, Clock, CheckCircle2, Loader2
 } from 'lucide-react';
 import { productAPI, reviewAPI, shippingAPI } from '../services/api';
@@ -12,7 +12,7 @@ import { ProductCard } from '../components/product/ProductCard';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
-import { resolveProductImage } from '../utils/imageUtils';
+import { resolveProductImage, isVideoUrl } from '../utils/imageUtils';
 
 const DEFAULT_PRODUCT_REVIEWS = [
   {
@@ -284,6 +284,54 @@ export const ProductDetailPage = () => {
     setNewComment('');
   };
 
+  const touchStartXRef = useRef(null);
+  const touchEndXRef = useRef(null);
+
+  const imagesList = product.images && product.images.length > 0 ? product.images : ['/hero-banner.png'];
+  const totalImages = imagesList.length;
+
+  const handleNextImage = useCallback(() => {
+    setActiveImageIdx((prev) => (prev + 1) % totalImages);
+  }, [totalImages]);
+
+  const handlePrevImage = useCallback(() => {
+    setActiveImageIdx((prev) => (prev - 1 + totalImages) % totalImages);
+  }, [totalImages]);
+
+  useEffect(() => {
+    const thumbEl = document.getElementById(`product-thumb-${activeImageIdx}`);
+    if (thumbEl) {
+      thumbEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }
+  }, [activeImageIdx]);
+
+  const handleTouchStart = (e) => {
+    touchStartXRef.current = e.touches[0].clientX;
+    touchEndXRef.current = null;
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartXRef.current !== null && touchEndXRef.current !== null) {
+      const diffX = touchStartXRef.current - touchEndXRef.current;
+      if (Math.abs(diffX) > 35) {
+        if (diffX > 0) {
+          handleNextImage();
+        } else {
+          handlePrevImage();
+        }
+      }
+    }
+    touchStartXRef.current = null;
+    touchEndXRef.current = null;
+  };
+
+  const currentMedia = imagesList[activeImageIdx] || imagesList[0];
+  const isCurrentVideo = isVideoUrl(currentMedia);
+
   return (
     <div className="py-8 sm:py-12 bg-[#FAF6EF] min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -309,44 +357,127 @@ export const ProductDetailPage = () => {
         <div className="bg-white rounded-3xl p-6 sm:p-10 border border-cream-200 shadow-card mb-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             
-            {/* Left: Gallery */}
-            <div className="lg:col-span-6 space-y-4">
-              <div className="aspect-square rounded-2xl overflow-hidden bg-cream-50 border border-cream-200 shadow-xs relative">
-                <img
-                  src={resolveProductImage(product.images?.[activeImageIdx] || product.images?.[0])}
-                  alt={product.name}
-                  className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
-                />
+            {/* Left: Gallery (Vertical Thumbnails on the left + Swipeable Main Viewport with Arrows) */}
+            <div className="lg:col-span-6 flex flex-row gap-2.5 sm:gap-4 items-start">
+              
+              {/* Left Column: Vertical Thumbnails Strip (Scrollable) */}
+              {totalImages > 1 && (
+                <div 
+                  className="flex flex-col gap-2 sm:gap-2.5 overflow-y-auto w-14 sm:w-20 shrink-0 max-h-[360px] sm:max-h-[500px] scrollbar-none py-1 select-none"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {imagesList.map((mediaUrl, idx) => {
+                    const isVid = isVideoUrl(mediaUrl);
+                    const isActive = activeImageIdx === idx;
+                    return (
+                      <button
+                        key={idx}
+                        id={`product-thumb-${idx}`}
+                        type="button"
+                        onClick={() => setActiveImageIdx(idx)}
+                        className={`relative w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
+                          isActive
+                            ? 'border-brand-green ring-2 ring-brand-green/30 scale-[1.03] shadow-md'
+                            : 'border-cream-200 opacity-75 hover:opacity-100 hover:border-amber-400'
+                        }`}
+                        title={`View ${isVid ? 'video' : 'photo'} ${idx + 1}`}
+                      >
+                        {isVid ? (
+                          <div className="w-full h-full bg-black/90 flex items-center justify-center relative">
+                            <video src={mediaUrl} className="w-full h-full object-cover opacity-60" muted playsInline />
+                            <span className="absolute inset-0 flex items-center justify-center text-white">
+                              <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-white text-white drop-shadow" />
+                            </span>
+                            <span className="absolute bottom-1 right-1 bg-black/80 text-[7px] sm:text-[8px] text-white font-extrabold px-1 rounded uppercase">
+                              Video
+                            </span>
+                          </div>
+                        ) : (
+                          <img
+                            src={resolveProductImage(mediaUrl)}
+                            alt={`${product.name} thumbnail ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Right: Main Image / Video Viewport with Touch/Mouse Swipe & Navigation Arrows */}
+              <div 
+                className="flex-1 w-full relative aspect-square rounded-2xl sm:rounded-3xl overflow-hidden bg-cream-50 border border-cream-200 shadow-xs select-none touch-pan-y"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                {/* Media Render */}
+                {isCurrentVideo ? (
+                  <div className="w-full h-full flex items-center justify-center bg-black">
+                    <video
+                      key={currentMedia}
+                      src={currentMedia}
+                      controls
+                      autoPlay
+                      muted
+                      playsInline
+                      loop
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                ) : (
+                  <img
+                    key={currentMedia}
+                    src={resolveProductImage(currentMedia)}
+                    alt={product.name}
+                    className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
+                  />
+                )}
+
+                {/* Badges */}
                 {discount > 0 && (
-                  <span className="absolute top-4 left-4 bg-chilli text-white text-xs font-black px-3 py-1 rounded-full shadow-xs">
+                  <span className="absolute top-4 left-4 bg-chilli text-white text-xs font-black px-3 py-1 rounded-full shadow-xs z-10 pointer-events-none">
                     {discount}% OFF
                   </span>
                 )}
                 {product.isBestSeller && (
-                  <span className="absolute top-4 right-4 bg-brand-green text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full shadow-xs">
+                  <span className="absolute top-4 right-4 bg-brand-green text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full shadow-xs z-10 pointer-events-none">
                     Bestseller
                   </span>
                 )}
+
+                {/* Side Slide Arrows (Left & Right) */}
+                {totalImages > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}
+                      className="absolute left-2.5 sm:left-3.5 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-gray-800 hover:text-brand-green shadow-lg flex items-center justify-center transition-all hover:scale-110 cursor-pointer border border-gray-200/90 backdrop-blur-xs"
+                      aria-label="Previous photo"
+                      title="Previous photo (Loops back to last photo)"
+                    >
+                      <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
+                      className="absolute right-2.5 sm:right-3.5 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/90 hover:bg-white text-gray-800 hover:text-brand-green shadow-lg flex items-center justify-center transition-all hover:scale-110 cursor-pointer border border-gray-200/90 backdrop-blur-xs"
+                      aria-label="Next photo"
+                      title="Next photo (Loops back to first photo)"
+                    >
+                      <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />
+                    </button>
+
+                    {/* Counter Pill */}
+                    <div className="absolute bottom-3 right-3 bg-black/60 text-white text-[10px] font-mono font-bold px-2.5 py-1 rounded-full backdrop-blur-xs pointer-events-none z-10">
+                      {activeImageIdx + 1} / {totalImages}
+                    </div>
+                  </>
+                )}
               </div>
 
-              {/* Thumbnails */}
-              {product.images?.length > 1 && (
-                <div className="flex gap-3">
-                  {product.images.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveImageIdx(idx)}
-                      className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
-                        activeImageIdx === idx
-                          ? 'border-brand-green ring-2 ring-brand-green/20'
-                          : 'border-cream-200 opacity-70 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={resolveProductImage(img)} alt="thumbnail" className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* Right: Product Buy Box */}

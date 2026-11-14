@@ -3,13 +3,13 @@ import toast from 'react-hot-toast';
 import { 
   Package, Plus, Edit2, Trash2, X, Check, Search, 
   Flame, Upload, ExternalLink, AlertCircle, Image as ImageIcon,
-  Loader2, Star, Eye, Sparkles, Tag, ArrowUpRight
+  Loader2, Star, Eye, Sparkles, Tag, ArrowUpRight, Play, Video
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { productAPI, categoryAPI, adminAPI } from '../../services/api';
 import { formatPrice } from '../../utils/formatCurrency';
 import { TASTE_SUBCATEGORIES, getTasteInfo } from '../../constants/tasteSubCategories';
-import { compressImageFile, resolveProductImage } from '../../utils/imageUtils';
+import { compressImageFile, resolveProductImage, isVideoUrl } from '../../utils/imageUtils';
 
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80';
 const MASALA_IMAGE_SNIPPET = 'photo-1596040033229-a9821ebd058d';
@@ -142,7 +142,7 @@ export const AdminProducts = () => {
     setShowModal(true);
   };
 
-  // Handle direct file upload from phone or computer
+  // Handle direct file upload (Photos & Videos) from phone or computer
   const handleFiles = async (files) => {
     if (!files || files.length === 0) return;
     setUploadingImage(true);
@@ -150,43 +150,73 @@ export const AdminProducts = () => {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      if (!file.type.startsWith('image/')) {
-        setUploadError('Only image files (JPG, PNG, WEBP) are supported.');
+      const isImg = file.type.startsWith('image/');
+      const isVid = file.type.startsWith('video/') || /\.(mp4|webm|mov|mkv)$/i.test(file.name);
+
+      if (!isImg && !isVid) {
+        setUploadError('Only photos (JPG, PNG, WEBP) and videos (MP4, WEBM) are supported.');
         continue;
       }
 
       try {
-        // Fast client-side HD compression (converts phone photo to lightweight ~80KB high-res image)
-        const { file: compressedFile, dataUrl } = await compressImageFile(file, 900, 0.78);
+        let finalMediaUrl = null;
 
-        let uploadedUrl = null;
-        try {
-          const uploadData = new FormData();
-          uploadData.append('image', compressedFile);
-          uploadData.append('folder', 'products');
-          const res = await productAPI.uploadImage(uploadData);
-          // Only trust uploaded URL if it is a persistent cloud storage CDN or persistent Data URL.
-          // Never use ephemeral /uploads/ paths that get wiped on server reboot!
-          if (res?.url && (res.url.startsWith('https://res.cloudinary.com') || res.url.startsWith('data:image/'))) {
-            uploadedUrl = res.url;
+        if (isVid) {
+          // Video upload directly to backend CDN
+          try {
+            const uploadData = new FormData();
+            uploadData.append('file', file);
+            uploadData.append('folder', 'products');
+            const res = await productAPI.uploadImage(uploadData);
+            if (res?.url && (res.url.startsWith('https://') || res.url.startsWith('http://'))) {
+              finalMediaUrl = res.url;
+            }
+          } catch (vidErr) {
+            console.warn('Backend video upload notice:', vidErr.message);
           }
-        } catch (uploadErr) {
-          console.warn('Backend upload notice, using persistent DataURL fallback:', uploadErr.message);
+
+          // Fallback to Data URL for video if file <= 30MB
+          if (!finalMediaUrl && file.size <= 30 * 1024 * 1024) {
+            finalMediaUrl = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onload = (e) => resolve(e.target.result);
+              reader.onerror = () => resolve(null);
+              reader.readAsDataURL(file);
+            });
+          }
+        } else {
+          // Fast client-side HD compression (converts phone photo to lightweight ~80KB high-res image)
+          const { file: compressedFile, dataUrl } = await compressImageFile(file, 900, 0.78);
+
+          let uploadedUrl = null;
+          try {
+            const uploadData = new FormData();
+            uploadData.append('image', compressedFile);
+            uploadData.append('folder', 'products');
+            const res = await productAPI.uploadImage(uploadData);
+            // Only trust uploaded URL if it is a persistent cloud storage CDN or persistent Data URL.
+            if (res?.url && (res.url.startsWith('https://res.cloudinary.com') || res.url.startsWith('data:image/'))) {
+              uploadedUrl = res.url;
+            }
+          } catch (uploadErr) {
+            console.warn('Backend upload notice, using persistent DataURL fallback:', uploadErr.message);
+          }
+
+          finalMediaUrl = uploadedUrl || dataUrl;
         }
 
-        const finalImgUrl = uploadedUrl || dataUrl;
-        if (finalImgUrl) {
+        if (finalMediaUrl) {
           setFormData(prev => ({
             ...prev,
             images: [
               ...prev.images.filter(img => img !== DEFAULT_IMAGE && !img.includes(MASALA_IMAGE_SNIPPET)),
-              finalImgUrl
+              finalMediaUrl
             ]
           }));
         }
       } catch (err) {
-        console.error('Image processing failed:', err);
-        setUploadError('Failed to process image: ' + err.message);
+        console.error('Media upload failed:', err);
+        setUploadError('Failed to process file: ' + err.message);
       }
     }
 
@@ -657,18 +687,18 @@ export const AdminProducts = () => {
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <label className="font-bold text-gray-900 text-sm flex items-center gap-1.5">
-                      <ImageIcon className="w-4 h-4 text-brand-green" /> Product Photos (फोटो अपलोड करें) *
+                      <ImageIcon className="w-4 h-4 text-brand-green" /> Product Photos & Videos (फोटो व वीडियो) *
                     </label>
                     <p className="text-[11px] text-gray-500">
-                      Upload clear photos of the pickle jar, martaban, or ingredients directly from your device.
+                      Upload clear photos or short video clips of the pickle jar, martaban, or ingredients.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowUrlInput(!showUrlInput)}
-                    className="text-[11px] font-bold text-brand-green hover:underline"
+                    className="text-[11px] font-bold text-brand-green hover:underline cursor-pointer"
                   >
-                    {showUrlInput ? 'Hide URL input' : '+ Paste Image URL'}
+                    {showUrlInput ? 'Hide URL input' : '+ Paste Image / Video URL'}
                   </button>
                 </div>
 
@@ -677,7 +707,7 @@ export const AdminProducts = () => {
                   <div className="flex gap-2 mb-3">
                     <input
                       type="url"
-                      placeholder="Paste image link (https://...)"
+                      placeholder="Paste image or video link (https://...jpg, .mp4, etc.)"
                       value={urlInput}
                       onChange={(e) => setUrlInput(e.target.value)}
                       className="flex-1 p-2 rounded-xl border border-gray-300 text-xs bg-white"
@@ -685,9 +715,9 @@ export const AdminProducts = () => {
                     <button
                       type="button"
                       onClick={handleAddUrlImage}
-                      className="px-3 py-2 bg-brand-green text-white font-bold rounded-xl text-xs"
+                      className="px-3 py-2 bg-brand-green text-white font-bold rounded-xl text-xs cursor-pointer"
                     >
-                      Add Image
+                      Add Media
                     </button>
                   </div>
                 )}
@@ -696,7 +726,7 @@ export const AdminProducts = () => {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/*,video/mp4,video/webm,video/quicktime,video/*"
                   multiple
                   onChange={(e) => handleFiles(e.target.files)}
                   className="hidden"
@@ -720,7 +750,7 @@ export const AdminProducts = () => {
                   {uploadingImage ? (
                     <div className="flex flex-col items-center justify-center py-4 text-brand-green gap-2">
                       <Loader2 className="w-8 h-8 animate-spin" />
-                      <span className="font-bold">Uploading image to server...</span>
+                      <span className="font-bold">Uploading media to server...</span>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -728,11 +758,11 @@ export const AdminProducts = () => {
                         <Upload className="w-6 h-6" />
                       </div>
                       <div>
-                        <span className="font-bold text-gray-900 text-sm">Click to choose image</span>
-                        <span className="text-gray-500"> or drag and drop photos here</span>
+                        <span className="font-bold text-gray-900 text-sm">Click to choose photos or videos</span>
+                        <span className="text-gray-500"> or drag and drop files here</span>
                       </div>
                       <p className="text-[11px] text-gray-400">
-                        Supports JPG, PNG, WEBP (Max 5MB each) • You can select multiple images
+                        Supports Photos (JPG, PNG, WEBP) & Videos (MP4, WEBM) • You can select multiple items
                       </p>
                     </div>
                   )}
@@ -748,47 +778,67 @@ export const AdminProducts = () => {
                 {formData.images.length > 0 && (
                   <div className="mt-4">
                     <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wider block mb-2">
-                      Uploaded Photos ({formData.images.length}):
+                      Uploaded Media ({formData.images.length}):
                     </span>
                     <div className="flex flex-wrap gap-3">
-                      {formData.images.map((img, idx) => (
-                        <div 
-                          key={idx} 
-                          className="relative group w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-amber-300 bg-white shadow-xs"
-                        >
-                          <img
-                            src={resolveProductImage(img, DEFAULT_IMAGE)}
-                            alt={`Pickle photo ${idx + 1}`}
-                            className="w-full h-full object-cover"
-                          />
+                      {formData.images.map((img, idx) => {
+                        const isVid = isVideoUrl(img);
+                        return (
+                          <div 
+                            key={idx} 
+                            className="relative group w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-amber-300 bg-black/90 shadow-xs"
+                          >
+                            {isVid ? (
+                              <div className="w-full h-full relative flex items-center justify-center">
+                                <video
+                                  src={img}
+                                  className="w-full h-full object-cover opacity-70"
+                                  muted
+                                  playsInline
+                                />
+                                <span className="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                                  <Play className="w-5 h-5 fill-white text-white drop-shadow" />
+                                </span>
+                                <span className="absolute bottom-1 left-1 bg-black/80 text-[8px] text-white font-extrabold px-1 rounded uppercase pointer-events-none">
+                                  Video
+                                </span>
+                              </div>
+                            ) : (
+                              <img
+                                src={resolveProductImage(img, DEFAULT_IMAGE)}
+                                alt={`Pickle media ${idx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            )}
 
-                          {/* Primary Badge */}
-                          {idx === 0 ? (
-                            <span className="absolute top-1 left-1 bg-brand-green text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-md shadow-xs">
-                              Primary
-                            </span>
-                          ) : (
+                            {/* Primary Badge */}
+                            {idx === 0 ? (
+                              <span className="absolute top-1 left-1 bg-brand-green text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-md shadow-xs z-10">
+                                Primary
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleMakePrimary(idx)}
+                                className="absolute top-1 left-1 bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand-green z-10"
+                                title="Make this the main media"
+                              >
+                                Set Primary
+                              </button>
+                            )}
+
+                            {/* Remove button */}
                             <button
                               type="button"
-                              onClick={() => handleMakePrimary(idx)}
-                              className="absolute top-1 left-1 bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand-green"
-                              title="Make this the main photo"
+                              onClick={() => handleRemoveImage(idx)}
+                              className="absolute top-1 right-1 bg-chilli text-white p-1 rounded-full opacity-90 hover:opacity-100 transition-all hover:scale-110 shadow-xs cursor-pointer z-10"
+                              title="Remove item"
                             >
-                              Set Primary
+                              <X className="w-3 h-3" />
                             </button>
-                          )}
-
-                          {/* Remove button */}
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveImage(idx)}
-                            className="absolute top-1 right-1 bg-chilli text-white p-1 rounded-full opacity-90 hover:opacity-100 transition-all hover:scale-110 shadow-xs cursor-pointer"
-                            title="Remove photo"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
