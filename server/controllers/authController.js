@@ -225,14 +225,23 @@ export const adminRequestOtp = async (req, res, next) => {
 🌐 <a href="https://singodiafoodstore.in/admin/login">Admin Control Center</a>
 `.trim();
 
-    sendTelegramMessage(telegramMsg, 'HTML').catch(tgErr => {
+    const tgRes = await sendTelegramMessage(telegramMsg, 'HTML').catch(tgErr => {
       console.warn('[Admin 2FA] Telegram sending notice:', tgErr.message);
+      return { success: false, error: tgErr.message };
     });
+
+    if (!tgRes?.success) {
+      console.warn('[Admin 2FA] Failed to dispatch Telegram OTP:', tgRes?.error);
+      return res.status(500).json({
+        success: false,
+        message: `Telegram पर OTP भेजने में समस्या हुई (${tgRes?.error || 'Unknown error'})। कृपया दोबारा प्रयास करें।`
+      });
+    }
 
     return res.json({
       success: true,
       step: 'OTP_SENT',
-      message: 'एडमिन पासवर्ड सही है! आपके Telegram Bot पर 6-अंकों का OTP भेज दिया गया है।',
+      message: 'एडमिन पासवर्ड सही है! आपके Telegram Bot (@singodhia_orders_bot) पर 6-अंकों का OTP भेज दिया गया है।',
       expiresIn: 300
     });
   } catch (err) {

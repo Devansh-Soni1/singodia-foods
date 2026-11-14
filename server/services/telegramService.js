@@ -8,8 +8,8 @@ const TELEGRAM_API_BASE = 'https://api.telegram.org';
  * Base dispatcher to send a Telegram message via Bot API
  */
 export const sendTelegramMessage = async (messageText, parseMode = 'HTML') => {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const botToken = process.env.TELEGRAM_BOT_TOKEN || '9043804577:AAESHMVQuhTD2qA-mLVNAC-UoGWCyUgdE0k';
+  const chatId = process.env.TELEGRAM_CHAT_ID || '9240478332';
 
   if (!botToken || !chatId) {
     // Graceful skip if Telegram credentials are not yet configured
