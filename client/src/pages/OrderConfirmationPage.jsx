@@ -3,12 +3,14 @@ import { useParams, useLocation, Link } from 'react-router-dom';
 import { CheckCircle, Package, Truck, Calendar, MapPin, ArrowRight, ShoppingBag, ShieldCheck } from 'lucide-react';
 import { orderAPI } from '../services/api';
 import { formatPrice } from '../utils/formatCurrency';
+import { OrderTrackingModal } from '../components/common/OrderTrackingModal';
 
 export const OrderConfirmationPage = () => {
   const { orderNumber } = useParams();
   const location = useLocation();
   const [order, setOrder] = useState(location.state?.order || null);
   const [loading, setLoading] = useState(!order);
+  const [isTrackingOpen, setIsTrackingOpen] = useState(false);
 
   useEffect(() => {
     if (!order && orderNumber) {
@@ -157,21 +159,38 @@ export const OrderConfirmationPage = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <button
+            type="button"
+            onClick={() => setIsTrackingOpen(true)}
+            className="bg-brand-green hover:bg-brand-green-light text-white text-xs font-bold px-6 py-3.5 rounded-xl shadow-xs transition-all text-center flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <Truck className="w-4 h-4" />
+            <span>Track Order (लाइव ट्रैकिंग)</span>
+          </button>
           <Link
             to="/shop"
-            className="bg-brand-green hover:bg-brand-green-light text-white text-xs font-bold px-8 py-3.5 rounded-xl shadow-xs transition-all text-center flex items-center justify-center gap-2"
+            className="bg-white hover:bg-cream-50 text-charcoal border border-cream-300 text-xs font-bold px-6 py-3.5 rounded-xl transition-all text-center flex items-center justify-center gap-2"
           >
             <ShoppingBag className="w-4 h-4" />
             <span>Continue Shopping Pickles</span>
           </Link>
           <Link
             to="/account"
-            className="bg-white hover:bg-cream-100 text-charcoal border border-cream-300 text-xs font-bold px-8 py-3.5 rounded-xl transition-all text-center"
+            className="bg-white hover:bg-cream-50 text-charcoal border border-cream-300 text-xs font-bold px-6 py-3.5 rounded-xl transition-all text-center flex items-center justify-center"
           >
             <span>View My Order History</span>
           </Link>
         </div>
+
+        {/* Live Order Tracking Modal */}
+        {order && (
+          <OrderTrackingModal
+            order={order}
+            isOpen={isTrackingOpen}
+            onClose={() => setIsTrackingOpen(false)}
+          />
+        )}
 
       </div>
     </div>

@@ -11,6 +11,7 @@ import { useWishlist } from '../context/WishlistContext';
 import { orderAPI, shippingAPI } from '../services/api';
 import { formatPrice } from '../utils/formatCurrency';
 import { ProductCard } from '../components/product/ProductCard';
+import { OrderTrackingModal } from '../components/common/OrderTrackingModal';
 
 export const AccountPage = () => {
   const { user, isAuthenticated, logout, updateProfile, addAddress, deleteAddress, setDefaultAddress } = useAuth();
@@ -23,6 +24,7 @@ export const AccountPage = () => {
 
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [selectedTrackingOrder, setSelectedTrackingOrder] = useState(null);
 
   // Address form state
   const [showAddressForm, setShowAddressForm] = useState(false);
@@ -347,15 +349,29 @@ export const AccountPage = () => {
                           ))}
                         </div>
 
-                        <div className="pt-2 flex justify-between items-center text-[11px] text-earth-brown border-t border-cream-200/60">
-                          <span>Payment: {ord.paymentMethod?.toUpperCase()} ({ord.paymentStatus})</span>
-                          <Link
-                            to={`/order-confirmation/${ord.orderNumber}`}
-                            className="text-brand-green font-bold hover:underline flex items-center gap-1"
-                          >
-                            <span>View Full Receipt</span>
-                            <ArrowRight className="w-3 h-3" />
-                          </Link>
+                        <div className="pt-2.5 flex flex-wrap justify-between items-center gap-2 text-xs border-t border-cream-200/60">
+                          <span className="text-[11px] text-earth-brown">
+                            Payment: <strong className="text-charcoal uppercase">{ord.paymentMethod}</strong> ({ord.paymentStatus})
+                          </span>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedTrackingOrder(ord)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-green hover:bg-brand-green-light text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                            >
+                              <Truck className="w-3.5 h-3.5" />
+                              <span>Track Order (लाइव ट्रैकिंग)</span>
+                            </button>
+
+                            <Link
+                              to={`/order-confirmation/${ord.orderNumber}`}
+                              className="text-brand-green font-bold hover:underline flex items-center gap-1 text-[11px] px-2 py-1"
+                            >
+                              <span>Receipt</span>
+                              <ArrowRight className="w-3 h-3" />
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -768,6 +784,15 @@ export const AccountPage = () => {
         </div>
 
       </div>
+
+      {/* Live Order Tracking Modal */}
+      {selectedTrackingOrder && (
+        <OrderTrackingModal
+          order={selectedTrackingOrder}
+          isOpen={Boolean(selectedTrackingOrder)}
+          onClose={() => setSelectedTrackingOrder(null)}
+        />
+      )}
     </div>
   );
 };
