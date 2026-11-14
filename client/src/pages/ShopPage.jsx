@@ -110,7 +110,7 @@ export const ShopPage = () => {
   const updateFilter = (key, value) => {
     if (key === 'category') {
       if (value === 'all' || !value) {
-        navigate('/shop/');
+        navigate('/allpickles');
       } else {
         navigate(`/category/${value}/`);
       }
@@ -122,7 +122,7 @@ export const ShopPage = () => {
         if (categoryParam !== 'all') {
           navigate(`/category/${categoryParam}/`);
         } else {
-          navigate('/shop/');
+          navigate('/allpickles');
         }
       } else {
         if (categoryParam !== 'all') {
@@ -144,7 +144,7 @@ export const ShopPage = () => {
   };
 
   const clearAllFilters = () => {
-    navigate('/shop/');
+    navigate('/allpickles');
     setSearchParams({});
   };
 
@@ -157,7 +157,7 @@ export const ShopPage = () => {
           <div className="text-xs text-earth-brown mb-1.5 flex items-center gap-1.5 flex-wrap">
             <button onClick={() => navigate('/')} className="hover:text-brand-green">Home</button>
             <span>/</span>
-            <button onClick={() => navigate('/shop/')} className="hover:text-brand-green">All Pickles</button>
+            <button onClick={() => navigate('/allpickles')} className="hover:text-brand-green">All Pickles</button>
             {categoryParam !== 'all' && (
               <>
                 <span>/</span>

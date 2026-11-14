@@ -45,7 +45,7 @@ export const SearchModal = ({ isOpen, onClose }) => {
 
   const handleSelectProduct = (slug) => {
     onClose();
-    navigate(`/product/${slug}/`);
+    navigate(`/allpickle/${slug}/`);
   };
 
   return (

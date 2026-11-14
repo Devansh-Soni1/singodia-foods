@@ -93,7 +93,7 @@ export const HomemadePromiseSection = () => {
                 Read Our Story & Journey
               </Link>
               <Link
-                to="/shop"
+                to="/allpickles"
                 className="text-xs sm:text-sm font-bold text-brand-green hover:underline underline-offset-4"
               >
                 Taste the Tradition →

@@ -169,7 +169,7 @@ export const OrderConfirmationPage = () => {
             <span>Track Order (लाइव ट्रैकिंग)</span>
           </button>
           <Link
-            to="/shop"
+            to="/allpickles"
             className="bg-white hover:bg-cream-50 text-charcoal border border-cream-300 text-xs font-bold px-6 py-3.5 rounded-xl transition-all text-center flex items-center justify-center gap-2"
           >
             <ShoppingBag className="w-4 h-4" />

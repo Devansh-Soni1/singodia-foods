@@ -35,7 +35,7 @@ export const BestSellersSection = ({ products = [], onQuickView }) => {
         {/* View All Pickles Link */}
         <div className="mt-8 text-center">
           <Link
-            to="/shop"
+            to="/allpickles"
             className="inline-flex items-center gap-2 bg-brand-green hover:bg-brand-green-light text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-xs hover:shadow-md transition-all"
           >
             <span>Explore All Pickles (सभी अचार देखें)</span>

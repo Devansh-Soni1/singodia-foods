@@ -218,7 +218,7 @@ export const ProductDetailPage = () => {
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
-            to="/shop/"
+            to="/allpickles"
             className="px-6 py-2.5 bg-brand-green text-white text-xs sm:text-sm font-bold rounded-full hover:bg-emerald-800 transition-colors shadow-sm"
           >
             सभी उपलब्ध उत्पाद देखें (Browse Store)
@@ -292,7 +292,15 @@ export const ProductDetailPage = () => {
         <div className="text-xs text-earth-brown mb-6 flex items-center gap-1.5 flex-wrap">
           <Link to="/" className="hover:text-brand-green">Home</Link>
           <ChevronRight className="w-3 h-3" />
-          <Link to="/shop" className="hover:text-brand-green">Pickles</Link>
+          <Link to="/allpickles" className="hover:text-brand-green">All Pickles</Link>
+          {product.category && (
+            <>
+              <ChevronRight className="w-3 h-3" />
+              <Link to={`/category/${product.category}/`} className="hover:text-brand-green capitalize">
+                {product.category.replace(/-/g, ' ')}
+              </Link>
+            </>
+          )}
           <ChevronRight className="w-3 h-3" />
           <span className="font-bold text-charcoal">{product.name}</span>
         </div>

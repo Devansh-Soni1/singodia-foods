@@ -52,7 +52,7 @@ export const CartPage = () => {
             Looks like you haven't added any traditional homemade pickles yet. Explore our bestselling Rajasthani recipes!
           </p>
           <Link
-            to="/shop"
+            to="/allpickles"
             className="inline-flex items-center gap-2 bg-brand-green hover:bg-brand-green-light text-white text-xs font-bold px-8 py-3.5 rounded-xl shadow-sm transition-all"
           >
             <span>Browse All Pickles</span>
@@ -100,7 +100,7 @@ export const CartPage = () => {
                         className="w-20 h-20 object-cover rounded-xl border border-cream-200 flex-shrink-0"
                       />
                       <div>
-                        <Link to={`/product/${item.slug}/`} className="text-sm sm:text-base font-bold text-charcoal hover:text-brand-green line-clamp-1 font-serif">
+                        <Link to={`/allpickle/${item.slug}/`} className="text-sm sm:text-base font-bold text-charcoal hover:text-brand-green line-clamp-1 font-serif">
                           {item.name}
                         </Link>
                         {item.hindiName && (
@@ -159,7 +159,7 @@ export const CartPage = () => {
 
             <div className="flex justify-between items-center pt-2">
               <Link
-                to="/shop"
+                to="/allpickles"
                 className="text-xs font-bold text-brand-green hover:underline flex items-center gap-1"
               >
                 ← Continue Shopping Pickles

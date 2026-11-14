@@ -14,6 +14,18 @@ import { compressImageFile, resolveProductImage } from '../../utils/imageUtils';
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80';
 const MASALA_IMAGE_SNIPPET = 'photo-1596040033229-a9821ebd058d';
 
+const slugify = (text = '') => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[\s_]+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+};
+
 export const AdminProducts = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -35,6 +47,7 @@ export const AdminProducts = () => {
 
   const defaultFormData = {
     name: '',
+    slug: '',
     hindiName: '',
     category: '',
     subCategory: '',
@@ -83,6 +96,7 @@ export const AdminProducts = () => {
       ...defaultFormData,
       category: categories[0]?.slug || 'mango-pickles',
       subCategory: '',
+      slug: '',
       images: [],
       variants: [
         { weight: '250g', price: 249, originalPrice: 299, inStock: true, stockCount: 50 },
@@ -99,6 +113,7 @@ export const AdminProducts = () => {
     setEditingProduct(p);
     setFormData({
       name: p.name || '',
+      slug: p.slug || '',
       hindiName: p.hindiName || '',
       category: p.category || 'mango-pickles',
       subCategory: p.subCategory || '',
@@ -268,8 +283,11 @@ export const AdminProducts = () => {
       ? cleanImages
       : [DEFAULT_IMAGE];
 
+    const cleanSlug = slugify(formData.slug || formData.name);
+
     const payload = {
       ...formData,
+      slug: cleanSlug,
       images: finalImages,
       ingredients: typeof formData.ingredients === 'string'
         ? formData.ingredients.split(',').map(s => s.trim()).filter(Boolean)
@@ -554,7 +572,7 @@ export const AdminProducts = () => {
                         <div className="flex items-center justify-end gap-1.5">
                           {p.slug && (
                             <Link
-                              to={`/product/${p.slug}/`}
+                              to={`/allpickle/${p.slug}/`}
                               target="_blank"
                               className="p-2 text-gray-400 hover:text-brand-green hover:bg-gray-100 rounded-xl transition-colors"
                               title="View on Live Store"
@@ -769,7 +787,16 @@ export const AdminProducts = () => {
                     required
                     placeholder="e.g. Banarasi Lal Mirch Ka Bharwa Achar"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) => {
+                      const newName = e.target.value;
+                      setFormData(prev => ({
+                        ...prev,
+                        name: newName,
+                        slug: (!editingProduct && (!prev.slug || prev.slug === slugify(prev.name)))
+                          ? slugify(newName)
+                          : prev.slug
+                      }));
+                    }}
                     className="w-full p-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-brand-green text-xs"
                   />
                 </div>
@@ -782,6 +809,57 @@ export const AdminProducts = () => {
                     onChange={(e) => setFormData({ ...formData, hindiName: e.target.value })}
                     className="w-full p-2.5 rounded-xl border border-gray-300 focus:outline-none focus:border-brand-green text-xs"
                   />
+                </div>
+              </div>
+
+              {/* PRODUCT URL SLUG */}
+              <div className="bg-emerald-50/70 border border-emerald-300/80 rounded-2xl p-3.5 sm:p-4 space-y-2">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <label className="font-bold text-xs text-emerald-950 flex items-center gap-1.5">
+                    <span>Product URL Slug (पेज का लिंक / Slug) *</span>
+                    <span className="text-[10px] text-emerald-800 font-extrabold px-2 py-0.5 bg-emerald-100 rounded-md border border-emerald-200">
+                      SEO Link
+                    </span>
+                  </label>
+                  {formData.name && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, slug: slugify(prev.name) }));
+                        toast.success('Slug generated from name!');
+                      }}
+                      className="text-[11px] font-bold text-brand-green hover:underline cursor-pointer"
+                    >
+                      ⚡ Auto-Generate from Name
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center rounded-xl border border-emerald-300 bg-white overflow-hidden shadow-2xs focus-within:border-brand-green focus-within:ring-2 focus-within:ring-brand-green/20">
+                  <span className="px-3 py-2.5 bg-gray-100 border-r border-gray-200 text-gray-600 font-mono text-[11px] sm:text-xs select-none whitespace-nowrap">
+                    https://singodiafoodstore.in/allpickle/
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    placeholder="banarasi-lal-mirch-bharwa-achar"
+                    value={formData.slug}
+                    onChange={(e) => {
+                      const clean = slugify(e.target.value);
+                      setFormData(prev => ({ ...prev, slug: clean }));
+                    }}
+                    className="w-full px-3 py-2 text-xs font-mono text-gray-900 focus:outline-none bg-transparent"
+                  />
+                  <span className="pr-3 text-gray-400 font-mono text-xs select-none">
+                    /
+                  </span>
+                </div>
+
+                <div className="text-[11px] text-gray-600 flex items-center gap-1.5 flex-wrap">
+                  <span>URL Preview:</span>
+                  <span className="font-mono text-brand-green font-bold bg-white px-2 py-0.5 rounded border border-emerald-200 break-all">
+                    https://singodiafoodstore.in/allpickle/{formData.slug || '[slug]'}/
+                  </span>
                 </div>
               </div>
 

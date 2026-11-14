@@ -129,7 +129,7 @@ export const AboutPage = () => {
           </p>
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
             <Link
-              to="/shop"
+              to="/allpickles"
               className="px-6 py-3 bg-mustard hover:bg-mustard-light text-brand-green-dark text-xs sm:text-sm font-black rounded-xl shadow-md transition-all flex items-center gap-2"
             >
               <span>Explore All Pickles (सभी आचार देखें)</span>

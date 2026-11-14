@@ -476,7 +476,7 @@ export const CheckoutPage = () => {
       <div className="py-24 text-center min-h-[60vh] flex flex-col items-center justify-center px-4">
         <h2 className="text-xl font-bold text-charcoal mb-2 font-serif">Nothing to checkout!</h2>
         <p className="text-xs text-earth-brown mb-6">Your shopping cart is currently empty.</p>
-        <Link to="/shop" className="bg-brand-green text-white text-xs font-bold px-6 py-3 rounded-xl">
+        <Link to="/allpickles" className="bg-brand-green text-white text-xs font-bold px-6 py-3 rounded-xl">
           Return to Shop
         </Link>
       </div>

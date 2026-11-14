@@ -86,7 +86,7 @@ export const HowToEnjoySection = () => {
 
                 <div className="mt-4 pt-3 border-t border-cream-200/80">
                   <Link
-                    to="/shop"
+                    to="/allpickles"
                     className="text-xs font-bold text-mustard-dark hover:text-brand-green transition-colors flex items-center justify-between"
                   >
                     <span>Try This Pairing</span>

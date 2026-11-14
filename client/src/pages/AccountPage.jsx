@@ -309,7 +309,7 @@ export const AccountPage = () => {
                       Explore our authentic handcrafted pickles and enjoy tradition delivered to your doorstep.
                     </p>
                     <Link
-                      to="/shop"
+                      to="/allpickles"
                       className="inline-block bg-brand-green text-white text-xs font-bold px-6 py-2.5 rounded-xl"
                     >
                       Shop Pickles
@@ -723,7 +723,7 @@ export const AccountPage = () => {
                     <p className="text-xs text-earth-brown mb-4">
                       Save jars you'd love to savor on your next order.
                     </p>
-                    <Link to="/shop" className="bg-brand-green text-white text-xs font-bold px-6 py-2.5 rounded-xl">
+                    <Link to="/allpickles" className="bg-brand-green text-white text-xs font-bold px-6 py-2.5 rounded-xl">
                       Explore All Pickles
                     </Link>
                   </div>

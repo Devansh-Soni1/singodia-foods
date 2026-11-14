@@ -141,7 +141,7 @@ export const CartDrawer = () => {
                   Experience traditional handmade taste from Rajasthan. Add your favorite achar jars now.
                 </p>
                 <Link
-                  to="/shop"
+                  to="/allpickles"
                   onClick={closeCart}
                   className="bg-brand-green hover:bg-brand-green-light text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-xs transition-all"
                 >
@@ -157,7 +157,7 @@ export const CartDrawer = () => {
                   >
                     {/* Product Thumbnail */}
                     <Link 
-                      to={`/product/${item.slug}/`} 
+                      to={`/allpickle/${item.slug}/`} 
                       onClick={closeCart}
                       className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-amber-50/40 border border-gray-100 flex items-center justify-center p-1 shrink-0 overflow-hidden"
                     >
@@ -174,7 +174,7 @@ export const CartDrawer = () => {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 pr-1">
                           <Link
-                            to={`/product/${item.slug}/`}
+                            to={`/allpickle/${item.slug}/`} 
                             onClick={closeCart}
                             className="text-xs sm:text-sm font-bold text-gray-900 hover:text-brand-green line-clamp-1 block leading-snug"
                             title={item.name}

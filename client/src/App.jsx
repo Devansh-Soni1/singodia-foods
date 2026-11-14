@@ -155,15 +155,21 @@ export const App = () => {
               {/* Customer Front Storefront */}
               <Route path="/" element={<MainLayout />}>
                 <Route index element={<HomePage />} />
-                <Route path="shop" element={<ShopPage />} />
+                
+                {/* Clean SEO Pickles & Category URLs */}
+                <Route path="allpickles" element={<ShopPage />} />
+                <Route path="allpickle/:slug" element={<ProductRouteHandler />} />
+                <Route path="category/:categorySlug" element={<ShopPage />} />
+                <Route path="category/:categorySlug/:subCategorySlug" element={<ShopPage />} />
+
+                {/* Backward Compatible & Alias Routes */}
+                <Route path="shop" element={<Navigate to="/allpickles" replace />} />
                 <Route path="shop/:categorySlug" element={<ShopPage />} />
                 <Route path="shop/:categorySlug/:subCategorySlug" element={<ShopPage />} />
                 <Route path="shop/taste/:subCategorySlug" element={<ShopPage />} />
-                <Route path="category/:categorySlug" element={<ShopPage />} />
-                <Route path="category/:categorySlug/:subCategorySlug" element={<ShopPage />} />
                 <Route path="product/:slug" element={<ProductRouteHandler />} />
                 <Route path="products/:slug" element={<ProductRouteHandler />} />
-                <Route path="build-combo" element={<Navigate to="/shop" replace />} />
+                <Route path="build-combo" element={<Navigate to="/allpickles" replace />} />
                 <Route path="cart" element={<CartPage />} />
                 <Route path="checkout" element={<CheckoutPage />} />
                 <Route path="order-confirmation/:orderNumber" element={<OrderConfirmationPage />} />

@@ -230,7 +230,7 @@ export const Navbar = ({ onOpenSearch }) => {
               <button 
                 onClick={() => {
                   setIngredientsDropdownOpen(false);
-                  navigate('/shop/');
+                  navigate('/allpickles');
                 }}
                 className="flex items-center gap-1.5 hover:text-[#e68819] transition-colors py-2 focus:outline-none"
               >

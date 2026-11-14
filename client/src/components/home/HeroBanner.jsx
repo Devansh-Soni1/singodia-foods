@@ -33,7 +33,7 @@ export const HeroBanner = ({ customHeroImage }) => {
 
       {/* FULL WIDTH EDGE-TO-EDGE HERO BANNER (Zero margins, zero padding) */}
       <Link 
-        to="/shop" 
+        to="/allpickles" 
         className="group block relative w-full p-0 m-0 overflow-hidden border-0 rounded-none shadow-none transition-all duration-300"
         title="Click to Shop Singodia Foods Homemade Pickles"
       >

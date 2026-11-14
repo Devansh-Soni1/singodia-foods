@@ -78,7 +78,7 @@ const CATEGORY_VISUALS = {
     title1: 'All',
     title2: 'Pickles',
     hindi: 'सभी आचार',
-    path: '/shop/'
+    path: '/allpickles'
   }
 };
 
@@ -162,7 +162,7 @@ export const SubHeaderCategoryBar = () => {
         >
           {categoriesToShow.map((cat) => {
             const visual = resolveVisual(cat.slug, cat.name);
-            const link = visual.path || (cat.slug === 'all-products' ? '/shop/' : `/product/${(cat.slug || '').replace(/s$/, '')}/`);
+            const link = visual.path || (cat.slug === 'all-products' ? '/allpickles' : `/category/${cat.slug}/`);
             const isHash = link.startsWith('/#');
 
             return (

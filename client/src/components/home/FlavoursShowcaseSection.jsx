@@ -97,7 +97,7 @@ export const FlavoursShowcaseSection = () => {
             <span>Zero Preservatives • Sun-Cured in Barnis • Handcrafted Homemade Taste</span>
           </div>
           <Link
-            to="/shop"
+            to="/allpickles"
             className="font-bold text-[#D12027] hover:underline flex items-center gap-1.5 group cursor-pointer"
           >
             <span>Explore All Singodia Foods Products</span>
