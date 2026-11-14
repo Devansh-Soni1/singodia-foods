@@ -194,8 +194,8 @@ export const ShopPage = () => {
           </p>
         </div>
 
-        {/* Top Control Bar: Mobile Filter Toggle + Sorting */}
-        <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-cream-200 shadow-card mb-8">
+        {/* Top Control Bar: Mobile Filter Toggle + Sorting (Hidden on Phone/Mobile) */}
+        <div className="hidden md:flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-cream-200 shadow-card mb-8">
           
           <div className="flex items-center gap-2">
             <button
@@ -228,9 +228,9 @@ export const ShopPage = () => {
 
         </div>
 
-        {/* Active Filter Pills */}
+        {/* Active Filter Pills (Hidden on Phone/Mobile) */}
         {(categoryParam !== 'all' || subCategoryParam !== 'all' || bestsellersParam || searchParam) && (
-          <div className="flex flex-wrap items-center gap-2 mb-6">
+          <div className="hidden md:flex flex-wrap items-center gap-2 mb-6">
             <span className="text-xs text-earth-brown font-semibold">Active Filters:</span>
             {categoryParam !== 'all' && (
               <span className="inline-flex items-center gap-1 text-xs bg-cream-200 text-charcoal px-3 py-1 rounded-full font-bold">
