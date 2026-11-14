@@ -51,8 +51,18 @@ export const CheckoutPage = () => {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [isDeliveryInfoOpen, setIsDeliveryInfoOpen] = useState(false);
 
-  // Form states - All address fields are mandatory
+  const splitName = (fullName = '') => {
+    const parts = (fullName || '').trim().split(/\s+/);
+    const firstName = parts[0] || '';
+    const lastName = parts.slice(1).join(' ') || '';
+    return { firstName, lastName };
+  };
+
+  // Form states - First & Last name + Address fields
+  const initialNameParts = splitName(user?.name || '');
   const [formData, setFormData] = useState({
+    firstName: initialNameParts.firstName,
+    lastName: initialNameParts.lastName,
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone ? String(user.phone).replace(/^(\+91|91|0)/, '').replace(/\D/g, '').slice(-10) : '',
@@ -135,9 +145,14 @@ export const CheckoutPage = () => {
         const cleanPhone = defaultAddr.phone || user.phone || '';
         const formattedPhone = String(cleanPhone).replace(/^(\+91|91|0)/, '').replace(/\D/g, '').slice(-10);
 
+        const addrName = defaultAddr.fullName || user.name || prev.name;
+        const nameParts = splitName(addrName);
+
         setFormData(prev => ({
           ...prev,
-          name: defaultAddr.fullName || user.name || prev.name,
+          firstName: nameParts.firstName || prev.firstName,
+          lastName: nameParts.lastName || prev.lastName,
+          name: addrName,
           email: user.email || prev.email,
           phone: formattedPhone || prev.phone,
           addressLine1: defaultAddr.addressLine1 || prev.addressLine1,
@@ -154,8 +169,11 @@ export const CheckoutPage = () => {
         }
       } else {
         // First time customer: prefill name & email
+        const userParts = splitName(user.name || '');
         setFormData(prev => ({
           ...prev,
+          firstName: userParts.firstName || prev.firstName,
+          lastName: userParts.lastName || prev.lastName,
           name: user.name || prev.name,
           email: user.email || prev.email,
           phone: user.phone ? String(user.phone).replace(/^(\+91|91|0)/, '').replace(/\D/g, '').slice(-10) : prev.phone
@@ -168,10 +186,14 @@ export const CheckoutPage = () => {
   const handleSelectAddressFromModal = (addr) => {
     setSelectedAddressId(addr._id);
     const cleanPhone = String(addr.phone || '').replace(/^(\+91|91|0)/, '').replace(/\D/g, '').slice(-10);
+    const addrName = addr.fullName || prev.name;
+    const addrParts = splitName(addrName);
 
     setFormData(prev => ({
       ...prev,
-      name: addr.fullName || prev.name,
+      firstName: addrParts.firstName || prev.firstName,
+      lastName: addrParts.lastName || prev.lastName,
+      name: addrName,
       phone: cleanPhone || prev.phone,
       addressLine1: addr.addressLine1,
       addressLine2: addr.addressLine2 || '',
@@ -259,7 +281,16 @@ export const CheckoutPage = () => {
   ];
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => {
+      const updated = { ...prev, [name]: value };
+      if (name === 'firstName' || name === 'lastName') {
+        const first = name === 'firstName' ? value : (prev.firstName || '');
+        const last = name === 'lastName' ? value : (prev.lastName || '');
+        updated.name = `${first} ${last}`.trim();
+      }
+      return updated;
+    });
     setErrorMessage('');
   };
 
@@ -279,9 +310,23 @@ export const CheckoutPage = () => {
       return;
     }
 
-    // 1. Strict Name Validation
-    if (!formData.name.trim() || formData.name.trim().length < 3) {
-      setErrorMessage('कृपया प्राप्तकर्ता का पूरा नाम (कम से कम 3 अक्षर) दर्ज करें।');
+    // 1. Strict Name Validation (First Name & Last Name)
+    const cleanFirstName = (formData.firstName || '').trim();
+    const cleanLastName = (formData.lastName || '').trim();
+    const combinedName = `${cleanFirstName} ${cleanLastName}`.trim() || (formData.name || '').trim();
+
+    if (!cleanFirstName) {
+      setErrorMessage('कृपया अपना पहला नाम (First Name) दर्ज करें।');
+      return;
+    }
+
+    if (!cleanLastName) {
+      setErrorMessage('कृपया अपना उपनाम / सरनेम (Last Name) दर्ज करें।');
+      return;
+    }
+
+    if (combinedName.length < 3) {
+      setErrorMessage('कृपया अपना पूरा नाम (कम से कम 3 अक्षर) सही दर्ज करें।');
       return;
     }
 
@@ -310,11 +355,7 @@ export const CheckoutPage = () => {
       return;
     }
 
-    // 6. Strict Landmark Validation
-    if (!formData.landmark.trim()) {
-      setErrorMessage('कृपया कोई प्रमुख लैंडमार्क (उदा. जैन मंदिर के पास / पोस्ट ऑफिस के सामने) दर्ज करें।');
-      return;
-    }
+    // 6. Landmark is optional - no longer blocking
 
     // 7. Strict City Validation
     if (!formData.city.trim()) {
@@ -345,15 +386,15 @@ export const CheckoutPage = () => {
     try {
       const orderPayload = {
         customer: {
-          name: formData.name.trim(),
+          name: combinedName,
           email: user?.email || formData.email,
           phone: cleanPhone
         },
         shippingAddress: {
-          fullName: formData.name.trim(),
+          fullName: combinedName,
           addressLine1: formData.addressLine1.trim(),
           addressLine2: formData.addressLine2.trim(),
-          landmark: formData.landmark.trim(),
+          landmark: (formData.landmark || '').trim(),
           city: formData.city.trim(),
           district: (formData.district || formData.city).trim(),
           state: formData.state.trim(),
@@ -588,24 +629,44 @@ export const CheckoutPage = () => {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                  {/* Full Name */}
-                  <div>
-                    <label className="text-xs font-bold text-charcoal flex items-center justify-between mb-1.5">
-                      <span className="flex items-center gap-1">
-                        <span>Full Name (नाम)</span>
-                        <span className="text-red-500 font-extrabold">*</span>
-                      </span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      name="name"
-                      placeholder="e.g. Ramesh Chandra Singodia"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium text-charcoal"
-                    />
+                <div className="space-y-4 pt-1">
+                  {/* First Name & Last Name (अलग-अलग इनपुट) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-charcoal flex items-center justify-between mb-1.5">
+                        <span className="flex items-center gap-1">
+                          <span>First Name (पहला नाम)</span>
+                          <span className="text-red-500 font-extrabold">*</span>
+                        </span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        name="firstName"
+                        placeholder="e.g. Ramesh"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium text-charcoal"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-charcoal flex items-center justify-between mb-1.5">
+                        <span className="flex items-center gap-1">
+                          <span>Last Name (उपनाम / सरनेम)</span>
+                          <span className="text-red-500 font-extrabold">*</span>
+                        </span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        name="lastName"
+                        placeholder="e.g. Singodia"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium text-charcoal"
+                      />
+                    </div>
                   </div>
 
                   {/* Phone Number Input with +91 Prefix */}
@@ -730,17 +791,16 @@ export const CheckoutPage = () => {
                     />
                   </div>
 
-                  {/* Landmark */}
+                  {/* Landmark (Optional) */}
                   <div>
-                    <label className="text-xs font-bold text-charcoal flex items-center gap-1 mb-1.5">
+                    <label className="text-xs font-bold text-charcoal flex items-center justify-between mb-1.5">
                       <span>Famous Landmark (प्रसिद्ध लैंडमार्क / पहचान)</span>
-                      <span className="text-red-500 font-extrabold">*</span>
+                      <span className="text-[11px] text-earth-brown font-normal italic">(Optional / वैकल्पिक)</span>
                     </label>
                     <input
                       type="text"
-                      required
                       name="landmark"
-                      placeholder="e.g. Near Jain Mandir / Opp. SBI Bank"
+                      placeholder="e.g. Near Jain Mandir / Opp. SBI Bank (वैकल्पिक)"
                       value={formData.landmark}
                       onChange={handleChange}
                       className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"

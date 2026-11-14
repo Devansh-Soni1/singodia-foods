@@ -32,6 +32,8 @@ export const AddressSelectModal = ({
 
   // New address form state
   const [newAddr, setNewAddr] = useState({
+    firstName: '',
+    lastName: '',
     fullName: '',
     phone: '',
     addressLine1: '',
@@ -80,9 +82,23 @@ export const AddressSelectModal = ({
     e.preventDefault();
     setErrorMsg('');
 
-    // Strict validation - all fields required
-    if (!newAddr.fullName.trim()) {
-      setErrorMsg('कृपया प्राप्तकर्ता का पूरा नाम दर्ज करें।');
+    // Strict validation
+    const cleanFirstName = (newAddr.firstName || '').trim();
+    const cleanLastName = (newAddr.lastName || '').trim();
+    const combinedName = `${cleanFirstName} ${cleanLastName}`.trim() || (newAddr.fullName || '').trim();
+
+    if (!cleanFirstName) {
+      setErrorMsg('कृपया अपना पहला नाम (First Name) दर्ज करें।');
+      return;
+    }
+
+    if (!cleanLastName) {
+      setErrorMsg('कृपया अपना उपनाम / सरनेम (Last Name) दर्ज करें।');
+      return;
+    }
+
+    if (combinedName.length < 3) {
+      setErrorMsg('कृपया पूरा नाम (कम से कम 3 अक्षर) सही दर्ज करें।');
       return;
     }
 
@@ -107,10 +123,7 @@ export const AddressSelectModal = ({
       return;
     }
 
-    if (!newAddr.landmark.trim()) {
-      setErrorMsg('कृपया कोई लैंडमार्क (उदा. जैन मंदिर के पास / मुख्य बाजार) दर्ज करें।');
-      return;
-    }
+    // Landmark is optional - not blocking
 
     if (!newAddr.city.trim()) {
       setErrorMsg('कृपया शहर या कस्बा (City / Town) दर्ज करें।');
@@ -130,6 +143,8 @@ export const AddressSelectModal = ({
     try {
       const payload = {
         ...newAddr,
+        fullName: combinedName,
+        landmark: (newAddr.landmark || '').trim(),
         phone: cleanPhone,
         district: newAddr.district.trim(),
         isDefault: newAddr.isDefault || addresses.length === 0
@@ -137,6 +152,8 @@ export const AddressSelectModal = ({
       await onSaveNewAddress(payload);
       setIsAddingNew(false);
       setNewAddr({
+        firstName: '',
+        lastName: '',
         fullName: '',
         phone: '',
         addressLine1: '',
@@ -304,36 +321,64 @@ export const AddressSelectModal = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-bold text-charcoal block mb-1">
-                    पूरा नाम (Full Name) <span className="text-red-500">*</span>
+                    पहला नाम (First Name) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Ramesh Chandra"
-                    value={newAddr.fullName}
-                    onChange={(e) => setNewAddr({ ...newAddr, fullName: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green"
+                    placeholder="e.g. Ramesh"
+                    value={newAddr.firstName}
+                    onChange={(e) => {
+                      const first = e.target.value;
+                      setNewAddr(prev => ({
+                        ...prev,
+                        firstName: first,
+                        fullName: `${first} ${prev.lastName || ''}`.trim()
+                      }));
+                    }}
+                    className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
                   />
                 </div>
 
                 <div>
                   <label className="text-xs font-bold text-charcoal block mb-1">
-                    मोबाइल नंबर (10-Digit Mobile) <span className="text-red-500">*</span>
+                    उपनाम / सरनेम (Last Name) <span className="text-red-500">*</span>
                   </label>
-                  <div className="flex rounded-xl overflow-hidden border border-cream-300 bg-cream-50">
-                    <span className="px-2.5 py-2 bg-cream-200/60 text-xs font-bold text-gray-700 border-r border-cream-300">
-                      +91
-                    </span>
-                    <input
-                      type="tel"
-                      required
-                      maxLength={10}
-                      placeholder="9876543210"
-                      value={newAddr.phone}
-                      onChange={(e) => setNewAddr({ ...newAddr, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
-                      className="w-full px-3 py-2 text-xs bg-transparent focus:outline-none font-semibold"
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Singodia"
+                    value={newAddr.lastName}
+                    onChange={(e) => {
+                      const last = e.target.value;
+                      setNewAddr(prev => ({
+                        ...prev,
+                        lastName: last,
+                        fullName: `${prev.firstName || ''} ${last}`.trim()
+                      }));
+                    }}
+                    className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-charcoal block mb-1">
+                  मोबाइल नंबर (10-Digit Mobile) <span className="text-red-500">*</span>
+                </label>
+                <div className="flex rounded-xl overflow-hidden border border-cream-300 bg-cream-50">
+                  <span className="px-2.5 py-2 bg-cream-200/60 text-xs font-bold text-gray-700 border-r border-cream-300">
+                    +91
+                  </span>
+                  <input
+                    type="tel"
+                    required
+                    maxLength={10}
+                    placeholder="9876543210"
+                    value={newAddr.phone}
+                    onChange={(e) => setNewAddr({ ...newAddr, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                    className="w-full px-3 py-2 text-xs bg-transparent focus:outline-none font-semibold"
+                  />
                 </div>
               </div>
 
@@ -367,15 +412,15 @@ export const AddressSelectModal = ({
                 />
               </div>
 
-              {/* Landmark */}
+              {/* Landmark (Optional) */}
               <div>
-                <label className="text-xs font-bold text-charcoal block mb-1">
-                  प्रसिद्ध लैंडमार्क (Landmark / पहचान) <span className="text-red-500">*</span>
+                <label className="text-xs font-bold text-charcoal flex items-center justify-between mb-1">
+                  <span>प्रसिद्ध लैंडमार्क (Landmark / पहचान)</span>
+                  <span className="text-[10px] text-earth-brown font-normal italic">(Optional / वैकल्पिक)</span>
                 </label>
                 <input
                   type="text"
-                  required
-                  placeholder="e.g. Near Jain Mandir / Old Post Office"
+                  placeholder="e.g. Near Jain Mandir / Old Post Office (वैकल्पिक)"
                   value={newAddr.landmark}
                   onChange={(e) => setNewAddr({ ...newAddr, landmark: e.target.value })}
                   className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green"
