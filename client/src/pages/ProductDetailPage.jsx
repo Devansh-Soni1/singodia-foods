@@ -81,6 +81,8 @@ export const ProductDetailPage = () => {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { user } = useAuth();
 
+  const variant = product?.variants?.[selectedVariantIdx] || { weight: '250g', price: 249, originalPrice: 299 };
+
   // Normal Delivery Pincode & Date/Price state
   const [pincodeInput, setPincodeInput] = useState(() => {
     return localStorage.getItem('singodia_user_pincode') || '';
@@ -89,6 +91,9 @@ export const ProductDetailPage = () => {
   const [deliveryDate, setDeliveryDate] = useState('');
   const [deliveryFee, setDeliveryFee] = useState(null);
   const [pincodeError, setPincodeError] = useState('');
+
+  const isFreeDelivery = Boolean(freeShippingThreshold && ((variant.price || 0) * quantity >= freeShippingThreshold));
+  const activeDeliveryFee = isFreeDelivery ? 0 : (deliveryFee !== null ? deliveryFee : 50);
 
   const checkDelivery = useCallback(async (targetPin) => {
     const cleanPin = String(targetPin || pincodeInput || '').trim().replace(/\D/g, '');
@@ -117,15 +122,8 @@ export const ProductDetailPage = () => {
       });
 
       setDeliveryDate(dateStr);
-
-      const isFree = freeShippingThreshold && (variant?.price * quantity >= freeShippingThreshold);
-      if (isFree) {
-        setDeliveryFee(0);
-      } else {
-        const cost = Number(rateData?.rate || rateData?.estimatedCost) || 50;
-        setDeliveryFee(cost);
-      }
-
+      const cost = Number(rateData?.rate || rateData?.estimatedCost) || 50;
+      setDeliveryFee(cost);
       setPincodeInput(cleanPin);
       localStorage.setItem('singodia_user_pincode', cleanPin);
     } catch (err) {
@@ -141,7 +139,7 @@ export const ProductDetailPage = () => {
     } finally {
       setCheckingPincode(false);
     }
-  }, [pincodeInput, variant?.price, quantity, freeShippingThreshold]);
+  }, [pincodeInput]);
 
   useEffect(() => {
     const defaultAddressPin = user?.addresses?.find(a => a.isDefault)?.pincode;
@@ -153,18 +151,6 @@ export const ProductDetailPage = () => {
       checkDelivery(String(savedPin));
     }
   }, [user, checkDelivery]);
-
-  // Sync fee if price crosses free shipping threshold while date is shown
-  useEffect(() => {
-    if (deliveryDate) {
-      const isFree = freeShippingThreshold && (variant?.price * quantity >= freeShippingThreshold);
-      if (isFree) {
-        setDeliveryFee(0);
-      } else if (deliveryFee === 0) {
-        setDeliveryFee(50);
-      }
-    }
-  }, [variant?.price, quantity, freeShippingThreshold, deliveryDate]);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -233,7 +219,6 @@ export const ProductDetailPage = () => {
     );
   }
 
-  const variant = product.variants?.[selectedVariantIdx] || { weight: '250g', price: 249, originalPrice: 299 };
   const discount = calculateDiscount(variant.price, variant.originalPrice);
   const inWishlist = isInWishlist(product._id || product.slug);
 
@@ -553,10 +538,10 @@ export const ProductDetailPage = () => {
                       <span>Delivery by <strong className="text-brand-green">{deliveryDate}</strong></span>
                       <span className="text-gray-300">|</span>
                       <span>
-                        {deliveryFee === 0 ? (
+                        {activeDeliveryFee === 0 ? (
                           <strong className="text-emerald-700">FREE Delivery</strong>
                         ) : (
-                          <>Delivery: <strong className="text-brand-green">{formatPrice(deliveryFee)}</strong></>
+                          <>Delivery: <strong className="text-brand-green">{formatPrice(activeDeliveryFee)}</strong></>
                         )}
                       </span>
                     </div>
