@@ -81,21 +81,17 @@ export const ProductDetailPage = () => {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { user } = useAuth();
 
-  // Delivery & Pincode Estimate state
-  const [pincode, setPincode] = useState(() => {
-    return localStorage.getItem('singodia_user_pincode') || '302001';
-  });
+  // Normal Delivery Pincode & Date/Price state
   const [pincodeInput, setPincodeInput] = useState(() => {
-    return localStorage.getItem('singodia_user_pincode') || '302001';
+    return localStorage.getItem('singodia_user_pincode') || '';
   });
-  const [isEditingPincode, setIsEditingPincode] = useState(false);
   const [checkingPincode, setCheckingPincode] = useState(false);
-  const [pincodeInfo, setPincodeInfo] = useState(null);
-  const [deliveryEstimate, setDeliveryEstimate] = useState(null);
+  const [deliveryDate, setDeliveryDate] = useState('');
+  const [deliveryFee, setDeliveryFee] = useState(null);
   const [pincodeError, setPincodeError] = useState('');
 
   const checkDelivery = useCallback(async (targetPin) => {
-    const cleanPin = String(targetPin || '').trim().replace(/\D/g, '');
+    const cleanPin = String(targetPin || pincodeInput || '').trim().replace(/\D/g, '');
     if (!/^\d{6}$/.test(cleanPin)) {
       setPincodeError('कृपया 6 अंकों का सही पिनकोड दर्ज करें');
       return;
@@ -105,61 +101,70 @@ export const ProductDetailPage = () => {
     setPincodeError('');
 
     try {
-      const [pinData, rateData] = await Promise.all([
-        shippingAPI.lookupPincode(cleanPin),
-        shippingAPI.calculateRate({
-          toPincode: cleanPin,
-          weight: 0.5,
-          paymentMethod: 'Prepaid'
-        })
-      ]);
+      const rateData = await shippingAPI.calculateRate({
+        toPincode: cleanPin,
+        weight: 0.5,
+        paymentMethod: 'Prepaid'
+      });
 
-      if (pinData && pinData.city) {
-        setPincodeInfo(pinData);
+      // Date calculated as exactly 4 days after check date
+      const d = new Date();
+      d.setDate(d.getDate() + 4);
+      const dateStr = d.toLocaleDateString('en-IN', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
+      });
+
+      setDeliveryDate(dateStr);
+
+      const isFree = freeShippingThreshold && (variant?.price * quantity >= freeShippingThreshold);
+      if (isFree) {
+        setDeliveryFee(0);
       } else {
-        setPincodeInfo({ city: 'राजस्थान / भारत', state: '', pincode: cleanPin });
+        const cost = Number(rateData?.rate || rateData?.estimatedCost) || 50;
+        setDeliveryFee(cost);
       }
 
-      if (rateData && rateData.success) {
-        setDeliveryEstimate(rateData);
-      } else {
-        setDeliveryEstimate({
-          serviceable: true,
-          courierName: 'Delhivery / Xpressbees',
-          expectedDeliveryDays: '2 to 4 Days',
-          rate: 50
-        });
-      }
-
-      setPincode(cleanPin);
       setPincodeInput(cleanPin);
       localStorage.setItem('singodia_user_pincode', cleanPin);
-      setIsEditingPincode(false);
     } catch (err) {
-      console.warn('Delivery check notice:', err);
-      setDeliveryEstimate({
-        serviceable: true,
-        courierName: 'Express Courier Service',
-        expectedDeliveryDays: '3 to 5 Days',
-        rate: 60
+      const d = new Date();
+      d.setDate(d.getDate() + 4);
+      const dateStr = d.toLocaleDateString('en-IN', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
       });
-      setIsEditingPincode(false);
+      setDeliveryDate(dateStr);
+      setDeliveryFee(50);
     } finally {
       setCheckingPincode(false);
     }
-  }, []);
+  }, [pincodeInput, variant?.price, quantity, freeShippingThreshold]);
 
   useEffect(() => {
     const defaultAddressPin = user?.addresses?.find(a => a.isDefault)?.pincode;
     const firstAddressPin = user?.addresses?.[0]?.pincode;
-    const savedPin = defaultAddressPin || firstAddressPin || localStorage.getItem('singodia_user_pincode') || '302001';
+    const savedPin = defaultAddressPin || firstAddressPin || localStorage.getItem('singodia_user_pincode');
     
-    if (/^\d{6}$/.test(String(savedPin))) {
-      setPincode(String(savedPin));
+    if (savedPin && /^\d{6}$/.test(String(savedPin))) {
       setPincodeInput(String(savedPin));
       checkDelivery(String(savedPin));
     }
   }, [user, checkDelivery]);
+
+  // Sync fee if price crosses free shipping threshold while date is shown
+  useEffect(() => {
+    if (deliveryDate) {
+      const isFree = freeShippingThreshold && (variant?.price * quantity >= freeShippingThreshold);
+      if (isFree) {
+        setDeliveryFee(0);
+      } else if (deliveryFee === 0) {
+        setDeliveryFee(50);
+      }
+    }
+  }, [variant?.price, quantity, freeShippingThreshold, deliveryDate]);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -507,159 +512,56 @@ export const ProductDetailPage = () => {
 
               </div>
 
-              {/* iThink Logistics Delivery & Estimate Widget */}
-              <div className="pt-6 border-t border-cream-200">
-                <div className="bg-[#FAF7F0] rounded-2xl p-4 sm:p-5 border border-amber-200/80 shadow-2xs space-y-3.5">
-                  
-                  {/* Widget Header */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green flex-shrink-0">
-                        <Truck className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <h4 className="text-xs sm:text-sm font-bold font-serif text-charcoal">
-                          डिलीवरी एवं सेवा उपलब्धता (Delivery & Serviceability)
-                        </h4>
-                        <p className="text-[10px] text-earth-brown">
-                          सुजानगढ़, राजस्थान (331507) से पूरे भारत में होम डिलीवरी
-                        </p>
-                      </div>
-                    </div>
-                    <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-bold text-brand-green bg-white px-2.5 py-1 rounded-full border border-cream-300">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      Live Dispatch Check
-                    </span>
-                  </div>
-
-                  {/* Pincode Input / Active Pincode View */}
-                  {!isEditingPincode && pincode ? (
-                    <div className="flex items-center justify-between bg-white rounded-xl px-3.5 py-2.5 border border-cream-300 shadow-2xs">
-                      <div className="flex items-center gap-2 text-xs text-charcoal min-w-0">
-                        <MapPin className="w-4 h-4 text-brand-green flex-shrink-0" />
-                        <span className="truncate">
-                          डिलीवरी स्थान: <strong className="text-brand-green font-bold">{pincodeInfo?.city || 'शहर'}{pincodeInfo?.state ? `, ${pincodeInfo.state}` : ''} ({pincode})</strong>
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPincodeInput(pincode);
-                          setIsEditingPincode(true);
-                        }}
-                        className="text-xs font-bold text-brand-green hover:underline cursor-pointer ml-2 flex-shrink-0"
-                      >
-                        पिनकोड बदलें
-                      </button>
-                    </div>
-                  ) : (
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        checkDelivery(pincodeInput);
+              {/* Normal Delivery Pincode & Date/Price */}
+              <div className="pt-4 border-t border-cream-200">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    checkDelivery(pincodeInput);
+                  }}
+                  className="space-y-2 max-w-sm"
+                >
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={pincodeInput}
+                      onChange={(e) => {
+                        setPincodeInput(e.target.value.replace(/\D/g, '').slice(0, 6));
+                        setPincodeError('');
                       }}
-                      className="space-y-1.5"
+                      placeholder="Enter Pincode"
+                      className="flex-1 px-3.5 py-2 text-sm bg-white rounded-lg border border-gray-300 focus:outline-none focus:border-brand-green font-medium"
+                    />
+                    <button
+                      type="submit"
+                      disabled={checkingPincode}
+                      className="px-5 py-2 bg-brand-green hover:bg-brand-green-light text-white text-sm font-bold rounded-lg transition-colors cursor-pointer disabled:opacity-60 shrink-0"
                     >
-                      <div className="flex items-center gap-2">
-                        <div className="relative flex-1">
-                          <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                          <input
-                            type="text"
-                            maxLength={6}
-                            value={pincodeInput}
-                            onChange={(e) => {
-                              setPincodeInput(e.target.value.replace(/\D/g, '').slice(0, 6));
-                              setPincodeError('');
-                            }}
-                            placeholder="अपना 6-अंकों का पिनकोड दर्ज करें (उदा. 302001)"
-                            className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-white rounded-xl border border-cream-300 focus:outline-none focus:border-brand-green font-medium"
-                          />
-                        </div>
-                        <button
-                          type="submit"
-                          disabled={checkingPincode}
-                          className="px-4 py-2 bg-brand-green hover:bg-brand-green-light text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer disabled:opacity-70 flex-shrink-0"
-                        >
-                          {checkingPincode ? (
-                            <>
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              <span>जांच जारी...</span>
-                            </>
-                          ) : (
-                            <span>जांचें (Check)</span>
-                          )}
-                        </button>
-                        {pincode && (
-                          <button
-                            type="button"
-                            onClick={() => setIsEditingPincode(false)}
-                            className="text-xs text-gray-500 hover:text-charcoal px-2 py-2 cursor-pointer"
-                          >
-                            रद्द
-                          </button>
-                        )}
-                      </div>
-                      {pincodeError && (
-                        <p className="text-[11px] text-red-600 font-medium pl-1">
-                          {pincodeError}
-                        </p>
-                      )}
-                    </form>
-                  )}
-
-                  {/* Estimate Results Display */}
-                  {deliveryEstimate && (
-                    <div className="bg-white rounded-xl p-3 border border-cream-200/90 shadow-2xs space-y-2 text-xs">
-                      <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-cream-200">
-                        <div className="flex items-center gap-1.5 text-emerald-700 font-bold">
-                          <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-                          <span>पिनकोड {pincode} पर सेवा उपलब्ध है</span>
-                        </div>
-                        {freeShippingThreshold && (variant?.price * quantity >= freeShippingThreshold) ? (
-                          <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
-                            🎉 फ्री होम डिलीवरी लागू!
-                          </span>
-                        ) : (
-                          <span className="text-[11px] text-charcoal">
-                            शिपिंग: <strong className="text-brand-green font-bold">{deliveryEstimate.rate ? formatPrice(deliveryEstimate.rate) : '₹50'}</strong>
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-charcoal">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-3.5 h-3.5 text-brand-green flex-shrink-0" />
-                          <span>अपेक्षित डिलीवरी: <strong>{deliveryEstimate.expectedDeliveryDays || '2 - 4 कार्य दिवस'}</strong></span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Truck className="w-3.5 h-3.5 text-brand-green flex-shrink-0" />
-                          <span>कूरियर: <strong className="capitalize">{deliveryEstimate.courierName || 'Delhivery / Xpressbees'}</strong></span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Features & Guarantees Grid */}
-                  <div className="grid grid-cols-2 gap-2.5 pt-1 text-[11px] text-charcoal font-medium">
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className="w-3.5 h-3.5 text-brand-green flex-shrink-0" />
-                      <span>100% सेफ लीक-प्रूफ पैकिंग</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-brand-green flex-shrink-0" />
-                      <span>कैश ऑन डिलीवरी (COD) उपलब्ध</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Sun className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
-                      <span>पारंपरिक धूप में पकाया गया</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-3.5 h-3.5 text-brand-green flex-shrink-0" />
-                      <span>0% केमिकल व प्रिजर्वेटिव</span>
-                    </div>
+                      {checkingPincode ? 'Checking...' : 'Check'}
+                    </button>
                   </div>
 
-                </div>
+                  {pincodeError && (
+                    <p className="text-xs text-red-600 font-medium">
+                      {pincodeError}
+                    </p>
+                  )}
+
+                  {deliveryDate && (
+                    <div className="text-sm text-charcoal font-semibold flex items-center gap-2 pt-1">
+                      <span>Delivery by <strong className="text-brand-green">{deliveryDate}</strong></span>
+                      <span className="text-gray-300">|</span>
+                      <span>
+                        {deliveryFee === 0 ? (
+                          <strong className="text-emerald-700">FREE Delivery</strong>
+                        ) : (
+                          <>Delivery: <strong className="text-brand-green">{formatPrice(deliveryFee)}</strong></>
+                        )}
+                      </span>
+                    </div>
+                  )}
+                </form>
               </div>
 
             </div>
