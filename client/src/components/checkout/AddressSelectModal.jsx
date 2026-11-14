@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, MapPin, Check, Plus, ShieldCheck, 
   Home, Building2, Phone, User, CheckCircle2, Loader2, Sparkles
@@ -18,6 +18,17 @@ export const AddressSelectModal = ({
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [pincodeMessage, setPincodeMessage] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isOpen, onClose]);
 
   // New address form state
   const [newAddr, setNewAddr] = useState({
@@ -143,9 +154,12 @@ export const AddressSelectModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 font-sans">
+    <div 
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 font-sans cursor-pointer"
+      onClick={onClose}
+    >
       <div 
-        className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-cream-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-cream-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200 my-auto cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}

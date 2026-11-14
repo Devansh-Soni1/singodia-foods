@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { X, Check, ShoppingBag, Heart, ArrowRight } from 'lucide-react';
 import { formatPrice, calculateDiscount } from '../../utils/formatCurrency';
@@ -8,6 +8,16 @@ import { useWishlist } from '../../context/WishlistContext';
 import { resolveProductImage } from '../../utils/imageUtils';
 
 export const QuickViewModal = ({ product, isOpen, onClose }) => {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isOpen, onClose]);
+
   if (!isOpen || !product) return null;
 
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
@@ -38,8 +48,14 @@ export const QuickViewModal = ({ product, isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-cream-200 relative animate-in zoom-in-95 duration-200">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto cursor-pointer"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-cream-200 relative animate-in zoom-in-95 duration-200 my-auto cursor-default"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Close Button */}
         <button

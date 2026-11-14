@@ -79,6 +79,17 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
     };
   }, [isOpen, order, waybill, carrierName]);
 
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isOpen, onClose]);
+
   if (!isOpen || !order) return null;
 
   const handleCopyAwb = () => {
@@ -116,9 +127,12 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
     : 'https://my.ithinklogistics.com/';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-fade-in overflow-y-auto cursor-pointer"
+      onClick={onClose}
+    >
       <div 
-        className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-cream-200 overflow-hidden max-h-[92vh] flex flex-col"
+        className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-cream-200 overflow-hidden max-h-[92vh] flex flex-col my-auto cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}

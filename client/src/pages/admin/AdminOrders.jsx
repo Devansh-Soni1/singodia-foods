@@ -242,8 +242,14 @@ export const AdminOrders = () => {
 
       {/* Status Update Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-200">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto cursor-pointer"
+          onClick={() => setSelectedOrder(null)}
+        >
+          <div 
+            className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-200 my-auto cursor-default"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
               <h3 className="text-base font-bold text-gray-900 font-serif">
                 Manage Order #{selectedOrder.orderNumber}

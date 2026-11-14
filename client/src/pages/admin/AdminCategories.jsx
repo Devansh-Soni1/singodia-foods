@@ -348,8 +348,14 @@ export const AdminCategories = () => {
 
       {/* CREATE / EDIT CATEGORY & SUB-CATEGORIES MODAL */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl border border-gray-200 my-8 max-h-[92vh] flex flex-col">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto cursor-pointer"
+          onClick={() => setShowModal(false)}
+        >
+          <div 
+            className="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl border border-gray-200 my-8 max-h-[92vh] flex flex-col cursor-default"
+            onClick={(e) => e.stopPropagation()}
+          >
             
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4 shrink-0">

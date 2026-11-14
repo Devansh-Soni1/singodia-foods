@@ -1100,8 +1100,14 @@ export const CheckoutPage = () => {
 
       {/* Clean Customer-Facing Delivery Info Popup Modal */}
       {isDeliveryInfoOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-cream-200 space-y-4 animate-in zoom-in-95 duration-200">
+        <div 
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200 overflow-y-auto cursor-pointer"
+          onClick={() => setIsDeliveryInfoOpen(false)}
+        >
+          <div 
+            className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-cream-200 space-y-4 animate-in zoom-in-95 duration-200 my-auto cursor-default"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between pb-3 border-b border-cream-100">
               <div className="flex items-center gap-2">
                 <Truck className="w-5 h-5 text-brand-green" />

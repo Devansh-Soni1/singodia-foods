@@ -57,6 +57,17 @@ export const CartDrawer = () => {
     return () => { isMounted = false; };
   }, [isCartOpen, cartItems]);
 
+  // Close cart on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') closeCart();
+    };
+    if (isCartOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isCartOpen, closeCart]);
+
   if (!isCartOpen) return null;
 
   const handleApplyCoupon = async (e) => {
@@ -83,16 +94,21 @@ export const CartDrawer = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden font-sans">
+    <div 
+      className="fixed inset-0 z-50 overflow-hidden font-sans flex justify-end"
+      onClick={closeCart}
+    >
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
-        onClick={closeCart}
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
+        aria-hidden="true"
       />
 
       {/* Slide-out drawer panel */}
-      <div className="fixed inset-y-0 right-0 max-w-full flex w-full sm:w-auto">
-        <div className="w-full sm:w-[420px] md:w-[450px] bg-white shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300">
+      <div 
+        className="relative z-10 w-[86%] max-w-[390px] sm:w-[420px] md:w-[450px] sm:max-w-none h-full bg-white shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300"
+        onClick={(e) => e.stopPropagation()}
+      >
           
           {/* Header (YOUR CART) */}
           <div className="px-4 py-3.5 sm:px-5 sm:py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
@@ -423,7 +439,6 @@ export const CartDrawer = () => {
 
         </div>
       </div>
-    </div>
   );
 };
 

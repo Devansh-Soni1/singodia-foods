@@ -12,6 +12,17 @@ export const AdminLayout = () => {
   const navigate = useNavigate();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+  // Close sidebar on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setMobileSidebarOpen(false);
+    };
+    if (mobileSidebarOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [mobileSidebarOpen]);
+
   const navLinks = [
     { path: '/admin', label: 'Dashboard Overview', icon: LayoutDashboard },
     { path: '/admin/products', label: 'Pickle Products', icon: Package },
@@ -41,6 +52,15 @@ export const AdminLayout = () => {
           <ArrowLeft className="w-3.5 h-3.5" /> Store
         </Link>
       </div>
+
+      {/* Mobile Sidebar Backdrop Overlay */}
+      {mobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-30 md:hidden transition-opacity cursor-pointer"
+          onClick={() => setMobileSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
       {/* Sidebar Navigation */}
       <aside className={`w-64 bg-[#143025] text-white flex-shrink-0 flex flex-col justify-between p-4 z-40 fixed md:sticky top-0 h-screen transition-transform duration-300 ${

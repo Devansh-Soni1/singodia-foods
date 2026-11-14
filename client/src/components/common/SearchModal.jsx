@@ -14,11 +14,16 @@ export const SearchModal = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') onClose();
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
     } else {
       setQuery('');
       setResults([]);
     }
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (!query.trim()) {
@@ -44,8 +49,14 @@ export const SearchModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/50 backdrop-blur-xs">
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-cream-200 animate-in fade-in zoom-in-95 duration-200">
+    <div 
+      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/60 backdrop-blur-xs overflow-y-auto cursor-pointer"
+      onClick={onClose}
+    >
+      <div 
+        className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-cream-200 animate-in fade-in zoom-in-95 duration-200 cursor-default"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Search Input Bar */}
         <div className="flex items-center px-4 py-3.5 border-b border-cream-200 bg-cream-50">

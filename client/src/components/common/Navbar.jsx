@@ -56,7 +56,7 @@ export const Navbar = ({ onOpenSearch }) => {
     };
   }, []);
 
-  // Close dropdowns on outside click
+  // Close dropdowns & mobile drawer on outside click / escape
   const navRef = useRef(null);
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -69,8 +69,22 @@ export const Navbar = ({ onOpenSearch }) => {
         setProfileDropdownOpen(false);
       }
     };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+        setProfileDropdownOpen(false);
+        setIngredientsDropdownOpen(false);
+        setTasteDropdownOpen(false);
+      }
+    };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const handleIngredientsEnter = () => {
@@ -589,8 +603,14 @@ export const Navbar = ({ onOpenSearch }) => {
 
       {/* Mobile Drawer Menu (Slide-in) */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 top-[64px] bg-black/50 backdrop-blur-xs z-50">
-          <div className="bg-white w-[85%] max-w-sm h-full shadow-2xl p-5 overflow-y-auto animate-in slide-in-from-left duration-200 border-r border-gray-200">
+        <div 
+          className="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs transition-opacity flex"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <div 
+            className="bg-white w-[85%] max-w-sm h-full shadow-2xl p-5 overflow-y-auto animate-in slide-in-from-left duration-200 border-r border-gray-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             
             {/* Mobile Drawer Brand Logo */}
             <div className="pb-4 mb-4 border-b border-gray-100 flex items-center justify-between">

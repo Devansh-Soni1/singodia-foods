@@ -252,8 +252,14 @@ export const AdminUsers = () => {
 
       {/* Delete Confirmation Modal */}
       {userToDelete && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-2xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 border border-gray-200 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+        <div 
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-2xs flex items-center justify-center p-4 overflow-y-auto cursor-pointer"
+          onClick={() => setUserToDelete(null)}
+        >
+          <div 
+            className="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 border border-gray-200 shadow-2xl animate-in fade-in zoom-in-95 duration-150 my-auto cursor-default"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
               <Trash2 className="w-6 h-6" />
             </div>
