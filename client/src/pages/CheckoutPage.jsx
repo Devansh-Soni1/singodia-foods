@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { 
   ShieldCheck, Truck, CreditCard, Banknote, ArrowRight, 
   CheckCircle, AlertCircle, ShoppingBag, Lock, UserCheck, CheckCircle2,
@@ -43,7 +44,7 @@ export const CheckoutPage = () => {
     freeShippingThreshold,
     freeShippingEnabled
   } = useCart();
-  const { user, isAuthenticated, addAddress, setDefaultAddress } = useAuth();
+  const { user, isAuthenticated, addAddress, setDefaultAddress, deleteAddress } = useAuth();
   const navigate = useNavigate();
 
   // Address selection modal state
@@ -232,6 +233,21 @@ export const CheckoutPage = () => {
   const handleSetDefaultInsideModal = async (addressId) => {
     if (setDefaultAddress) {
       await setDefaultAddress(addressId);
+    }
+  };
+
+  // Handle deleting address inside modal
+  const handleDeleteAddressFromModal = async (addressId) => {
+    try {
+      if (deleteAddress) {
+        await deleteAddress(addressId);
+        toast.success('पता हटा दिया गया');
+        if (selectedAddressId === addressId) {
+          setSelectedAddressId(null);
+        }
+      }
+    } catch (err) {
+      toast.error(err.message || 'पता हटाने में विफल।');
     }
   };
 
@@ -1156,6 +1172,7 @@ export const CheckoutPage = () => {
         onSelectAddress={handleSelectAddressFromModal}
         onSaveNewAddress={handleSaveNewAddressFromModal}
         onSetDefault={handleSetDefaultInsideModal}
+        onDeleteAddress={handleDeleteAddressFromModal}
       />
 
       {/* Clean Customer-Facing Delivery Info Popup Modal */}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   X, MapPin, Check, Plus, ShieldCheck, 
-  Home, Building2, Phone, User, CheckCircle2, Loader2, Sparkles
+  Home, Building2, Phone, User, CheckCircle2, Loader2, Sparkles, Trash2
 } from 'lucide-react';
 import { shippingAPI } from '../../services/api';
 
@@ -12,12 +12,14 @@ export const AddressSelectModal = ({
   selectedAddressId,
   onSelectAddress,
   onSaveNewAddress,
-  onSetDefault
+  onSetDefault,
+  onDeleteAddress
 }) => {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [pincodeMessage, setPincodeMessage] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [deletingId, setDeletingId] = useState(null);
 
   // Close on Escape key
   useEffect(() => {
@@ -29,6 +31,23 @@ export const AddressSelectModal = ({
       return () => window.removeEventListener('keydown', handleKeyDown);
     }
   }, [isOpen, onClose]);
+
+  const handleDeleteAddress = async (e, addrId) => {
+    e.stopPropagation();
+    if (window.confirm('क्या आप वाकई इस पते को हटाना चाहते हैं?')) {
+      try {
+        setDeletingId(addrId);
+        setErrorMsg('');
+        if (onDeleteAddress) {
+          await onDeleteAddress(addrId);
+        }
+      } catch (err) {
+        setErrorMsg(err.message || 'पता हटाने में विफल।');
+      } finally {
+        setDeletingId(null);
+      }
+    }
+  };
 
   // New address form state
   const [newAddr, setNewAddr] = useState({
@@ -271,32 +290,64 @@ export const AddressSelectModal = ({
                               </p>
                             </div>
                           </div>
+
+                          {/* Delete Icon Button on each address */}
+                          {onDeleteAddress && (
+                            <button
+                              type="button"
+                              onClick={(e) => handleDeleteAddress(e, addr._id)}
+                              disabled={deletingId === addr._id}
+                              className="w-8 h-8 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 flex items-center justify-center transition-all shrink-0 cursor-pointer border border-red-200/80 hover:scale-105"
+                              title="यह पता हटाएं (Delete Address)"
+                              aria-label="Delete address"
+                            >
+                              {deletingId === addr._id ? (
+                                <Loader2 className="w-4 h-4 animate-spin text-red-600" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </button>
+                          )}
                         </div>
 
-                        <div className="mt-3 pt-2.5 border-t border-cream-200/60 flex items-center justify-between text-xs">
+                        <div className="mt-3 pt-2.5 border-t border-cream-200/60 flex items-center justify-between text-xs flex-wrap gap-2">
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               onSelectAddress(addr);
                             }}
-                            className="font-bold text-brand-green hover:underline"
+                            className="font-bold text-brand-green hover:underline cursor-pointer"
                           >
                             ✓ यह पता चुनें (Deliver Here)
                           </button>
 
-                          {!addr.isDefault && onSetDefault && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onSetDefault(addr._id);
-                              }}
-                              className="text-[11px] text-gray-500 hover:text-charcoal"
-                            >
-                              मुख्य पता बनाएं (Set as Default)
-                            </button>
-                          )}
+                          <div className="flex items-center gap-3">
+                            {!addr.isDefault && onSetDefault && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                 e.stopPropagation();
+                                  onSetDefault(addr._id);
+                                }}
+                                className="text-[11px] text-gray-500 hover:text-charcoal cursor-pointer"
+                              >
+                                मुख्य पता बनाएं (Set Default)
+                              </button>
+                            )}
+
+                            {onDeleteAddress && (
+                              <button
+                                type="button"
+                                onClick={(e) => handleDeleteAddress(e, addr._id)}
+                                disabled={deletingId === addr._id}
+                                className="inline-flex items-center gap-1 text-[11px] font-bold text-red-600 hover:text-red-700 hover:underline cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>हटाएं</span>
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
