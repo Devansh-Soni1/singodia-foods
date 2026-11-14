@@ -384,22 +384,44 @@ export const createProduct = async (req, res, next) => {
   try {
     const productData = req.body;
     
-    // Auto-generate clean slug
+    // Auto-generate or sanitize clean slug
     if (!productData.slug && productData.name) {
       productData.slug = productData.name.toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '');
     }
+    if (productData.slug) {
+      productData.slug = productData.slug.toLowerCase()
+        .trim()
+        .replace(/[\s_]+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
+    }
     if (!productData.slug) {
       productData.slug = 'pickle-' + Date.now();
     }
 
-    // Ensure uniqueness
+    // Strictly enforce slug uniqueness across all products in MongoDB
+    if (mongoose.connection.readyState === 1) {
+      const existingInMongo = await Product.findOne({ slug: productData.slug });
+      if (existingInMongo) {
+        return res.status(400).json({
+          success: false,
+          message: `Slug "${productData.slug}" पहले से प्रोडक्ट "${existingInMongo.name}" द्वारा उपयोग में है। प्रत्येक प्रोडक्ट का Slug यूनिक होना चाहिए।`
+        });
+      }
+    }
+
+    // Strictly enforce slug uniqueness in local fallback products
     const local = getLocalProducts();
-    let baseSlug = productData.slug;
-    let counter = 1;
-    while (local.some(p => p.slug === productData.slug)) {
-      productData.slug = `${baseSlug}-${counter++}`;
+    const existingInLocal = local.find(p => p.slug === productData.slug);
+    if (existingInLocal) {
+      return res.status(400).json({
+        success: false,
+        message: `Slug "${productData.slug}" पहले से प्रोडक्ट "${existingInLocal.name}" द्वारा उपयोग में है। प्रत्येक प्रोडक्ट का Slug यूनिक होना चाहिए।`
+      });
     }
 
     // Default fields
@@ -425,6 +447,12 @@ export const createProduct = async (req, res, next) => {
         savedProduct = await Product.create(productData);
       } catch (err) {
         console.warn('Mongo Product.create failed, saving locally:', err.message);
+        if (err.code === 11000) {
+          return res.status(400).json({
+            success: false,
+            message: `Slug "${productData.slug}" डुप्लीकेट है। कृपया कोई दूसरा यूनिक Slug चुनें।`
+          });
+        }
       }
     }
 
@@ -447,6 +475,12 @@ export const createProduct = async (req, res, next) => {
       product: savedProduct
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'यह Slug पहले से किसी अन्य प्रोडक्ट में मौजूद है। कृपया यूनिक Slug चुनें।'
+      });
+    }
     next(error);
   }
 };
@@ -460,6 +494,41 @@ export const updateProduct = async (req, res, next) => {
       req.body.images = await ensureCloudinaryImages(req.body.images);
     }
 
+    // Sanitize and verify slug uniqueness on update
+    if (req.body.slug) {
+      req.body.slug = req.body.slug.toLowerCase()
+        .trim()
+        .replace(/[\s_]+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
+
+      // Check MongoDB for slug conflict with any OTHER product
+      if (mongoose.connection.readyState === 1) {
+        const query = mongoose.isValidObjectId(id)
+          ? { slug: req.body.slug, _id: { $ne: id } }
+          : { slug: req.body.slug, slug: { $ne: id } };
+        const conflictingMongo = await Product.findOne(query);
+        if (conflictingMongo) {
+          return res.status(400).json({
+            success: false,
+            message: `Slug "${req.body.slug}" पहले से प्रोडक्ट "${conflictingMongo.name}" में इस्तेमाल हो रहा है। कृपया कोई दूसरा यूनिक Slug चुनें।`
+          });
+        }
+      }
+
+      // Check local storage for slug conflict with any OTHER product
+      const local = getLocalProducts();
+      const conflictingLocal = local.find(p => p.slug === req.body.slug && p._id?.toString() !== id && p.slug !== id);
+      if (conflictingLocal) {
+        return res.status(400).json({
+          success: false,
+          message: `Slug "${req.body.slug}" पहले से प्रोडक्ट "${conflictingLocal.name}" में इस्तेमाल हो रहा है। कृपया कोई दूसरा यूनिक Slug चुनें।`
+        });
+      }
+    }
+
     if (mongoose.connection.readyState === 1) {
       try {
         if (mongoose.isValidObjectId(id)) {
@@ -469,6 +538,12 @@ export const updateProduct = async (req, res, next) => {
         }
       } catch (err) {
         console.warn('Mongo findByIdAndUpdate failed:', err.message);
+        if (err.code === 11000) {
+          return res.status(400).json({
+            success: false,
+            message: `Slug "${req.body.slug}" डुप्लीकेट है। कृपया कोई दूसरा यूनिक Slug चुनें।`
+          });
+        }
       }
     }
 

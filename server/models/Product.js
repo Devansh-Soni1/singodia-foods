@@ -46,5 +46,8 @@ const productSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
+// Ensure strict uniqueness on product slug
+productSchema.index({ slug: 1 }, { unique: true });
+
 export default mongoose.models.Product || mongoose.model('Product', productSchema);
 

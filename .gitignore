@@ -32,4 +32,5 @@ Thumbs.db
 .system_generated/
 .gemini/
 scripts/
+data/
 

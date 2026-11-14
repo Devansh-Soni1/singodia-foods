@@ -285,6 +285,22 @@ export const AdminProducts = () => {
 
     const cleanSlug = slugify(formData.slug || formData.name);
 
+    if (!cleanSlug) {
+      toast.error('कृपया प्रोडक्ट के लिए एक वैध URL Slug दर्ज करें।');
+      return;
+    }
+
+    // Strictly ensure no duplicate slug across products
+    const conflictingProduct = products.find(p => 
+      p.slug && p.slug.toLowerCase() === cleanSlug.toLowerCase() &&
+      (!editingProduct || (p._id !== editingProduct._id && p.slug !== editingProduct.slug))
+    );
+
+    if (conflictingProduct) {
+      toast.error(`यह Slug ("${cleanSlug}") पहले से "${conflictingProduct.name}" द्वारा उपयोग में है! एक Slug सिर्फ एक ही प्रोडक्ट के लिए हो सकता है।`, { duration: 5500 });
+      return;
+    }
+
     const payload = {
       ...formData,
       slug: cleanSlug,
@@ -813,55 +829,89 @@ export const AdminProducts = () => {
               </div>
 
               {/* PRODUCT URL SLUG */}
-              <div className="bg-emerald-50/70 border border-emerald-300/80 rounded-2xl p-3.5 sm:p-4 space-y-2">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <label className="font-bold text-xs text-emerald-950 flex items-center gap-1.5">
-                    <span>Product URL Slug (पेज का लिंक / Slug) *</span>
-                    <span className="text-[10px] text-emerald-800 font-extrabold px-2 py-0.5 bg-emerald-100 rounded-md border border-emerald-200">
-                      SEO Link
-                    </span>
-                  </label>
-                  {formData.name && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData(prev => ({ ...prev, slug: slugify(prev.name) }));
-                        toast.success('Slug generated from name!');
-                      }}
-                      className="text-[11px] font-bold text-brand-green hover:underline cursor-pointer"
-                    >
-                      ⚡ Auto-Generate from Name
-                    </button>
-                  )}
-                </div>
+              {(() => {
+                const currentCleanSlug = slugify(formData.slug || formData.name);
+                const conflictingProduct = products.find(p => 
+                  p.slug && p.slug.toLowerCase() === currentCleanSlug.toLowerCase() &&
+                  (!editingProduct || (p._id !== editingProduct._id && p.slug !== editingProduct.slug))
+                );
+                const isSlugDuplicate = !!conflictingProduct && !!currentCleanSlug;
 
-                <div className="flex items-center rounded-xl border border-emerald-300 bg-white overflow-hidden shadow-2xs focus-within:border-brand-green focus-within:ring-2 focus-within:ring-brand-green/20">
-                  <span className="px-3 py-2.5 bg-gray-100 border-r border-gray-200 text-gray-600 font-mono text-[11px] sm:text-xs select-none whitespace-nowrap">
-                    https://singodiafoodstore.in/allpickle/
-                  </span>
-                  <input
-                    type="text"
-                    required
-                    placeholder="banarasi-lal-mirch-bharwa-achar"
-                    value={formData.slug}
-                    onChange={(e) => {
-                      const clean = slugify(e.target.value);
-                      setFormData(prev => ({ ...prev, slug: clean }));
-                    }}
-                    className="w-full px-3 py-2 text-xs font-mono text-gray-900 focus:outline-none bg-transparent"
-                  />
-                  <span className="pr-3 text-gray-400 font-mono text-xs select-none">
-                    /
-                  </span>
-                </div>
+                return (
+                  <div className={`rounded-2xl p-3.5 sm:p-4 space-y-2 border transition-all ${
+                    isSlugDuplicate
+                      ? 'bg-red-50/80 border-red-400'
+                      : 'bg-emerald-50/70 border-emerald-300/80'
+                  }`}>
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <label className="font-bold text-xs flex items-center gap-1.5 text-gray-900">
+                        <span>Product URL Slug (पेज का यूनिक लिंक / Slug) *</span>
+                        {isSlugDuplicate ? (
+                          <span className="text-[10px] text-red-700 font-extrabold px-2 py-0.5 bg-red-100 rounded-md border border-red-300 animate-pulse">
+                            ⚠️ Duplicate Slug (Not Allowed)
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-emerald-800 font-extrabold px-2 py-0.5 bg-emerald-100 rounded-md border border-emerald-200">
+                            ✓ Unique & Available
+                          </span>
+                        )}
+                      </label>
+                      {formData.name && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, slug: slugify(prev.name) }));
+                            toast.success('Slug generated from name!');
+                          }}
+                          className="text-[11px] font-bold text-brand-green hover:underline cursor-pointer"
+                        >
+                          ⚡ Auto-Generate from Name
+                        </button>
+                      )}
+                    </div>
 
-                <div className="text-[11px] text-gray-600 flex items-center gap-1.5 flex-wrap">
-                  <span>URL Preview:</span>
-                  <span className="font-mono text-brand-green font-bold bg-white px-2 py-0.5 rounded border border-emerald-200 break-all">
-                    https://singodiafoodstore.in/allpickle/{formData.slug || '[slug]'}/
-                  </span>
-                </div>
-              </div>
+                    <div className={`flex items-center rounded-xl border bg-white overflow-hidden shadow-2xs transition-all ${
+                      isSlugDuplicate
+                        ? 'border-red-500 focus-within:ring-2 focus-within:ring-red-300'
+                        : 'border-emerald-300 focus-within:border-brand-green focus-within:ring-2 focus-within:ring-brand-green/20'
+                    }`}>
+                      <span className="px-3 py-2.5 bg-gray-100 border-r border-gray-200 text-gray-600 font-mono text-[11px] sm:text-xs select-none whitespace-nowrap">
+                        https://singodiafoodstore.in/allpickle/
+                      </span>
+                      <input
+                        type="text"
+                        required
+                        placeholder="banarasi-lal-mirch-bharwa-achar"
+                        value={formData.slug}
+                        onChange={(e) => {
+                          const clean = slugify(e.target.value);
+                          setFormData(prev => ({ ...prev, slug: clean }));
+                        }}
+                        className="w-full px-3 py-2 text-xs font-mono text-gray-900 focus:outline-none bg-transparent"
+                      />
+                      <span className="pr-3 text-gray-400 font-mono text-xs select-none">
+                        /
+                      </span>
+                    </div>
+
+                    {isSlugDuplicate ? (
+                      <div className="p-2.5 bg-red-100/90 border border-red-300 rounded-xl text-[11px] font-bold text-red-900 flex items-start gap-1.5 leading-relaxed">
+                        <span className="text-sm shrink-0">⚠️</span>
+                        <span>
+                          यह Slug (<strong>"{currentCleanSlug}"</strong>) पहले से प्रोडक्ट <strong>"{conflictingProduct.name}"</strong> द्वारा इस्तेमाल किया जा रहा है। एक Slug सिर्फ एक ही प्रोडक्ट का हो सकता है। कृपया कोई दूसरा यूनिक Slug चुनें।
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="text-[11px] text-gray-600 flex items-center gap-1.5 flex-wrap">
+                        <span>URL Preview:</span>
+                        <span className="font-mono text-brand-green font-bold bg-white px-2 py-0.5 rounded border border-emerald-200 break-all">
+                          https://singodiafoodstore.in/allpickle/{formData.slug || '[slug]'}/
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* CATEGORY */}
               <div>
