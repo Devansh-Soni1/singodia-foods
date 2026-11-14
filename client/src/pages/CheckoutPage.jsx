@@ -33,6 +33,64 @@ const loadRazorpayScript = () => {
   });
 };
 
+// Instant State Resolver from Postal Pincode prefix (handles all 28 States & 8 UTs)
+const getStateFromPincode = (pincode) => {
+  const pin = String(pincode || '').trim();
+  if (pin.length < 2) return '';
+  const p2 = pin.slice(0, 2);
+
+  if (p2 === '11') return 'Delhi';
+  if (p2 === '12' || p2 === '13') return 'Haryana';
+  if (p2 === '14' || p2 === '15') return 'Punjab';
+  if (p2 === '16') return 'Chandigarh';
+  if (p2 === '17') return 'Himachal Pradesh';
+  if (p2 === '18' || p2 === '19') return 'Jammu and Kashmir';
+  if (/^2[0-8]/.test(pin)) {
+    if (/^(24|263|262|261|248|249|246|247)/.test(pin)) return 'Uttarakhand';
+    return 'Uttar Pradesh';
+  }
+  if (/^3[0-4]/.test(pin)) return 'Rajasthan';
+  if (/^3[6-9]/.test(pin)) return 'Gujarat';
+  if (p2 === '40') return 'Goa';
+  if (/^4[0-4]/.test(pin)) return 'Maharashtra';
+  if (/^4[5-8]/.test(pin)) return 'Madhya Pradesh';
+  if (p2 === '49') return 'Chhattisgarh';
+  if (/^5[0-3]/.test(pin)) {
+    if (/^50/.test(pin)) return 'Telangana';
+    return 'Andhra Pradesh';
+  }
+  if (/^5[6-9]/.test(pin)) return 'Karnataka';
+  if (/^6[0-4]/.test(pin)) {
+    if (/^605/.test(pin)) return 'Puducherry';
+    return 'Tamil Nadu';
+  }
+  if (/^6[7-9]/.test(pin)) {
+    if (/^682/.test(pin)) return 'Lakshadweep';
+    return 'Kerala';
+  }
+  if (/^7[0-4]/.test(pin)) {
+    if (/^737/.test(pin)) return 'Sikkim';
+    if (/^744/.test(pin)) return 'Andaman and Nicobar Islands';
+    return 'West Bengal';
+  }
+  if (/^7[5-7]/.test(pin)) return 'Odisha';
+  if (p2 === '78') return 'Assam';
+  if (p2 === '79') {
+    if (/^790|^791/.test(pin)) return 'Arunachal Pradesh';
+    if (/^792|^795/.test(pin)) return 'Manipur';
+    if (/^793|^794/.test(pin)) return 'Meghalaya';
+    if (/^796/.test(pin)) return 'Mizoram';
+    if (/^797|^798/.test(pin)) return 'Nagaland';
+    if (/^799/.test(pin)) return 'Tripura';
+    return 'Assam';
+  }
+  if (/^8[0-5]/.test(pin)) {
+    if (/^8[1-3]/.test(pin)) return 'Jharkhand';
+    return 'Bihar';
+  }
+  return '';
+};
+
 export const CheckoutPage = () => {
   const { 
     cartItems, 
@@ -277,7 +335,7 @@ export const CheckoutPage = () => {
     }
   };
 
-  // Instant location auto-fetch on 6-digit PIN code input
+  // Instant location auto-fetch on 6-digit PIN code input (State, City, District)
   const handlePincodeChange = async (e) => {
     const val = e.target.value.replace(/\D/g, '').slice(0, 6);
     setFormData(prev => ({ ...prev, pincode: val }));
@@ -285,6 +343,12 @@ export const CheckoutPage = () => {
     setErrorMessage('');
 
     if (val.length === 6) {
+      // 1. Instant state prediction from PIN prefix
+      const instantState = getStateFromPincode(val);
+      if (instantState) {
+        setFormData(prev => ({ ...prev, state: prev.state || instantState }));
+      }
+
       setPincodeLoading(true);
       try {
         const [pinData] = await Promise.all([
@@ -301,11 +365,20 @@ export const CheckoutPage = () => {
             landmark: prev.landmark || ''
           }));
           setPincodeStatus(`✓ ${pinData.city || pinData.district}, ${pinData.district} (${pinData.state})`);
+        } else if (instantState) {
+          setFormData(prev => ({
+            ...prev,
+            state: instantState
+          }));
+          setPincodeStatus(`✓ राज्य: ${instantState}`);
         } else {
           setPincodeStatus('');
         }
       } catch {
-        // Fallback
+        if (instantState) {
+          setFormData(prev => ({ ...prev, state: instantState }));
+          setPincodeStatus(`✓ राज्य: ${instantState}`);
+        }
       } finally {
         setPincodeLoading(false);
       }
@@ -314,13 +387,6 @@ export const CheckoutPage = () => {
       setShippingRateInfo(null);
     }
   };
-
-  const indianStates = [
-    'Rajasthan', 'Delhi', 'Uttar Pradesh', 'Maharashtra', 'Karnataka', 
-    'Gujarat', 'Haryana', 'Punjab', 'Madhya Pradesh', 'West Bengal', 
-    'Tamil Nadu', 'Telangana', 'Andhra Pradesh', 'Bihar', 'Kerala', 
-    'Odisha', 'Assam', 'Jharkhand', 'Uttarakhand', 'Himachal Pradesh', 'Goa'
-  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -918,21 +984,24 @@ export const CheckoutPage = () => {
                     </div>
 
                     <div>
-                      <label className="text-xs font-bold text-charcoal flex items-center gap-1 mb-1.5">
-                        <span>State (राज्य)</span>
-                        <span className="text-red-500 font-extrabold">*</span>
+                      <label className="text-xs font-bold text-charcoal flex items-center justify-between gap-1 mb-1.5">
+                        <span className="flex items-center gap-1">
+                          <span>State (राज्य)</span>
+                          <span className="text-red-500 font-extrabold">*</span>
+                        </span>
+                        <span className="text-[10px] text-gray-500 font-normal">
+                          (पिनकोड से ऑटो-फ़िल)
+                        </span>
                       </label>
-                      <select
+                      <input
+                        type="text"
                         name="state"
                         required
+                        placeholder="e.g. Rajasthan, Delhi, UP, Bihar"
                         value={formData.state}
                         onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-medium"
-                      >
-                        {indianStates.map((st) => (
-                          <option key={st} value={st}>{st}</option>
-                        ))}
-                      </select>
+                        className="w-full px-3.5 py-2.5 text-xs bg-cream-50 border border-cream-300 rounded-xl focus:outline-none focus:border-brand-green font-bold text-charcoal"
+                      />
                     </div>
                   </div>
 
