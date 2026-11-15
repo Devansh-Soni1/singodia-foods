@@ -18,7 +18,7 @@ export const AccountPage = () => {
   const { wishlist } = useWishlist();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const urlTab = searchParams.get('tab') || 'orders';
+  const urlTab = searchParams.get('tab') || 'profile';
   const [activeTab, setActiveTabState] = useState(urlTab);
 
   useEffect(() => {
@@ -286,13 +286,16 @@ export const AccountPage = () => {
         {/* Layout: Tab Navigation Sidebar + Main Panel */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start">
           
-          {/* Navigation Tabs (2x2 Grid on Mobile, 4-Cols on Tablet, Vertical Sidebar on Desktop) */}
-          <div className="lg:col-span-3 bg-white rounded-2xl p-2 sm:p-3 border border-cream-200 shadow-card grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-col gap-2 select-none">
+          {/* Navigation Tabs (Horizontal Strip on Mobile, Vertical Sidebar on Desktop) */}
+          <div 
+            className="lg:col-span-3 bg-white rounded-2xl p-2 sm:p-3 border border-cream-200 shadow-card flex flex-row lg:flex-col gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none select-none"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
             {[
+              { id: 'profile', label: 'Profile Details', mobileLabel: 'Profile', icon: User },
               { id: 'orders', label: 'Order History', mobileLabel: 'Orders', icon: Package },
               { id: 'addresses', label: 'Saved Addresses', mobileLabel: 'Addresses', icon: MapPin },
               { id: 'wishlist', label: `My Wishlist (${wishlist.length})`, mobileLabel: `Wishlist (${wishlist.length})`, icon: Heart },
-              { id: 'profile', label: 'Profile Details', mobileLabel: 'Profile', icon: User },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -301,7 +304,7 @@ export const AccountPage = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center justify-center lg:justify-start gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex-1 min-w-[105px] sm:min-w-[125px] lg:min-w-0 lg:w-full flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
                     isActive
                       ? 'bg-brand-green text-white shadow-xs font-bold'
                       : 'text-charcoal bg-cream-50/80 lg:bg-transparent hover:bg-cream-100 hover:text-brand-green'
