@@ -1043,7 +1043,7 @@ export const AdminProducts = () => {
                   <span className="text-[11px] font-bold text-gray-700 block mb-1">
                     Or select by general taste profile (स्वाद अनुसार):
                   </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pt-1">
                     {TASTE_SUBCATEGORIES.map((taste) => {
                       const isSelected = (formData.subCategory || '').toLowerCase() === taste.id;
                       return (

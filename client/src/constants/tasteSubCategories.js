@@ -18,6 +18,15 @@ export const TASTE_SUBCATEGORIES = [
     badgeClass: 'bg-yellow-100 text-yellow-900 border-yellow-300'
   },
   {
+    id: 'medium-spicy',
+    slug: 'medium-spicy',
+    name: 'Medium Spicy',
+    hindiName: 'मध्यम तीखा',
+    icon: '🫑',
+    description: 'Balanced, mild-to-medium heat with authentic aroma and spices',
+    badgeClass: 'bg-amber-100 text-amber-950 border-amber-300'
+  },
+  {
     id: 'spicy',
     slug: 'spicy',
     name: 'Spicy',
@@ -48,7 +57,16 @@ export const TASTE_SUBCATEGORIES = [
 
 export const getTasteInfo = (tasteId = '') => {
   if (!tasteId) return null;
-  const tid = tasteId.toLowerCase();
+  const tid = String(tasteId).toLowerCase().trim().replace(/[\s_]+/g, '-');
+  if (
+    tid === 'medium' || 
+    tid === 'mediumspicy' || 
+    tid === 'medium-spicy' || 
+    tid === 'mideum' || 
+    tid === 'mideum-spicy' || 
+    tid === 'mideumspicy'
+  ) {
+    return TASTE_SUBCATEGORIES.find(t => t.id === 'medium-spicy') || null;
+  }
   return TASTE_SUBCATEGORIES.find(t => t.id === tid || t.slug === tid) || null;
 };
-

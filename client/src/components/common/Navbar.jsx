@@ -183,6 +183,7 @@ export const Navbar = ({ onOpenSearch }) => {
   const tasteList = [
     { name: 'Sweet (मीठा / मुरब्बा)', path: '/shop/taste/sweet/', icon: '🍯' },
     { name: 'Tangy (खट्टा / चटपटा)', path: '/shop/taste/tangy/', icon: '🍋' },
+    { name: 'Medium Spicy (मध्यम तीखा)', path: '/shop/taste/medium-spicy/', icon: '🫑' },
     { name: 'Spicy (तीखा / चटपटा)', path: '/shop/taste/spicy/', icon: '🌶️' },
     { name: 'Winter Special (सर्दियों का खास)', path: '/shop/taste/winter/', icon: '❄️' },
     { name: 'Rajasthani Royal (शाही राजस्थानी)', path: '/shop/taste/rajasthani/', icon: '🏺' },
