@@ -201,7 +201,7 @@ export const SubHeaderCategoryBar = () => {
 
       {/* 2. Trust Guarantee Strip */}
       <div className="border-t border-amber-300/70 bg-[#FFFDF9] py-1.5 px-3 sm:px-4 overflow-hidden">
-        <div className="max-w-5xl mx-auto flex items-center justify-center gap-2.5 sm:gap-6 text-[10.5px] sm:text-[13px] font-bold text-gray-800 flex-nowrap overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div className="max-w-5xl mx-auto flex items-center justify-center gap-2 sm:gap-6 text-[10.5px] sm:text-[13px] font-bold text-gray-800 flex-wrap sm:flex-nowrap">
           
           {/* Trust Item 1: NO Chemical Preservatives */}
           <div className="flex items-center gap-1 shrink-0">

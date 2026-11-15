@@ -65,7 +65,9 @@ export const TrustBadges = ({ layout = 'row' }) => {
             return (
               <div 
                 key={idx} 
-                className="flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl bg-white border border-cream-200/80 shadow-xs hover:shadow-card transition-shadow duration-200"
+                className={`flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl bg-white border border-cream-200/80 shadow-xs hover:shadow-card transition-shadow duration-200 ${
+                  idx === 4 ? 'col-span-2 md:col-span-1 max-w-sm mx-auto w-full' : ''
+                }`}
               >
                 <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${badge.color} flex items-center justify-center mb-2 sm:mb-3 shadow-inner`}>
                   <Icon className="w-5 h-5 sm:w-6 sm:h-6" />

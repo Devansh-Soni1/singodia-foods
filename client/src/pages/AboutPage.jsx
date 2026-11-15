@@ -45,10 +45,10 @@ export const AboutPage = () => {
               alt="Singodia Foods — Handcrafted in Sujangarh, Rajasthan (331507)"
               className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-5 sm:p-6 pointer-events-none">
-              <span className="text-white text-xs sm:text-sm font-bold bg-brand-green/95 px-4 py-2 rounded-full shadow-lg backdrop-blur-xs flex items-center gap-2 border border-white/20">
-                <MapPin className="w-4 h-4 text-mustard shrink-0" />
-                <span>Handcrafted in Sujangarh, Rajasthan (331507)</span>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-3 sm:p-6 pointer-events-none">
+              <span className="text-white text-[11px] sm:text-sm font-bold bg-brand-green/95 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-full shadow-lg backdrop-blur-xs flex items-center gap-1.5 sm:gap-2 border border-white/20 max-w-full">
+                <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-mustard shrink-0" />
+                <span className="leading-tight">Handcrafted in Sujangarh, Rajasthan (331507)</span>
               </span>
             </div>
           </div>

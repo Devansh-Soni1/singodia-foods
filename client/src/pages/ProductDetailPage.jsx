@@ -899,8 +899,32 @@ export const ProductDetailPage = () => {
         {/* Detailed Information Tabs */}
         <div className="bg-white rounded-3xl p-6 sm:p-10 border border-cream-200 shadow-card mb-12">
           
-          {/* Tab Navigation */}
-          <div className="flex border-b border-cream-200 overflow-x-auto gap-4 sm:gap-8 mb-8 no-scrollbar">
+          {/* Mobile Tab Navigation (2x2 Segmented Grid — No Cutoff) */}
+          <div className="grid grid-cols-2 sm:hidden gap-2 mb-6 p-1.5 bg-cream-50 border border-cream-200 rounded-2xl select-none">
+            {[
+              { id: 'details', label: 'Story & Taste', icon: '📖' },
+              { id: 'ingredients', label: 'Ingredients', icon: '🌿' },
+              { id: 'storage', label: 'Storage Life', icon: '🏺' },
+              { id: 'reviews', label: `Reviews (${reviews.length})`, icon: '⭐' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === tab.id
+                    ? 'bg-brand-green text-white shadow-xs'
+                    : 'text-charcoal bg-white/70 hover:bg-white hover:text-brand-green'
+                }`}
+              >
+                <span className="text-sm">{tab.icon}</span>
+                <span className="leading-tight">{tab.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Desktop Tab Navigation (Classic Underline Bar) */}
+          <div className="hidden sm:flex border-b border-cream-200 gap-8 mb-8">
             {[
               { id: 'details', label: 'Story & Taste Profile' },
               { id: 'ingredients', label: 'Ingredients & Spices' },
@@ -909,8 +933,9 @@ export const ProductDetailPage = () => {
             ].map((tab) => (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`pb-4 text-sm font-bold whitespace-nowrap transition-all border-b-2 font-serif ${
+                className={`pb-4 text-sm font-bold whitespace-nowrap transition-all border-b-2 font-serif cursor-pointer ${
                   activeTab === tab.id
                     ? 'border-brand-green text-brand-green'
                     : 'border-transparent text-earth-brown hover:text-charcoal'

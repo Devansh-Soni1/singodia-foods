@@ -286,8 +286,8 @@ export const AccountPage = () => {
         {/* Layout: Tab Navigation Sidebar + Main Panel */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start">
           
-          {/* Navigation Tabs (Horizontal Strip on Mobile, Vertical Sidebar on Desktop) */}
-          <div className="lg:col-span-3 bg-white rounded-2xl p-2 sm:p-3 border border-cream-200 shadow-card flex flex-row lg:flex-col gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none select-none">
+          {/* Navigation Tabs (2x2 Grid on Mobile, 4-Cols on Tablet, Vertical Sidebar on Desktop) */}
+          <div className="lg:col-span-3 bg-white rounded-2xl p-2 sm:p-3 border border-cream-200 shadow-card grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-col gap-2 select-none">
             {[
               { id: 'orders', label: 'Order History', mobileLabel: 'Orders', icon: Package },
               { id: 'addresses', label: 'Saved Addresses', mobileLabel: 'Addresses', icon: MapPin },
@@ -301,10 +301,10 @@ export const AccountPage = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 min-w-[110px] sm:min-w-[130px] lg:min-w-0 lg:w-full flex items-center justify-center lg:justify-start gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                  className={`w-full flex items-center justify-center lg:justify-start gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-brand-green text-white shadow-xs'
-                      : 'text-charcoal bg-cream-50/70 lg:bg-transparent hover:bg-cream-100 hover:text-brand-green'
+                      ? 'bg-brand-green text-white shadow-xs font-bold'
+                      : 'text-charcoal bg-cream-50/80 lg:bg-transparent hover:bg-cream-100 hover:text-brand-green'
                   }`}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
