@@ -70,6 +70,12 @@ export const ProductDetailPage = () => {
 
   // Active info tab: 'details', 'ingredients', 'storage', 'reviews'
   const [activeTab, setActiveTab] = useState('details');
+  const tabsNavRef = useRef(null);
+  const contentSliderRef = useRef(null);
+  const isProgrammaticScroll = useRef(false);
+  const scrollDebounceTimer = useRef(null);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
 
   // Review Form State
   const [newReviewerName, setNewReviewerName] = useState('');
@@ -488,6 +494,74 @@ export const ProductDetailPage = () => {
     touchEndXRef.current = null;
   };
 
+  const DETAIL_TABS = useMemo(() => [
+    { id: 'details', label: 'Story & Taste Profile', mobileLabel: 'Story & Taste', icon: '📖' },
+    { id: 'ingredients', label: 'Ingredients & Spices', mobileLabel: 'Ingredients', icon: '🌿' },
+    { id: 'storage', label: 'Storage & Shelf Life', mobileLabel: 'Storage Life', icon: '🏺' },
+    { id: 'reviews', label: `Customer Reviews (${reviews.length})`, mobileLabel: `Reviews (${reviews.length})`, icon: '⭐' },
+  ], [reviews.length]);
+
+  const scrollTabNavIntoView = useCallback((tabId) => {
+    const btn = document.getElementById(`detail-tab-btn-${tabId}`);
+    if (btn && tabsNavRef.current) {
+      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, []);
+
+  const handleTabClick = useCallback((tabId, idx) => {
+    setActiveTab(tabId);
+    if (contentSliderRef.current) {
+      const slider = contentSliderRef.current;
+      isProgrammaticScroll.current = true;
+      const targetLeft = idx * slider.offsetWidth;
+      slider.scrollTo({ left: targetLeft, behavior: 'smooth' });
+      clearTimeout(scrollDebounceTimer.current);
+      scrollDebounceTimer.current = setTimeout(() => {
+        isProgrammaticScroll.current = false;
+      }, 450);
+    }
+    scrollTabNavIntoView(tabId);
+  }, [scrollTabNavIntoView]);
+
+  const handleContentScroll = useCallback(() => {
+    if (isProgrammaticScroll.current) return;
+    const slider = contentSliderRef.current;
+    if (!slider) return;
+    const scrollLeft = slider.scrollLeft;
+    const width = slider.offsetWidth;
+    if (width <= 0) return;
+
+    const newIndex = Math.round(scrollLeft / width);
+    if (newIndex >= 0 && newIndex < DETAIL_TABS.length) {
+      const newTabId = DETAIL_TABS[newIndex].id;
+      if (newTabId !== activeTab) {
+        setActiveTab(newTabId);
+        scrollTabNavIntoView(newTabId);
+      }
+    }
+  }, [activeTab, DETAIL_TABS, scrollTabNavIntoView]);
+
+  const tabTouchStartX = useRef(0);
+  const tabTouchStartY = useRef(0);
+
+  const handleTabTouchStart = (e) => {
+    tabTouchStartX.current = e.touches[0].clientX;
+    tabTouchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTabTouchEnd = (e) => {
+    const deltaX = e.changedTouches[0].clientX - tabTouchStartX.current;
+    const deltaY = e.changedTouches[0].clientY - tabTouchStartY.current;
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+      const currIdx = DETAIL_TABS.findIndex((t) => t.id === activeTab);
+      if (deltaX < 0 && currIdx < DETAIL_TABS.length - 1) {
+        handleTabClick(DETAIL_TABS[currIdx + 1].id, currIdx + 1);
+      } else if (deltaX > 0 && currIdx > 0) {
+        handleTabClick(DETAIL_TABS[currIdx - 1].id, currIdx - 1);
+      }
+    }
+  };
+
   const currentMedia = imagesList[activeImageIdx] || imagesList[0];
   const isCurrentVideo = isVideoUrl(currentMedia);
 
@@ -896,251 +970,308 @@ export const ProductDetailPage = () => {
           </div>
         </div>
 
-        {/* Detailed Information Tabs */}
-        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-cream-200 shadow-card mb-12">
+        {/* Detailed Information Tabs with Horizontal Swipe & Slide Sync */}
+        <div className="bg-white rounded-3xl p-5 sm:p-10 border border-cream-200 shadow-card mb-12">
           
-          {/* Mobile Tab Navigation (2x2 Segmented Grid — No Cutoff) */}
-          <div className="grid grid-cols-2 sm:hidden gap-2 mb-6 p-1.5 bg-cream-50 border border-cream-200 rounded-2xl select-none">
-            {[
-              { id: 'details', label: 'Story & Taste', icon: '📖' },
-              { id: 'ingredients', label: 'Ingredients', icon: '🌿' },
-              { id: 'storage', label: 'Storage Life', icon: '🏺' },
-              { id: 'reviews', label: `Reviews (${reviews.length})`, icon: '⭐' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === tab.id
-                    ? 'bg-brand-green text-white shadow-xs'
-                    : 'text-charcoal bg-white/70 hover:bg-white hover:text-brand-green'
-                }`}
-              >
-                <span className="text-sm">{tab.icon}</span>
-                <span className="leading-tight">{tab.label}</span>
-              </button>
-            ))}
+          {/* Slideable Headlines / Tab Navigation Strip */}
+          <div className="relative mb-6">
+            <div 
+              ref={tabsNavRef}
+              className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-none pb-2 select-none border-b border-cream-200/70"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {DETAIL_TABS.map((tab, idx) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    id={`detail-tab-btn-${tab.id}`}
+                    type="button"
+                    onClick={() => handleTabClick(tab.id, idx)}
+                    className={`flex items-center gap-2 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer shrink-0 ${
+                      isActive
+                        ? 'bg-brand-green text-white shadow-sm ring-2 ring-brand-green/20 scale-[1.02]'
+                        : 'bg-cream-50 hover:bg-cream-100 text-charcoal border border-cream-200/80'
+                    }`}
+                  >
+                    <span className="text-sm sm:text-base">{tab.icon}</span>
+                    <span className="font-serif">{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Mobile swipe hint */}
+            <div className="flex items-center justify-between text-[11px] font-medium text-earth-brown/70 pt-1.5 px-1">
+              <span>👈 Slide content to switch tabs 👉</span>
+              <span className="text-brand-green font-bold text-[10.5px]">Swipeable</span>
+            </div>
           </div>
 
-          {/* Desktop Tab Navigation (Classic Underline Bar) */}
-          <div className="hidden sm:flex border-b border-cream-200 gap-8 mb-8">
-            {[
-              { id: 'details', label: 'Story & Taste Profile' },
-              { id: 'ingredients', label: 'Ingredients & Spices' },
-              { id: 'storage', label: 'Storage & Shelf Life' },
-              { id: 'reviews', label: `Customer Reviews (${reviews.length})` },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`pb-4 text-sm font-bold whitespace-nowrap transition-all border-b-2 font-serif cursor-pointer ${
-                  activeTab === tab.id
-                    ? 'border-brand-green text-brand-green'
-                    : 'border-transparent text-earth-brown hover:text-charcoal'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab 1: Full Story */}
-          {activeTab === 'details' && (
-            <div className="space-y-4 text-xs sm:text-sm text-earth-brown leading-relaxed max-w-4xl">
-              <p className="text-base font-semibold text-charcoal">
-                {product.fullDescription}
-              </p>
-              <div className="p-4 rounded-2xl bg-cream-50 border border-cream-200 space-y-2 mt-4">
-                <h4 className="font-bold text-charcoal font-serif text-sm">
-                  Traditional Preparation Notes:
-                </h4>
-                <p className="text-xs text-earth-brown">
-                  {product.traditionNotes || 'Matured in authentic glazed clay martabans under sunlight for over 45 days. Stirred gently with clean wooden spoons every evening.'}
+          {/* Swipeable Slides Content Container */}
+          <div
+            ref={contentSliderRef}
+            onScroll={handleContentScroll}
+            onTouchStart={handleTabTouchStart}
+            onTouchEnd={handleTabTouchEnd}
+            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-none scroll-smooth touch-pan-y items-start -mx-2 px-2 sm:-mx-4 sm:px-4"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {/* Slide 1: Story & Taste Profile */}
+            <div className="w-full min-w-full shrink-0 snap-start snap-always px-2 sm:px-4">
+              <div className="space-y-4 text-xs sm:text-sm text-earth-brown leading-relaxed max-w-4xl">
+                <p className="text-base font-semibold text-charcoal">
+                  {product.fullDescription}
                 </p>
-              </div>
-
-              {product.pairWith?.length > 0 && (
-                <div className="pt-4">
-                  <h4 className="font-bold text-charcoal font-serif text-sm mb-2">
-                    How We Recommend Enjoying It:
+                <div className="p-4 rounded-2xl bg-cream-50 border border-cream-200 space-y-2 mt-4">
+                  <h4 className="font-bold text-charcoal font-serif text-sm">
+                    Traditional Preparation Notes:
                   </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {product.pairWith.map((pair, idx) => (
-                      <span key={idx} className="bg-mustard-light/50 text-brand-green-dark px-3 py-1 rounded-full text-xs font-semibold">
-                        🍴 {pair}
-                      </span>
+                  <p className="text-xs text-earth-brown">
+                    {product.traditionNotes || 'Matured in authentic glazed clay martabans under sunlight for over 45 days. Stirred gently with clean wooden spoons every evening.'}
+                  </p>
+                </div>
+
+                {product.pairWith?.length > 0 && (
+                  <div className="pt-4">
+                    <h4 className="font-bold text-charcoal font-serif text-sm mb-2">
+                      How We Recommend Enjoying It:
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {product.pairWith.map((pair, idx) => (
+                        <span key={idx} className="bg-mustard-light/50 text-brand-green-dark px-3 py-1 rounded-full text-xs font-semibold">
+                          🍴 {pair}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Slide 2: Ingredients & Spices */}
+            <div className="w-full min-w-full shrink-0 snap-start snap-always px-2 sm:px-4">
+              <div className="space-y-6 max-w-4xl">
+                <div>
+                  <h4 className="text-sm font-bold text-charcoal font-serif mb-3">
+                    Full Ingredient List (कोई गुप्त मिलावट नहीं):
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {product.ingredients?.map((ing, idx) => (
+                      <div key={idx} className="flex items-center gap-2 p-2.5 rounded-xl bg-cream-50 border border-cream-200 text-xs text-charcoal font-medium">
+                        <Sparkles className="w-3.5 h-3.5 text-mustard flex-shrink-0" />
+                        <span>{ing}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
-              )}
-            </div>
-          )}
 
-          {/* Tab 2: Ingredients */}
-          {activeTab === 'ingredients' && (
-            <div className="space-y-6 max-w-4xl">
-              <div>
-                <h4 className="text-sm font-bold text-charcoal font-serif mb-3">
-                  Full Ingredient List (कोई गुप्त मिलावट नहीं):
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {product.ingredients?.map((ing, idx) => (
-                    <div key={idx} className="flex items-center gap-2 p-2.5 rounded-xl bg-cream-50 border border-cream-200 text-xs text-charcoal font-medium">
-                      <Sparkles className="w-3.5 h-3.5 text-mustard flex-shrink-0" />
-                      <span>{ing}</span>
+                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
+                  <p className="font-bold">⚠️ Allergen & Oil Information:</p>
+                  <p>{product.allergenInfo}</p>
+                  <p>Oil Used: <strong className="font-bold">{product.oilType || 'Traditional Pure Oil'}</strong></p>
+                </div>
+              </div>
+            </div>
+
+            {/* Slide 3: Storage & Shelf Life */}
+            <div className="w-full min-w-full shrink-0 snap-start snap-always px-2 sm:px-4">
+              <div className="space-y-4 max-w-3xl text-xs sm:text-sm text-earth-brown leading-relaxed">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-cream-50 border border-cream-200">
+                    <h5 className="font-bold text-charcoal font-serif text-sm mb-1">
+                      Shelf Life:
+                    </h5>
+                    <p className="text-xs font-semibold text-brand-green">
+                      {product.shelfLife || '12 Months from packaging date'}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-cream-50 border border-cream-200">
+                    <h5 className="font-bold text-charcoal font-serif text-sm mb-1">
+                      Recommended Storage:
+                    </h5>
+                    <p className="text-xs text-earth-brown">
+                      Cool, dry place. Keep away from humid moisture.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-cream-50 border border-cream-200 space-y-2">
+                  <h5 className="font-bold text-charcoal font-serif text-sm">
+                    Grandmother’s Golden Tips to Keep Pickle Fresh:
+                  </h5>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Always use a completely dry stainless steel or wooden spoon. Never use a wet spoon.</li>
+                    <li>Ensure the oil layer always covers the top surface of the pickle.</li>
+                    <li>Do not refrigerate traditional pickles. Keep in a dry, cool pantry.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Slide 4: Customer Reviews */}
+            <div className="w-full min-w-full shrink-0 snap-start snap-always px-2 sm:px-4">
+              <div className="space-y-8">
+                {/* Existing Reviews */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {reviews.map((rev, idx) => (
+                    <div key={idx} className="p-5 rounded-2xl bg-cream-50 border border-cream-200 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1 text-mustard">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className={`w-3.5 h-3.5 ${i < rev.rating ? 'fill-mustard' : 'text-gray-300'}`} />
+                          ))}
+                        </div>
+                        <span className="text-[11px] text-earth-brown">{rev.date || 'Verified Buyer'}</span>
+                      </div>
+                      <h5 className="text-xs sm:text-sm font-bold text-charcoal font-serif">
+                        "{rev.title}"
+                      </h5>
+                      <p className="text-xs text-earth-brown leading-relaxed italic">
+                        "{rev.comment}"
+                      </p>
+                      <div className="text-[11px] font-bold text-charcoal pt-1">
+                        {rev.reviewerName} <span className="text-earth-brown font-normal">({rev.location || 'India'})</span>
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
 
-              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
-                <p className="font-bold">⚠️ Allergen & Oil Information:</p>
-                <p>{product.allergenInfo}</p>
-                <p>Oil Used: <strong className="font-bold">{product.oilType || 'Traditional Pure Oil'}</strong></p>
-              </div>
-            </div>
-          )}
+                {/* Review Submission Form */}
+                <div className="pt-6 border-t border-cream-200 max-w-xl">
+                  <h4 className="text-base font-bold text-charcoal font-serif mb-4">
+                    Write a Customer Review
+                  </h4>
 
-          {/* Tab 3: Storage & Shelf Life */}
-          {activeTab === 'storage' && (
-            <div className="space-y-4 max-w-3xl text-xs sm:text-sm text-earth-brown leading-relaxed">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 rounded-2xl bg-cream-50 border border-cream-200">
-                  <h5 className="font-bold text-charcoal font-serif text-sm mb-1">
-                    Shelf Life:
-                  </h5>
-                  <p className="text-xs font-semibold text-brand-green">
-                    {product.shelfLife || '12 Months from packaging date'}
-                  </p>
-                </div>
-                <div className="p-4 rounded-2xl bg-cream-50 border border-cream-200">
-                  <h5 className="font-bold text-charcoal font-serif text-sm mb-1">
-                    Recommended Storage:
-                  </h5>
-                  <p className="text-xs text-earth-brown">
-                    Cool, dry place. Keep away from humid moisture.
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-cream-50 border border-cream-200 space-y-2">
-                <h5 className="font-bold text-charcoal font-serif text-sm">
-                  Grandmother’s Golden Tips to Keep Pickle Fresh:
-                </h5>
-                <ul className="list-disc pl-5 space-y-1 text-xs">
-                  <li>Always use a completely dry stainless steel or wooden spoon. Never use a wet spoon.</li>
-                  <li>Ensure the oil layer always covers the top surface of the pickle.</li>
-                  <li>Do not refrigerate traditional pickles. Keep in a dry, cool pantry.</li>
-                </ul>
-              </div>
-            </div>
-          )}
-
-          {/* Tab 4: Reviews & Review Form */}
-          {activeTab === 'reviews' && (
-            <div className="space-y-8">
-              
-              {/* Existing Reviews */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {reviews.map((rev, idx) => (
-                  <div key={idx} className="p-5 rounded-2xl bg-cream-50 border border-cream-200 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1 text-mustard">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-3.5 h-3.5 ${i < rev.rating ? 'fill-mustard' : 'text-gray-300'}`} />
-                        ))}
+                  {reviewSubmitted ? (
+                    <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+                      Thank you! Your review has been submitted and shared with the Singodia Foods team.
+                    </div>
+                  ) : (
+                    <form onSubmit={handleReviewSubmit} className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-bold text-charcoal block mb-1">Your Name</label>
+                          <input
+                            type="text"
+                            required
+                            value={newReviewerName}
+                            onChange={(e) => setNewReviewerName(e.target.value)}
+                            placeholder="e.g. Anjali Gupta"
+                            className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-charcoal block mb-1">Rating</label>
+                          <select
+                            value={newRating}
+                            onChange={(e) => setNewRating(e.target.value)}
+                            className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
+                          >
+                            <option value="5">⭐⭐⭐⭐⭐ 5 Stars (Outstanding)</option>
+                            <option value="4">⭐⭐⭐⭐ 4 Stars (Very Good)</option>
+                            <option value="3">⭐⭐⭐ 3 Stars (Good)</option>
+                          </select>
+                        </div>
                       </div>
-                      <span className="text-[11px] text-earth-brown">{rev.date || 'Verified Buyer'}</span>
-                    </div>
-                    <h5 className="text-xs sm:text-sm font-bold text-charcoal font-serif">
-                      "{rev.title}"
-                    </h5>
-                    <p className="text-xs text-earth-brown leading-relaxed italic">
-                      "{rev.comment}"
-                    </p>
-                    <div className="text-[11px] font-bold text-charcoal pt-1">
-                      {rev.reviewerName} <span className="text-earth-brown font-normal">({rev.location || 'India'})</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
 
-              {/* Review Submission Form */}
-              <div className="pt-6 border-t border-cream-200 max-w-xl">
-                <h4 className="text-base font-bold text-charcoal font-serif mb-4">
-                  Write a Customer Review
-                </h4>
-
-                {reviewSubmitted ? (
-                  <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
-                    Thank you! Your review has been submitted and shared with the Singodia Foods team.
-                  </div>
-                ) : (
-                  <form onSubmit={handleReviewSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-xs font-bold text-charcoal block mb-1">Your Name</label>
+                        <label className="text-xs font-bold text-charcoal block mb-1">Review Title</label>
                         <input
                           type="text"
-                          required
-                          value={newReviewerName}
-                          onChange={(e) => setNewReviewerName(e.target.value)}
-                          placeholder="e.g. Anjali Gupta"
+                          value={newTitle}
+                          onChange={(e) => setNewTitle(e.target.value)}
+                          placeholder="e.g. Real dadi ke haath ka swad!"
                           className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
                         />
                       </div>
+
                       <div>
-                        <label className="text-xs font-bold text-charcoal block mb-1">Rating</label>
-                        <select
-                          value={newRating}
-                          onChange={(e) => setNewRating(e.target.value)}
+                        <label className="text-xs font-bold text-charcoal block mb-1">Your Review</label>
+                        <textarea
+                          required
+                          rows="3"
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          placeholder="Tell others about the aroma, spice level, and pairing with meals..."
                           className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
-                        >
-                          <option value="5">⭐⭐⭐⭐⭐ 5 Stars (Outstanding)</option>
-                          <option value="4">⭐⭐⭐⭐ 4 Stars (Very Good)</option>
-                          <option value="3">⭐⭐⭐ 3 Stars (Good)</option>
-                        </select>
+                        />
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="text-xs font-bold text-charcoal block mb-1">Review Title</label>
-                      <input
-                        type="text"
-                        value={newTitle}
-                        onChange={(e) => setNewTitle(e.target.value)}
-                        placeholder="e.g. Real dadi ke haath ka swad!"
-                        className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-bold text-charcoal block mb-1">Your Review</label>
-                      <textarea
-                        required
-                        rows="3"
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="Tell others about the aroma, spice level, and pairing with meals..."
-                        className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="bg-brand-green hover:bg-brand-green-light text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-xs flex items-center gap-1.5"
-                    >
-                      <span>Submit Review</span>
-                      <Send className="w-3.5 h-3.5" />
-                    </button>
-                  </form>
-                )}
+                      <button
+                        type="submit"
+                        className="bg-brand-green hover:bg-brand-green-light text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <span>Submit Review</span>
+                        <Send className="w-3.5 h-3.5" />
+                      </button>
+                    </form>
+                  )}
+                </div>
               </div>
-
             </div>
-          )}
+          </div>
+
+          {/* Quick Navigation Footer with Indicator Dots & Next/Prev buttons */}
+          {(() => {
+            const activeIdx = Math.max(0, DETAIL_TABS.findIndex((t) => t.id === activeTab));
+            return (
+              <div className="pt-6 border-t border-cream-200 mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
+                {/* Left: Previous Section Button */}
+                <div className="w-full sm:w-auto flex justify-start">
+                  {activeIdx > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => handleTabClick(DETAIL_TABS[activeIdx - 1].id, activeIdx - 1)}
+                      className="px-3.5 py-2 rounded-xl bg-cream-100 hover:bg-cream-200 text-charcoal text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      <span>Back: {DETAIL_TABS[activeIdx - 1].mobileLabel}</span>
+                    </button>
+                  ) : (
+                    <div className="hidden sm:block w-24" />
+                  )}
+                </div>
+
+                {/* Center: Interactive Slide Dots Indicator */}
+                <div className="flex items-center gap-2">
+                  {DETAIL_TABS.map((tab, idx) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => handleTabClick(tab.id, idx)}
+                      className={`transition-all duration-300 rounded-full cursor-pointer ${
+                        activeIdx === idx
+                          ? 'w-7 h-2 bg-brand-green shadow-xs'
+                          : 'w-2 h-2 bg-cream-300 hover:bg-cream-400'
+                      }`}
+                      title={`Go to ${tab.label}`}
+                      aria-label={`Slide ${idx + 1}: ${tab.label}`}
+                    />
+                  ))}
+                  <span className="text-[11px] font-semibold text-earth-brown ml-1">
+                    {activeIdx + 1} / {DETAIL_TABS.length}
+                  </span>
+                </div>
+
+                {/* Right: Next Section Button */}
+                <div className="w-full sm:w-auto flex justify-end">
+                  {activeIdx < DETAIL_TABS.length - 1 ? (
+                    <button
+                      type="button"
+                      onClick={() => handleTabClick(DETAIL_TABS[activeIdx + 1].id, activeIdx + 1)}
+                      className="px-3.5 py-2 rounded-xl bg-brand-green hover:bg-brand-green-light text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+                    >
+                      <span>Next: {DETAIL_TABS[activeIdx + 1].mobileLabel}</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <div className="hidden sm:block w-24" />
+                  )}
+                </div>
+              </div>
+            );
+          })()}
 
         </div>
 
