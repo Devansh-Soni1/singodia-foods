@@ -70,10 +70,8 @@ export const ProductDetailPage = () => {
 
   // Active info tab: 'details', 'ingredients', 'storage', 'reviews'
   const [activeTab, setActiveTab] = useState('details');
+  const [slideDirection, setSlideDirection] = useState('left');
   const tabsNavRef = useRef(null);
-  const contentSliderRef = useRef(null);
-  const isProgrammaticScroll = useRef(false);
-  const scrollDebounceTimer = useRef(null);
   const tabTouchStartX = useRef(0);
   const tabTouchStartY = useRef(0);
 
@@ -92,36 +90,10 @@ export const ProductDetailPage = () => {
   }, []);
 
   const handleTabClick = useCallback((tabId, idx) => {
+    const currIdx = DETAIL_TABS.findIndex((t) => t.id === activeTab);
+    setSlideDirection(idx >= currIdx ? 'left' : 'right');
     setActiveTab(tabId);
-    if (contentSliderRef.current) {
-      const slider = contentSliderRef.current;
-      isProgrammaticScroll.current = true;
-      const targetLeft = idx * slider.offsetWidth;
-      slider.scrollTo({ left: targetLeft, behavior: 'smooth' });
-      clearTimeout(scrollDebounceTimer.current);
-      scrollDebounceTimer.current = setTimeout(() => {
-        isProgrammaticScroll.current = false;
-      }, 450);
-    }
     scrollTabNavIntoView(tabId);
-  }, [scrollTabNavIntoView]);
-
-  const handleContentScroll = useCallback(() => {
-    if (isProgrammaticScroll.current) return;
-    const slider = contentSliderRef.current;
-    if (!slider) return;
-    const scrollLeft = slider.scrollLeft;
-    const width = slider.offsetWidth;
-    if (width <= 0) return;
-
-    const newIndex = Math.round(scrollLeft / width);
-    if (newIndex >= 0 && newIndex < DETAIL_TABS.length) {
-      const newTabId = DETAIL_TABS[newIndex].id;
-      if (newTabId !== activeTab) {
-        setActiveTab(newTabId);
-        scrollTabNavIntoView(newTabId);
-      }
-    }
   }, [activeTab, DETAIL_TABS, scrollTabNavIntoView]);
 
   const handleTabTouchStart = (e) => {
@@ -135,9 +107,15 @@ export const ProductDetailPage = () => {
     if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
       const currIdx = DETAIL_TABS.findIndex((t) => t.id === activeTab);
       if (deltaX < 0 && currIdx < DETAIL_TABS.length - 1) {
-        handleTabClick(DETAIL_TABS[currIdx + 1].id, currIdx + 1);
+        setSlideDirection('left');
+        const nextId = DETAIL_TABS[currIdx + 1].id;
+        setActiveTab(nextId);
+        scrollTabNavIntoView(nextId);
       } else if (deltaX > 0 && currIdx > 0) {
-        handleTabClick(DETAIL_TABS[currIdx - 1].id, currIdx - 1);
+        setSlideDirection('right');
+        const prevId = DETAIL_TABS[currIdx - 1].id;
+        setActiveTab(prevId);
+        scrollTabNavIntoView(prevId);
       }
     }
   };
@@ -993,18 +971,18 @@ export const ProductDetailPage = () => {
             ))}
           </div>
 
-          {/* Swipeable Slides Content Container */}
+          {/* Slidable Active Tab Content (No Extra Blank Space) */}
           <div
-            ref={contentSliderRef}
-            onScroll={handleContentScroll}
+            key={activeTab}
             onTouchStart={handleTabTouchStart}
             onTouchEnd={handleTabTouchEnd}
-            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-none scroll-smooth touch-pan-y items-start -mx-2 px-2 sm:-mx-4 sm:px-4"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className={`min-h-0 w-full transition-all duration-300 ease-out select-none ${
+              slideDirection === 'left' ? 'animate-tab-slide-left' : 'animate-tab-slide-right'
+            }`}
           >
-            {/* Slide 1: Story & Taste Profile */}
-            <div className="w-full min-w-full shrink-0 snap-start snap-always px-2 sm:px-4">
-              <div className="space-y-4 text-xs sm:text-sm text-earth-brown leading-relaxed max-w-4xl">
+            {/* Tab 1: Full Story */}
+            {activeTab === 'details' && (
+              <div className="space-y-4 text-xs sm:text-sm text-earth-brown leading-relaxed max-w-4xl select-text">
                 <p className="text-base font-semibold text-charcoal">
                   {product.fullDescription}
                 </p>
@@ -1032,11 +1010,11 @@ export const ProductDetailPage = () => {
                   </div>
                 )}
               </div>
-            </div>
+            )}
 
-            {/* Slide 2: Ingredients & Spices */}
-            <div className="w-full min-w-full shrink-0 snap-start snap-always px-2 sm:px-4">
-              <div className="space-y-6 max-w-4xl">
+            {/* Tab 2: Ingredients */}
+            {activeTab === 'ingredients' && (
+              <div className="space-y-6 max-w-4xl select-text">
                 <div>
                   <h4 className="text-sm font-bold text-charcoal font-serif mb-3">
                     Full Ingredient List (कोई गुप्त मिलावट नहीं):
@@ -1057,11 +1035,11 @@ export const ProductDetailPage = () => {
                   <p>Oil Used: <strong className="font-bold">{product.oilType || 'Traditional Pure Oil'}</strong></p>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Slide 3: Storage & Shelf Life */}
-            <div className="w-full min-w-full shrink-0 snap-start snap-always px-2 sm:px-4">
-              <div className="space-y-4 max-w-3xl text-xs sm:text-sm text-earth-brown leading-relaxed">
+            {/* Tab 3: Storage & Shelf Life */}
+            {activeTab === 'storage' && (
+              <div className="space-y-4 max-w-3xl text-xs sm:text-sm text-earth-brown leading-relaxed select-text">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="p-4 rounded-2xl bg-cream-50 border border-cream-200">
                     <h5 className="font-bold text-charcoal font-serif text-sm mb-1">
@@ -1092,11 +1070,11 @@ export const ProductDetailPage = () => {
                   </ul>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Slide 4: Customer Reviews */}
-            <div className="w-full min-w-full shrink-0 snap-start snap-always px-2 sm:px-4">
-              <div className="space-y-8">
+            {/* Tab 4: Customer Reviews */}
+            {activeTab === 'reviews' && (
+              <div className="space-y-8 select-text">
                 {/* Existing Reviews */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {reviews.map((rev, idx) => (
@@ -1194,7 +1172,7 @@ export const ProductDetailPage = () => {
                   )}
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
         </div>

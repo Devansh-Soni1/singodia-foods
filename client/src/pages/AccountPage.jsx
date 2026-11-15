@@ -286,16 +286,15 @@ export const AccountPage = () => {
         {/* Layout: Tab Navigation Sidebar + Main Panel */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start">
           
-          {/* Navigation Tabs (Horizontal Strip on Mobile, Vertical Sidebar on Desktop) */}
+          {/* Navigation Tabs (4 Equal Columns on Mobile, Vertical Sidebar on Desktop) */}
           <div 
-            className="lg:col-span-3 bg-white rounded-2xl p-1.5 sm:p-3 border border-cream-200 shadow-card flex flex-row lg:flex-col gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none select-none touch-pan-x overscroll-x-contain"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="lg:col-span-3 bg-white rounded-2xl p-1.5 sm:p-3 border border-cream-200 shadow-card grid grid-cols-4 lg:flex lg:flex-col gap-1 sm:gap-2 select-none"
           >
             {[
               { id: 'profile', label: 'Profile Details', mobileLabel: 'Profile', icon: User },
               { id: 'orders', label: 'Order History', mobileLabel: 'Orders', icon: Package },
-              { id: 'addresses', label: 'Saved Addresses', mobileLabel: 'Addresses', icon: MapPin },
-              { id: 'wishlist', label: `My Wishlist (${wishlist.length})`, mobileLabel: `Wishlist (${wishlist.length})`, icon: Heart },
+              { id: 'addresses', label: 'Saved Addresses', mobileLabel: 'Address', icon: MapPin },
+              { id: 'wishlist', label: `My Wishlist (${wishlist.length})`, mobileLabel: wishlist.length > 0 ? `Wishlist (${wishlist.length})` : 'Wishlist', icon: Heart },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -304,7 +303,7 @@ export const AccountPage = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 min-w-[85px] sm:min-w-[125px] lg:min-w-0 lg:w-full flex items-center justify-center lg:justify-start gap-1 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-3 rounded-xl text-[11px] sm:text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                  className={`w-full flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-1 sm:gap-2 px-1 sm:px-4 py-2 sm:py-3 rounded-xl text-[10px] xs:text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                     isActive
                       ? 'bg-brand-green text-white shadow-xs font-bold'
                       : 'text-charcoal bg-cream-50/80 lg:bg-transparent hover:bg-cream-100 hover:text-brand-green'
@@ -312,7 +311,7 @@ export const AccountPage = () => {
                 >
                   <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
                   <span className="hidden sm:inline">{tab.label}</span>
-                  <span className="sm:hidden">{tab.mobileLabel}</span>
+                  <span className="sm:hidden text-center truncate max-w-full leading-tight">{tab.mobileLabel}</span>
                 </button>
               );
             })}
