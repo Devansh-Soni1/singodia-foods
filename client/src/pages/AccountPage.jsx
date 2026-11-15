@@ -257,27 +257,27 @@ export const AccountPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Welcome Header */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-cream-200 shadow-card mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-cream-200 text-brand-green flex items-center justify-center text-xl font-bold font-serif">
+        <div className="bg-white rounded-3xl p-4 sm:p-8 border border-cream-200 shadow-card mb-6 sm:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-cream-200 text-brand-green flex items-center justify-center text-lg sm:text-xl font-bold font-serif shrink-0">
               {user?.name?.charAt(0) || 'U'}
             </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-charcoal font-serif">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg sm:text-2xl font-bold text-charcoal font-serif truncate">
                 Namaste, {user?.name}!
               </h1>
-              <p className="text-xs text-earth-brown mt-0.5">
+              <p className="text-[11px] sm:text-xs text-earth-brown mt-0.5 truncate">
                 {user?.email} • Customer since {new Date(user?.createdAt || Date.now()).getFullYear()}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={() => { logout(); navigate('/'); }}
-              className="px-4 py-2.5 rounded-xl border border-cream-300 text-charcoal hover:bg-cream-100 text-xs font-bold flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-cream-300 text-charcoal hover:bg-cream-100 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <LogOut className="w-4 h-4 text-chilli" />
+              <LogOut className="w-4 h-4 text-chilli shrink-0" />
               <span>Logout</span>
             </button>
           </div>
@@ -288,7 +288,7 @@ export const AccountPage = () => {
           
           {/* Navigation Tabs (Horizontal Strip on Mobile, Vertical Sidebar on Desktop) */}
           <div 
-            className="lg:col-span-3 bg-white rounded-2xl p-2 sm:p-3 border border-cream-200 shadow-card flex flex-row lg:flex-col gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none select-none"
+            className="lg:col-span-3 bg-white rounded-2xl p-1.5 sm:p-3 border border-cream-200 shadow-card flex flex-row lg:flex-col gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none select-none touch-pan-x overscroll-x-contain"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {[
@@ -304,13 +304,13 @@ export const AccountPage = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 min-w-[105px] sm:min-w-[125px] lg:min-w-0 lg:w-full flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                  className={`flex-1 min-w-[85px] sm:min-w-[125px] lg:min-w-0 lg:w-full flex items-center justify-center lg:justify-start gap-1 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-3 rounded-xl text-[11px] sm:text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
                     isActive
                       ? 'bg-brand-green text-white shadow-xs font-bold'
                       : 'text-charcoal bg-cream-50/80 lg:bg-transparent hover:bg-cream-100 hover:text-brand-green'
                   }`}
                 >
-                  <Icon className="w-4 h-4 shrink-0" />
+                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
                   <span className="hidden sm:inline">{tab.label}</span>
                   <span className="sm:hidden">{tab.mobileLabel}</span>
                 </button>
