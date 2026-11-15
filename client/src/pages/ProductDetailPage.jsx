@@ -74,8 +74,73 @@ export const ProductDetailPage = () => {
   const contentSliderRef = useRef(null);
   const isProgrammaticScroll = useRef(false);
   const scrollDebounceTimer = useRef(null);
-  const touchStartX = useRef(0);
-  const touchStartY = useRef(0);
+  const tabTouchStartX = useRef(0);
+  const tabTouchStartY = useRef(0);
+
+  const DETAIL_TABS = useMemo(() => [
+    { id: 'details', label: 'Story & Taste Profile', mobileLabel: 'Story & Taste', icon: '📖' },
+    { id: 'ingredients', label: 'Ingredients & Spices', mobileLabel: 'Ingredients', icon: '🌿' },
+    { id: 'storage', label: 'Storage & Shelf Life', mobileLabel: 'Storage Life', icon: '🏺' },
+    { id: 'reviews', label: `Customer Reviews (${reviews.length})`, mobileLabel: `Reviews (${reviews.length})`, icon: '⭐' },
+  ], [reviews.length]);
+
+  const scrollTabNavIntoView = useCallback((tabId) => {
+    const btn = document.getElementById(`detail-tab-btn-${tabId}`);
+    if (btn && tabsNavRef.current) {
+      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, []);
+
+  const handleTabClick = useCallback((tabId, idx) => {
+    setActiveTab(tabId);
+    if (contentSliderRef.current) {
+      const slider = contentSliderRef.current;
+      isProgrammaticScroll.current = true;
+      const targetLeft = idx * slider.offsetWidth;
+      slider.scrollTo({ left: targetLeft, behavior: 'smooth' });
+      clearTimeout(scrollDebounceTimer.current);
+      scrollDebounceTimer.current = setTimeout(() => {
+        isProgrammaticScroll.current = false;
+      }, 450);
+    }
+    scrollTabNavIntoView(tabId);
+  }, [scrollTabNavIntoView]);
+
+  const handleContentScroll = useCallback(() => {
+    if (isProgrammaticScroll.current) return;
+    const slider = contentSliderRef.current;
+    if (!slider) return;
+    const scrollLeft = slider.scrollLeft;
+    const width = slider.offsetWidth;
+    if (width <= 0) return;
+
+    const newIndex = Math.round(scrollLeft / width);
+    if (newIndex >= 0 && newIndex < DETAIL_TABS.length) {
+      const newTabId = DETAIL_TABS[newIndex].id;
+      if (newTabId !== activeTab) {
+        setActiveTab(newTabId);
+        scrollTabNavIntoView(newTabId);
+      }
+    }
+  }, [activeTab, DETAIL_TABS, scrollTabNavIntoView]);
+
+  const handleTabTouchStart = (e) => {
+    tabTouchStartX.current = e.touches[0].clientX;
+    tabTouchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTabTouchEnd = (e) => {
+    const deltaX = e.changedTouches[0].clientX - tabTouchStartX.current;
+    const deltaY = e.changedTouches[0].clientY - tabTouchStartY.current;
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+      const currIdx = DETAIL_TABS.findIndex((t) => t.id === activeTab);
+      if (deltaX < 0 && currIdx < DETAIL_TABS.length - 1) {
+        handleTabClick(DETAIL_TABS[currIdx + 1].id, currIdx + 1);
+      } else if (deltaX > 0 && currIdx > 0) {
+        handleTabClick(DETAIL_TABS[currIdx - 1].id, currIdx - 1);
+      }
+    }
+  };
 
   // Review Form State
   const [newReviewerName, setNewReviewerName] = useState('');
@@ -492,74 +557,6 @@ export const ProductDetailPage = () => {
     }
     touchStartXRef.current = null;
     touchEndXRef.current = null;
-  };
-
-  const DETAIL_TABS = useMemo(() => [
-    { id: 'details', label: 'Story & Taste Profile', mobileLabel: 'Story & Taste', icon: '📖' },
-    { id: 'ingredients', label: 'Ingredients & Spices', mobileLabel: 'Ingredients', icon: '🌿' },
-    { id: 'storage', label: 'Storage & Shelf Life', mobileLabel: 'Storage Life', icon: '🏺' },
-    { id: 'reviews', label: `Customer Reviews (${reviews.length})`, mobileLabel: `Reviews (${reviews.length})`, icon: '⭐' },
-  ], [reviews.length]);
-
-  const scrollTabNavIntoView = useCallback((tabId) => {
-    const btn = document.getElementById(`detail-tab-btn-${tabId}`);
-    if (btn && tabsNavRef.current) {
-      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    }
-  }, []);
-
-  const handleTabClick = useCallback((tabId, idx) => {
-    setActiveTab(tabId);
-    if (contentSliderRef.current) {
-      const slider = contentSliderRef.current;
-      isProgrammaticScroll.current = true;
-      const targetLeft = idx * slider.offsetWidth;
-      slider.scrollTo({ left: targetLeft, behavior: 'smooth' });
-      clearTimeout(scrollDebounceTimer.current);
-      scrollDebounceTimer.current = setTimeout(() => {
-        isProgrammaticScroll.current = false;
-      }, 450);
-    }
-    scrollTabNavIntoView(tabId);
-  }, [scrollTabNavIntoView]);
-
-  const handleContentScroll = useCallback(() => {
-    if (isProgrammaticScroll.current) return;
-    const slider = contentSliderRef.current;
-    if (!slider) return;
-    const scrollLeft = slider.scrollLeft;
-    const width = slider.offsetWidth;
-    if (width <= 0) return;
-
-    const newIndex = Math.round(scrollLeft / width);
-    if (newIndex >= 0 && newIndex < DETAIL_TABS.length) {
-      const newTabId = DETAIL_TABS[newIndex].id;
-      if (newTabId !== activeTab) {
-        setActiveTab(newTabId);
-        scrollTabNavIntoView(newTabId);
-      }
-    }
-  }, [activeTab, DETAIL_TABS, scrollTabNavIntoView]);
-
-  const tabTouchStartX = useRef(0);
-  const tabTouchStartY = useRef(0);
-
-  const handleTabTouchStart = (e) => {
-    tabTouchStartX.current = e.touches[0].clientX;
-    tabTouchStartY.current = e.touches[0].clientY;
-  };
-
-  const handleTabTouchEnd = (e) => {
-    const deltaX = e.changedTouches[0].clientX - tabTouchStartX.current;
-    const deltaY = e.changedTouches[0].clientY - tabTouchStartY.current;
-    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
-      const currIdx = DETAIL_TABS.findIndex((t) => t.id === activeTab);
-      if (deltaX < 0 && currIdx < DETAIL_TABS.length - 1) {
-        handleTabClick(DETAIL_TABS[currIdx + 1].id, currIdx + 1);
-      } else if (deltaX > 0 && currIdx > 0) {
-        handleTabClick(DETAIL_TABS[currIdx - 1].id, currIdx - 1);
-      }
-    }
   };
 
   const currentMedia = imagesList[activeImageIdx] || imagesList[0];
