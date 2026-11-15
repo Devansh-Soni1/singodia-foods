@@ -78,10 +78,10 @@ export const ProductDetailPage = () => {
   const tabTouchStartY = useRef(0);
 
   const DETAIL_TABS = useMemo(() => [
-    { id: 'details', label: 'Story & Taste Profile', mobileLabel: 'Story & Taste', icon: '📖' },
-    { id: 'ingredients', label: 'Ingredients & Spices', mobileLabel: 'Ingredients', icon: '🌿' },
-    { id: 'storage', label: 'Storage & Shelf Life', mobileLabel: 'Storage Life', icon: '🏺' },
-    { id: 'reviews', label: `Customer Reviews (${reviews.length})`, mobileLabel: `Reviews (${reviews.length})`, icon: '⭐' },
+    { id: 'details', label: 'Story & Taste Profile' },
+    { id: 'ingredients', label: 'Ingredients & Spices' },
+    { id: 'storage', label: 'Storage & Shelf Life' },
+    { id: 'reviews', label: `Customer Reviews (${reviews.length})` },
   ], [reviews.length]);
 
   const scrollTabNavIntoView = useCallback((tabId) => {
@@ -967,42 +967,30 @@ export const ProductDetailPage = () => {
           </div>
         </div>
 
-        {/* Detailed Information Tabs with Horizontal Swipe & Slide Sync */}
-        <div className="bg-white rounded-3xl p-5 sm:p-10 border border-cream-200 shadow-card mb-12">
+        {/* Detailed Information Tabs */}
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-cream-200 shadow-card mb-12">
           
-          {/* Slideable Headlines / Tab Navigation Strip */}
-          <div className="relative mb-6">
-            <div 
-              ref={tabsNavRef}
-              className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-none pb-2 select-none border-b border-cream-200/70"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {DETAIL_TABS.map((tab, idx) => {
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    id={`detail-tab-btn-${tab.id}`}
-                    type="button"
-                    onClick={() => handleTabClick(tab.id, idx)}
-                    className={`flex items-center gap-2 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer shrink-0 ${
-                      isActive
-                        ? 'bg-brand-green text-white shadow-sm ring-2 ring-brand-green/20 scale-[1.02]'
-                        : 'bg-cream-50 hover:bg-cream-100 text-charcoal border border-cream-200/80'
-                    }`}
-                  >
-                    <span className="text-sm sm:text-base">{tab.icon}</span>
-                    <span className="font-serif">{tab.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Mobile swipe hint */}
-            <div className="flex items-center justify-between text-[11px] font-medium text-earth-brown/70 pt-1.5 px-1">
-              <span>👈 Slide content to switch tabs 👉</span>
-              <span className="text-brand-green font-bold text-[10.5px]">Swipeable</span>
-            </div>
+          {/* Tab Navigation */}
+          <div 
+            ref={tabsNavRef}
+            className="flex border-b border-cream-200 overflow-x-auto gap-4 sm:gap-8 mb-8 no-scrollbar scrollbar-none select-none"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {DETAIL_TABS.map((tab, idx) => (
+              <button
+                key={tab.id}
+                id={`detail-tab-btn-${tab.id}`}
+                type="button"
+                onClick={() => handleTabClick(tab.id, idx)}
+                className={`pb-4 text-sm font-bold whitespace-nowrap transition-all border-b-2 font-serif cursor-pointer shrink-0 ${
+                  activeTab === tab.id
+                    ? 'border-brand-green text-brand-green'
+                    : 'border-transparent text-earth-brown hover:text-charcoal'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
           {/* Swipeable Slides Content Container */}
@@ -1208,67 +1196,6 @@ export const ProductDetailPage = () => {
               </div>
             </div>
           </div>
-
-          {/* Quick Navigation Footer with Indicator Dots & Next/Prev buttons */}
-          {(() => {
-            const activeIdx = Math.max(0, DETAIL_TABS.findIndex((t) => t.id === activeTab));
-            return (
-              <div className="pt-6 border-t border-cream-200 mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
-                {/* Left: Previous Section Button */}
-                <div className="w-full sm:w-auto flex justify-start">
-                  {activeIdx > 0 ? (
-                    <button
-                      type="button"
-                      onClick={() => handleTabClick(DETAIL_TABS[activeIdx - 1].id, activeIdx - 1)}
-                      className="px-3.5 py-2 rounded-xl bg-cream-100 hover:bg-cream-200 text-charcoal text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                      <span>Back: {DETAIL_TABS[activeIdx - 1].mobileLabel}</span>
-                    </button>
-                  ) : (
-                    <div className="hidden sm:block w-24" />
-                  )}
-                </div>
-
-                {/* Center: Interactive Slide Dots Indicator */}
-                <div className="flex items-center gap-2">
-                  {DETAIL_TABS.map((tab, idx) => (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => handleTabClick(tab.id, idx)}
-                      className={`transition-all duration-300 rounded-full cursor-pointer ${
-                        activeIdx === idx
-                          ? 'w-7 h-2 bg-brand-green shadow-xs'
-                          : 'w-2 h-2 bg-cream-300 hover:bg-cream-400'
-                      }`}
-                      title={`Go to ${tab.label}`}
-                      aria-label={`Slide ${idx + 1}: ${tab.label}`}
-                    />
-                  ))}
-                  <span className="text-[11px] font-semibold text-earth-brown ml-1">
-                    {activeIdx + 1} / {DETAIL_TABS.length}
-                  </span>
-                </div>
-
-                {/* Right: Next Section Button */}
-                <div className="w-full sm:w-auto flex justify-end">
-                  {activeIdx < DETAIL_TABS.length - 1 ? (
-                    <button
-                      type="button"
-                      onClick={() => handleTabClick(DETAIL_TABS[activeIdx + 1].id, activeIdx + 1)}
-                      className="px-3.5 py-2 rounded-xl bg-brand-green hover:bg-brand-green-light text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
-                    >
-                      <span>Next: {DETAIL_TABS[activeIdx + 1].mobileLabel}</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  ) : (
-                    <div className="hidden sm:block w-24" />
-                  )}
-                </div>
-              </div>
-            );
-          })()}
 
         </div>
 
