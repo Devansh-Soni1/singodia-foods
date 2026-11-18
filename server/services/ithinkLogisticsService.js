@@ -11,7 +11,7 @@ const getCredentials = () => {
   return {
     access_token: process.env.ITHINK_LOGISTICS_ACCESS_TOKEN || '',
     secret_key: process.env.ITHINK_LOGISTICS_SECRET_KEY || '',
-    pickup_address_id: process.env.ITHINK_LOGISTICS_PICKUP_ADDRESS_ID || '1293'
+    pickup_address_id: process.env.ITHINK_LOGISTICS_PICKUP_ADDRESS_ID || '128007'
   };
 };
 
@@ -195,7 +195,9 @@ export const createShipmentOrder = async (order) => {
   const customerEmail = order.customer?.email || order.user?.email || 'premsingodiya861@gmail.com';
   const customerPincode = Number(address.pincode || address.postalCode || 331507) || 331507;
 
-  const d = new Date(order.createdAt || Date.now());
+  const now = new Date();
+  const rawDate = order.createdAt ? new Date(order.createdAt) : now;
+  const d = rawDate.getTime() > now.getTime() ? now : rawDate;
   const pad = (n) => String(n).padStart(2, '0');
   const formattedDate = `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 
