@@ -592,9 +592,7 @@ export const CheckoutPage = () => {
           modal: {
             ondismiss: function () {
               setLoading(false);
-              // Discard pending order immediately so it is NOT saved in DB, admin, or user history
-              orderAPI.discardPendingOrder(createdOrder._id, createdOrder.razorpayOrderId);
-              setErrorMessage('Payment poori nahi hui ya radd kar di gayi. Kripya dubara prayas karein.');
+              setErrorMessage('Payment window band ho gayi. Agar aapke khate ya UPI se paise kat gaye hain, to kripya My Orders ya customer support par sampark karein.');
             }
           }
         };
@@ -602,8 +600,6 @@ export const CheckoutPage = () => {
         const razorpayInstance = new window.Razorpay(options);
         razorpayInstance.on('payment.failed', function (failResp) {
           setLoading(false);
-          // Discard failed/declined order immediately
-          orderAPI.discardPendingOrder(createdOrder._id, createdOrder.razorpayOrderId);
           setErrorMessage(`Payment decline / asafal rahi: ${failResp.error?.description || 'Kripya dusre UPI ya card se koshish karein.'}`);
         });
         razorpayInstance.open();

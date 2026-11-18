@@ -6,7 +6,8 @@ import {
   getOrderById, 
   getUserOrders, 
   getAllOrders, 
-  updateOrderStatus 
+  updateOrderStatus,
+  handleRazorpayWebhook
 } from '../controllers/orderController.js';
 import { protect, adminOnly, optionalAuth } from '../middleware/auth.js';
 import { orderRateLimiter } from '../middleware/security.js';
@@ -16,6 +17,7 @@ const router = express.Router();
 router.post('/', protect, orderRateLimiter, createOrder);
 router.post('/verify-payment', verifyPayment);
 router.post('/discard-pending', discardPendingOrder);
+router.post('/razorpay-webhook', handleRazorpayWebhook);
 router.get('/my-orders', protect, getUserOrders);
 router.get('/:id', optionalAuth, getOrderById);
 

@@ -40,11 +40,19 @@ const orderSchema = new mongoose.Schema({
   razorpaySignature: { type: String, default: '' },
   orderStatus: { 
     type: String, 
-    enum: ['Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'], 
+    enum: ['Placed', 'Processing', 'Dispatched', 'Shipped', 'Delivered', 'Cancelled'], 
     default: 'Placed' 
   },
   trackingNumber: { type: String, default: '' },
   courierPartner: { type: String, default: 'Delhivery' },
+  carrier: { type: String, default: '' },
+  zone: { type: String, default: '' },
+  shipping: {
+    carrier: { type: String, default: '' },
+    trackingNumber: { type: String, default: '' },
+    trackingUrl: { type: String, default: '' },
+    dispatchedAt: { type: Date }
+  },
   customerNotes: { type: String, default: '' }
 }, { timestamps: true });
 
