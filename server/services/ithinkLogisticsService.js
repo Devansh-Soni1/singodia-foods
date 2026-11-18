@@ -11,7 +11,7 @@ const getCredentials = () => {
   return {
     access_token: process.env.ITHINK_LOGISTICS_ACCESS_TOKEN || '',
     secret_key: process.env.ITHINK_LOGISTICS_SECRET_KEY || '',
-    pickup_address_id: process.env.ITHINK_LOGISTICS_PICKUP_ADDRESS_ID || '128007'
+    pickup_address_id: process.env.ITHINK_LOGISTICS_PICKUP_ADDRESS_ID || '125832'
   };
 };
 
