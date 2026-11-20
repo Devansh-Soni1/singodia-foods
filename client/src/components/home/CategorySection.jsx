@@ -46,15 +46,23 @@ export const CategorySection = () => {
               to={`/category/${cat.slug}/`}
               className="group relative rounded-2xl overflow-hidden bg-cream-50 border border-cream-200 shadow-xs hover:shadow-hover transition-all duration-300 flex flex-col"
             >
-              {/* Category Image */}
+              {/* Category Image / Emoji Display */}
               <div className="aspect-[4/3] sm:aspect-square overflow-hidden bg-cream-100 relative">
-                <img
-                  src={cat.image}
-                  alt={cat.name}
-                  loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                {cat.image && (cat.image.startsWith('http') || cat.image.startsWith('/')) ? (
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-100/80 via-orange-50 to-amber-200/60 group-hover:scale-105 transition-transform duration-500">
+                    <span className="text-6xl sm:text-7xl select-none drop-shadow-sm">
+                      {cat.image || '🏺'}
+                    </span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
                 
                 {/* Hindi Title Overlay */}
                 <div className="absolute bottom-3 left-3 right-3 text-white">

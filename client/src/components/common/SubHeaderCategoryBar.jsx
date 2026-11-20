@@ -82,27 +82,40 @@ const CATEGORY_VISUALS = {
   }
 };
 
-const resolveVisual = (slug = '', name = '') => {
-  const s = slug.toLowerCase();
-  const n = name.toLowerCase();
-  if (CATEGORY_VISUALS[s]) return CATEGORY_VISUALS[s];
-  if (s.includes('trial') || n.includes('trial')) return CATEGORY_VISUALS['trial-pack'];
-  if (s.includes('mango') || n.includes('mango') || n.includes('aam')) return CATEGORY_VISUALS['mango-pickles'];
-  if (s.includes('red') || n.includes('lal mirch') || n.includes('red chilli')) return CATEGORY_VISUALS['red-chilli-pickles'];
-  if (s.includes('green') || n.includes('hari mirch') || n.includes('green chilli')) return CATEGORY_VISUALS['green-chilli-pickles'];
-  if (s.includes('lemon') || n.includes('nimbu') || n.includes('lemon')) return CATEGORY_VISUALS['lemon-pickles'];
-  if (s.includes('rajasthan') || n.includes('kair') || n.includes('sangri')) return CATEGORY_VISUALS['rajasthani-specials'];
-  if (s.includes('garlic') || n.includes('lahsun') || n.includes('garlic')) return CATEGORY_VISUALS['garlic-pickles'];
-  if (s.includes('sweet') || n.includes('meetha') || n.includes('murabba')) return CATEGORY_VISUALS['sweet-pickles'];
-  if (s.includes('combo') || s.includes('hamp') || s.includes('box') || n.includes('combo')) return CATEGORY_VISUALS['combo-packs'];
-  if (s.includes('papad') || n.includes('papad')) return CATEGORY_VISUALS['papad'];
-  
+const resolveVisual = (slug = '', name = '', image = '') => {
+  const s = (slug || '').toLowerCase();
+  const n = (name || '').toLowerCase();
+  const customImg = (image || '').trim();
+
+  // If a valid emoji is passed directly from Admin (not a URL/path), prioritize it!
+  const hasCustomEmoji = customImg && !customImg.startsWith('http') && !customImg.startsWith('/') && !customImg.includes('.');
+
+  const defaultVisual = CATEGORY_VISUALS[s] || {};
+  let emoji = hasCustomEmoji ? customImg : defaultVisual.emoji;
+  let title1 = defaultVisual.title1;
+  let title2 = defaultVisual.title2;
+  let hindi = defaultVisual.hindi;
+
+  if (!emoji) {
+    if (s.includes('trial') || n.includes('trial')) emoji = '🎁';
+    else if (s.includes('mango') || n.includes('mango') || n.includes('aam')) emoji = '🥭';
+    else if (s.includes('red') || n.includes('lal mirch') || n.includes('red chilli')) emoji = '🌶️';
+    else if (s.includes('green') || n.includes('hari mirch') || n.includes('green chilli')) emoji = '🫑';
+    else if (s.includes('lemon') || n.includes('nimbu') || n.includes('lemon')) emoji = '🍋';
+    else if (s.includes('rajasthan') || n.includes('kair') || n.includes('sangri')) emoji = '🏺';
+    else if (s.includes('garlic') || n.includes('lahsun') || n.includes('garlic')) emoji = '🧄';
+    else if (s.includes('sweet') || n.includes('meetha') || n.includes('murabba')) emoji = '🍯';
+    else if (s.includes('combo') || s.includes('hamp') || s.includes('box') || n.includes('combo')) emoji = '🎁';
+    else if (s.includes('papad') || n.includes('papad')) emoji = '🫓';
+    else emoji = '🏺';
+  }
+
   const words = name.trim().split(' ');
   return {
-    emoji: '🏺',
-    title1: words[0] || name,
-    title2: words.slice(1).join(' ') || '',
-    hindi: ''
+    emoji,
+    title1: title1 || words[0] || name,
+    title2: title2 || words.slice(1).join(' ') || '',
+    hindi: hindi || ''
   };
 };
 
@@ -161,7 +174,7 @@ export const SubHeaderCategoryBar = () => {
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {categoriesToShow.map((cat) => {
-            const visual = resolveVisual(cat.slug, cat.name);
+            const visual = resolveVisual(cat.slug, cat.name, cat.image);
             const link = visual.path || (cat.slug === 'all-products' ? '/allpickles' : `/category/${cat.slug}/`);
             const isHash = link.startsWith('/#');
 

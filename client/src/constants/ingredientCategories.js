@@ -7,6 +7,7 @@ export const INGREDIENT_CATEGORIES = [
     icon: '🥭',
     subCategories: [
       { name: 'Traditional Mango Pickle', hindi: 'पारंपरिक आम का अचार', slug: 'traditional-mango-pickle', taste: 'tangy' },
+      { name: 'Medium Spicy Mango Pickle', hindi: 'मध्यम तीखा आम अचार', slug: 'medium-spicy-mango-pickle', taste: 'medium-spicy' },
       { name: 'Punjabi Mango Pickle', hindi: 'पंजाबी आम का अचार', slug: 'punjabi-mango-pickle', taste: 'spicy' },
       { name: 'Sweet Mango Pickle', hindi: 'मीठा आम का अचार', slug: 'sweet-mango-pickle', taste: 'sweet' },
       { name: 'Mango Chundo / Chunda', hindi: 'आम का छुंदा / मुरब्बा', slug: 'mango-chunda', taste: 'sweet' },
@@ -48,6 +49,7 @@ export const INGREDIENT_CATEGORIES = [
     icon: '🌶️',
     subCategories: [
       { name: 'Banarasi Bharwa Lal Mirch', hindi: 'बनारसी भरवां लाल मिर्च', slug: 'banarasi-lal-mirch', taste: 'spicy' },
+      { name: 'Medium Spicy Green Chilli', hindi: 'मध्यम तीखी हरी मिर्च', slug: 'medium-spicy-green-chilli', taste: 'medium-spicy' },
       { name: 'Rajasthani Hari Mirch Tipore', hindi: 'राजस्थानी हरी मिर्च के टिपोरे', slug: 'hari-mirch-tipore', taste: 'spicy' },
       { name: 'Green Chilli Thecha', hindi: 'हरी मिर्च का ठेचा', slug: 'green-chilli-thecha', taste: 'spicy' },
       { name: 'Rai Vali Teekhi Hari Mirch', hindi: 'राई वाली तीखी हरी मिर्च', slug: 'rai-hari-mirch', taste: 'spicy' },

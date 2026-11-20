@@ -3,11 +3,15 @@ import toast from 'react-hot-toast';
 import { FolderTree, Plus, Edit2, Trash2, X, Smile, Sparkles, Layers, Tag, ChevronRight } from 'lucide-react';
 import { categoryAPI } from '../../services/api';
 
-const QUICK_PICKLE_EMOJIS = ['🥭', '🌶️', '🫑', '🍋', '🏺', '🧄', '🥗', '🍯', '🎁', '🫓', '⭐', '🥒', '🥕', '🫙'];
+const QUICK_PICKLE_EMOJIS = [
+  '🥭', '🌶️', '🫑', '🍋', '🏺', '🧄', '🥗', '🍯', '🎁', '🫓', 
+  '⭐', '🥒', '🥕', '🫙', '🌿', '🧅', '🫚', '🥘', '🥣', '🍽️', '🔥', '✨'
+];
 
 const TASTE_PROFILES = [
   { id: 'tangy', name: 'Tangy (खट्टा / चटपटा)', icon: '🍋' },
   { id: 'sweet', name: 'Sweet (मीठा / मुरब्बा)', icon: '🍯' },
+  { id: 'medium-spicy', name: 'Medium Spicy (मध्यम तीखा)', icon: '🫑' },
   { id: 'spicy', name: 'Spicy (तीखा / चटपटा)', icon: '🌶️' },
   { id: 'winter', name: 'Winter Special (सर्दियों का खास)', icon: '❄️' },
   { id: 'rajasthani', name: 'Rajasthani Royal (शाही राजस्थानी)', icon: '🏺' },
@@ -16,6 +20,7 @@ const TASTE_PROFILES = [
 const STANDARD_PRESETS = {
   mango: [
     { name: 'Traditional Mango Pickle', hindiName: 'पारंपरिक आम का अचार', slug: 'traditional-mango-pickle', taste: 'tangy' },
+    { name: 'Medium Spicy Mango Pickle', hindiName: 'मध्यम तीखा आम अचार', slug: 'medium-spicy-mango-pickle', taste: 'medium-spicy' },
     { name: 'Punjabi Mango Pickle', hindiName: 'पंजाबी आम का अचार', slug: 'punjabi-mango-pickle', taste: 'spicy' },
     { name: 'Sweet Mango Pickle', hindiName: 'मीठा आम का अचार', slug: 'sweet-mango-pickle', taste: 'sweet' },
     { name: 'Mango Chundo / Chunda', hindiName: 'आम का छुंदा / मुरब्बा', slug: 'mango-chunda', taste: 'sweet' },
@@ -25,6 +30,7 @@ const STANDARD_PRESETS = {
   ],
   chilli: [
     { name: 'Banarasi Bharwa Lal Mirch', hindiName: 'बनारसी भरवां लाल मिर्च', slug: 'banarasi-lal-mirch', taste: 'spicy' },
+    { name: 'Medium Spicy Green Chilli', hindiName: 'मध्यम तीखी हरी मिर्च', slug: 'medium-spicy-green-chilli', taste: 'medium-spicy' },
     { name: 'Rajasthani Hari Mirch Tipore', hindiName: 'राजस्थानी हरी मिर्च के टिपोरे', slug: 'hari-mirch-tipore', taste: 'spicy' },
     { name: 'Green Chilli Thecha', hindiName: 'हरी मिर्च का ठेचा', slug: 'green-chilli-thecha', taste: 'spicy' },
     { name: 'Rai Vali Teekhi Hari Mirch', hindiName: 'राई वाली तीखी हरी मिर्च', slug: 'rai-hari-mirch', taste: 'spicy' },
@@ -376,35 +382,75 @@ export const AdminCategories = () => {
             {/* Modal Form Scrollable Body */}
             <form onSubmit={handleSubmit} className="space-y-5 text-xs overflow-y-auto pr-1">
               
-              {/* Category Emoji Selector */}
-              <div>
-                <label className="font-bold block mb-1 text-gray-800">Category Emoji Icon (इमोजी)</label>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-300 flex items-center justify-center text-3xl select-none shrink-0 shadow-xs">
+              {/* Category Emoji Selector (Direct Keyboard Input + Quick Picker) */}
+              <div className="p-3.5 bg-amber-50/70 border border-amber-300/80 rounded-2xl space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-xs text-gray-900 flex items-center gap-1.5 font-serif">
+                    <Smile className="w-4 h-4 text-[#b35400]" />
+                    <span>Category Emoji Icon (कीबोर्ड से चुनें या टाइप करें) *</span>
+                  </label>
+                  <span className="text-[10px] text-amber-900 font-bold bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-300">
+                    Keyboard Supported ⌨️
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-2xl bg-white border-2 border-amber-400 flex items-center justify-center text-3xl select-none shrink-0 shadow-xs">
                     {formData.image || '🏺'}
                   </div>
-                  <input
-                    type="text"
-                    required
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    placeholder="Enter emoji e.g. 🥭"
-                    className="flex-1 p-2.5 rounded-xl border border-gray-300 text-sm font-semibold"
-                  />
+                  <div className="flex-1 space-y-1">
+                    <div className="relative flex items-center">
+                      <input
+                        type="text"
+                        required
+                        value={formData.image}
+                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                        placeholder="कीबोर्ड से कोई भी इमोजी डालें (उदा. 🥭, 🌶️, 🫑)"
+                        className="w-full p-2.5 pr-9 rounded-xl border border-gray-300 text-sm font-semibold focus:outline-none focus:border-brand-green bg-white shadow-2xs"
+                      />
+                      {formData.image && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, image: '' })}
+                          className="absolute right-2.5 text-gray-400 hover:text-gray-700 p-1 rounded-md text-xs font-bold cursor-pointer"
+                          title="Clear emoji"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-[10.5px] text-gray-600 flex items-center gap-1">
+                      <span>💡</span>
+                      <span>
+                        <strong>Mobile:</strong> कीबोर्ड पर <strong>इमोजी (😊)</strong> बटन दबाकर चुनें। 
+                        <strong> PC:</strong> कीबोर्ड पर <strong>Win + .</strong> (या Mac पर <strong>Cmd + Space</strong>) दबाएँ।
+                      </span>
+                    </p>
+                  </div>
                 </div>
-                {/* Quick Emoji Buttons */}
-                <div className="flex flex-wrap gap-1.5 p-2 bg-gray-50 rounded-xl border border-gray-200">
-                  {QUICK_PICKLE_EMOJIS.map((em) => (
-                    <button
-                      key={em}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, image: em })}
-                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg hover:bg-amber-100 transition-colors cursor-pointer ${formData.image === em ? 'bg-amber-200 ring-2 ring-amber-400' : 'bg-white'}`}
-                      title={em}
-                    >
-                      {em}
-                    </button>
-                  ))}
+
+                {/* Quick Emoji Buttons Palette */}
+                <div>
+                  <span className="text-[10px] font-bold text-gray-700 block mb-1 uppercase tracking-wider">
+                    या नीचे से लोकप्रिय अचार इमोजी चुनें:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5 p-2 bg-white rounded-xl border border-amber-200/90 shadow-2xs">
+                    {QUICK_PICKLE_EMOJIS.map((em) => (
+                      <button
+                        key={em}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, image: em })}
+                        className={`w-9 h-9 rounded-lg flex items-center justify-center text-xl hover:bg-amber-100 transition-all cursor-pointer ${
+                          formData.image === em 
+                            ? 'bg-amber-200 ring-2 ring-amber-500 scale-110 shadow-xs' 
+                            : 'bg-cream-50/50 hover:scale-105'
+                        }`}
+                        title={em}
+                      >
+                        {em}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
