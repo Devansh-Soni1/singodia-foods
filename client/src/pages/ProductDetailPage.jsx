@@ -206,6 +206,9 @@ export const ProductDetailPage = () => {
   });
   const [checkingPincode, setCheckingPincode] = useState(false);
   const [deliveryDate, setDeliveryDate] = useState('');
+  const [deliveryDaysText, setDeliveryDaysText] = useState('3-4 days');
+  const [isPincodeChecked, setIsPincodeChecked] = useState(false);
+  const [isEditingPincode, setIsEditingPincode] = useState(false);
   const [deliveryFee, setDeliveryFee] = useState(null);
   const [pincodeError, setPincodeError] = useState('');
   const initialCheckedRef = useRef(false);
@@ -224,23 +227,28 @@ export const ProductDetailPage = () => {
     const additionalUnits = Math.max(0, Math.ceil((weight - 0.5) / 0.5));
 
     let fallbackDays = 4;
+    let daysText = '3-4 days';
     let baseRate = 80;
     let addRate = 40;
 
     if (/^331/.test(pin)) {
       fallbackDays = 2; // Local Sujangarh / Churu
+      daysText = '2-3 days';
       baseRate = 40;
       addRate = 20;
     } else if (/^3[0-4]/.test(pin)) {
       fallbackDays = 3; // Rajasthan
+      daysText = '3-4 days';
       baseRate = 50;
       addRate = 25;
     } else if (/^(11|12|13|14|15|16|20|21|22|23|24|25|26|27|28|38|39)/.test(pin)) {
       fallbackDays = 4; // North & Metro
+      daysText = '3-4 days';
       baseRate = 65;
       addRate = 35;
     } else if (/^(18|19|78|79|80|81|82|83|84|85|74|75|76|77)/.test(pin)) {
       fallbackDays = 6; // Special / North East
+      daysText = '5-7 days';
       baseRate = 95;
       addRate = 50;
     }
@@ -254,7 +262,7 @@ export const ProductDetailPage = () => {
       day: 'numeric',
       month: 'short'
     });
-    return { dateStr, fee };
+    return { dateStr, fee, daysText };
   };
 
   const fallbackFee = useMemo(() => {
@@ -301,8 +309,14 @@ export const ProductDetailPage = () => {
       const rateData = await Promise.race([ratePromise, timeoutPromise]);
       clearTimeout(timeoutId);
 
-      const daysStr = rateData?.expectedDeliveryDays || '3 to 4 Days';
-      const numbers = String(daysStr).match(/\d+/g);
+      const daysStr = rateData?.expectedDeliveryDays;
+      let formattedDays = fallback.daysText;
+      if (daysStr) {
+        const rawDays = String(daysStr).toLowerCase().replace(/to/i, '-').trim();
+        formattedDays = rawDays.includes('day') ? rawDays : `${rawDays} days`;
+      }
+
+      const numbers = String(daysStr || fallback.daysText).match(/\d+/g);
       const daysToAdd = numbers && numbers.length > 0 ? (parseInt(numbers[numbers.length - 1], 10) || 4) : 4;
 
       const d = new Date();
@@ -313,14 +327,20 @@ export const ProductDetailPage = () => {
         month: 'short'
       });
 
+      setDeliveryDaysText(formattedDays);
       setDeliveryDate(dateStr);
       const cost = Number(rateData?.rate || rateData?.estimatedCost) || fallback.fee;
       setDeliveryFee(cost);
+      setIsPincodeChecked(true);
+      setIsEditingPincode(false);
       localStorage.setItem('singodia_user_pincode', cleanPin);
     } catch {
       clearTimeout(timeoutId);
+      setDeliveryDaysText(fallback.daysText);
       setDeliveryDate(fallback.dateStr);
       setDeliveryFee(fallback.fee);
+      setIsPincodeChecked(true);
+      setIsEditingPincode(false);
       localStorage.setItem('singodia_user_pincode', cleanPin);
     } finally {
       clearTimeout(safetyWatchdog);
@@ -871,73 +891,132 @@ export const ProductDetailPage = () => {
 
               </div>
 
-              {/* Normal Delivery Pincode & Date/Price */}
-              <div className="pt-4 border-t border-cream-200">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    checkDelivery(pincodeInput);
-                  }}
-                  className="space-y-2 max-w-sm"
-                >
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      maxLength={6}
-                      value={pincodeInput}
-                      onChange={(e) => {
-                        setPincodeInput(e.target.value.replace(/\D/g, '').slice(0, 6));
-                        setPincodeError('');
-                      }}
-                      placeholder="Enter 6-digit Pincode"
-                      className="flex-1 px-3.5 py-2 text-sm bg-white rounded-lg border border-gray-300 focus:outline-none focus:border-brand-green font-medium"
-                    />
-                    <button
-                      type="submit"
-                      disabled={checkingPincode || pincodeInput.length !== 6}
-                      className="px-4 sm:px-5 py-2 bg-brand-green hover:bg-brand-green-light text-white text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer disabled:opacity-60 shrink-0 flex items-center justify-center gap-1.5 min-w-[92px]"
+              {/* Estimated Delivery Date Pincode Checker Card (Exact Reference Design) */}
+              <div className="rounded-2xl p-4 sm:p-5 bg-[#FAF7F2] border border-[#EFE5D8] my-3 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+                {/* Header: Stopwatch Icon + Title + Subtitle */}
+                <div className="flex items-start gap-3 sm:gap-3.5 mb-3.5">
+                  <div className="shrink-0 pt-0.5 text-neutral-800">
+                    <svg
+                      className="w-7 h-7 sm:w-8 sm:h-8"
+                      viewBox="0 0 32 32"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     >
-                      {checkingPincode ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          <span>Checking...</span>
-                        </>
-                      ) : (
-                        <span>Check</span>
-                      )}
-                    </button>
+                      {/* Stopwatch top button */}
+                      <path d="M12 3h8" />
+                      <path d="M16 3v3" />
+                      {/* Dial ring */}
+                      <path d="M16 6a10 10 0 1 1 -9.5 13.2" />
+                      {/* Clock hand pointing at 2 o'clock */}
+                      <path d="M16 16l4.5 -4.5" />
+                      {/* Speed motion lines on left */}
+                      <path d="M3 15h4" />
+                      <path d="M2 19h6" />
+                      <path d="M4 23h3" />
+                    </svg>
                   </div>
-
-                  {pincodeError && (
-                    <p className="text-xs text-red-600 font-medium">
-                      {pincodeError}
+                  <div>
+                    <h3 className="font-bold text-neutral-900 text-[15px] sm:text-base leading-snug">
+                      Check Estimated Delivery Date
+                    </h3>
+                    <p className="text-xs sm:text-[13px] text-neutral-600 mt-0.5 leading-snug font-normal">
+                      Prepaid orders are delivered on priority
                     </p>
-                  )}
+                  </div>
+                </div>
 
-                  {deliveryDate && (
-                    <div className="pt-2 text-xs sm:text-sm text-charcoal font-medium">
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-                        <div className="flex items-center gap-1.5">
-                          <Truck className="w-3.5 h-3.5 text-brand-green shrink-0" />
-                          <span>Delivery by <strong className="text-brand-green font-bold">{deliveryDate}</strong></span>
+                {/* State 1: Input Mode (Input pincode with red CHECK button) */}
+                {(!isPincodeChecked || isEditingPincode) ? (
+                  <div>
+                    <div className="bg-white rounded-xl border border-[#E5E0D8] p-1 sm:p-1.5 pl-3.5 sm:pl-4 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          checkDelivery(pincodeInput);
+                        }}
+                        className="flex items-center justify-between gap-2"
+                      >
+                        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                          <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-800 shrink-0 stroke-[1.8]" />
+                          <input
+                            type="text"
+                            maxLength={6}
+                            inputMode="numeric"
+                            autoFocus={isEditingPincode}
+                            value={pincodeInput}
+                            onChange={(e) => {
+                              setPincodeInput(e.target.value.replace(/\D/g, '').slice(0, 6));
+                              setPincodeError('');
+                            }}
+                            placeholder="Enter your Pincode"
+                            className="w-full bg-transparent text-sm sm:text-base font-semibold text-neutral-900 placeholder-neutral-400 focus:outline-none"
+                          />
                         </div>
-                        <span className="text-gray-300 hidden xs:inline">•</span>
-                        <div className="flex items-center gap-1">
-                          <span>Delivery:</span>
-                          {activeDeliveryFee === 0 ? (
-                            <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                              FREE
-                            </span>
+
+                        <button
+                          type="submit"
+                          disabled={checkingPincode || pincodeInput.length !== 6}
+                          className="bg-[#C02626] hover:bg-[#A81F1F] active:scale-95 disabled:opacity-50 text-white font-bold text-xs sm:text-sm tracking-wider px-5 sm:px-7 py-2.5 rounded-lg transition-all cursor-pointer shrink-0 flex items-center justify-center gap-1.5 shadow-sm"
+                        >
+                          {checkingPincode ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <span>CHECKING...</span>
+                            </>
                           ) : (
-                            <strong className="text-brand-green font-bold bg-cream-100 px-2 py-0.5 rounded">
-                              {formatPrice(activeDeliveryFee)}
-                            </strong>
+                            <span>CHECK</span>
                           )}
-                        </div>
-                      </div>
+                        </button>
+                      </form>
                     </div>
-                  )}
-                </form>
+
+                    {pincodeError && (
+                      <p className="text-xs text-red-600 font-medium mt-1.5 pl-2">
+                        {pincodeError}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  /* State 2: Result Mode (Pincode + Usually delivered within X days + Change Pincode button) */
+                  <div className="bg-white rounded-xl border border-[#E5E0D8] p-3.5 sm:p-4 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                    <div className="flex items-center gap-2 text-sm sm:text-base text-neutral-800 flex-wrap">
+                      <MapPin className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-neutral-800 shrink-0 stroke-[2]" />
+                      <span className="font-bold text-neutral-950 tracking-wide text-sm sm:text-base">
+                        {pincodeInput}
+                      </span>
+                      <span className="text-neutral-300 font-light mx-1 select-none">|</span>
+                      <span className="text-neutral-800 font-normal text-xs sm:text-sm">
+                        Usually delivered within {deliveryDaysText}
+                      </span>
+                    </div>
+
+                    <div className="mt-2.5 sm:mt-3 flex items-center justify-between flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsEditingPincode(true);
+                        }}
+                        className="bg-[#C02626] hover:bg-[#A81F1F] active:scale-95 text-white font-semibold text-xs sm:text-[13px] px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg transition-all cursor-pointer shadow-xs inline-flex items-center"
+                      >
+                        Change Pincode
+                      </button>
+
+                      {/* Delivery Charge / Free Badge */}
+                      {activeDeliveryFee === 0 ? (
+                        <span className="text-emerald-700 text-xs font-bold bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+                          FREE Delivery
+                        </span>
+                      ) : activeDeliveryFee > 0 ? (
+                        <span className="text-neutral-500 text-xs font-medium">
+                          Delivery: <strong className="text-neutral-900 font-bold">{formatPrice(activeDeliveryFee)}</strong>
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
               </div>
 
             </div>
