@@ -201,9 +201,7 @@ export const ProductDetailPage = () => {
   });
 
   // Normal Delivery Pincode & Date/Price state
-  const [pincodeInput, setPincodeInput] = useState(() => {
-    return localStorage.getItem('singodia_user_pincode') || '';
-  });
+  const [pincodeInput, setPincodeInput] = useState('');
   const [checkingPincode, setCheckingPincode] = useState(false);
   const [deliveryDate, setDeliveryDate] = useState('');
   const [deliveryDaysText, setDeliveryDaysText] = useState('3-4 days');
@@ -348,26 +346,29 @@ export const ProductDetailPage = () => {
     }
   }, [currentWeightKg]);
 
-  // Dynamically recalculate delivery fee when variant or quantity changes
+  // Dynamically recalculate delivery when variant or quantity changes (only if already checked)
   useEffect(() => {
     const cleanPin = String(pincodeInput || '').trim().replace(/\D/g, '');
-    if (/^\d{6}$/.test(cleanPin) && initialCheckedRef.current) {
+    if (/^\d{6}$/.test(cleanPin) && isPincodeChecked) {
       checkDelivery(cleanPin, true, currentWeightKg);
     }
-  }, [selectedVariantIdx, quantity, currentWeightKg, checkDelivery]);
+  }, [selectedVariantIdx, quantity, currentWeightKg, checkDelivery, isPincodeChecked]);
 
-  // Run only once on initial mount if saved pin exists (silent check)
+  // Only auto-check if user has a saved address in their account
   useEffect(() => {
-    if (initialCheckedRef.current) return;
-    initialCheckedRef.current = true;
-
     const defaultAddressPin = user?.addresses?.find(a => a.isDefault)?.pincode;
     const firstAddressPin = user?.addresses?.[0]?.pincode;
-    const savedPin = defaultAddressPin || firstAddressPin || localStorage.getItem('singodia_user_pincode');
+    const savedPin = defaultAddressPin || firstAddressPin;
     
-    if (savedPin && /^\d{6}$/.test(String(savedPin))) {
-      setPincodeInput(String(savedPin));
-      checkDelivery(String(savedPin), true);
+    if (savedPin && /^\d{6}$/.test(String(savedPin).trim())) {
+      const cleanPin = String(savedPin).trim();
+      setPincodeInput(cleanPin);
+      checkDelivery(cleanPin, true);
+    } else {
+      // No saved address: keep input box blank and unchecked
+      setPincodeInput('');
+      setIsPincodeChecked(false);
+      setIsEditingPincode(false);
     }
   }, [user, checkDelivery]);
 
@@ -993,7 +994,7 @@ export const ProductDetailPage = () => {
                       </span>
                     </div>
 
-                    <div className="mt-2.5 sm:mt-3 flex items-center justify-between flex-wrap gap-2">
+                    <div className="mt-2.5 sm:mt-3">
                       <button
                         type="button"
                         onClick={() => {
@@ -1003,17 +1004,6 @@ export const ProductDetailPage = () => {
                       >
                         Change Pincode
                       </button>
-
-                      {/* Delivery Charge / Free Badge */}
-                      {activeDeliveryFee === 0 ? (
-                        <span className="text-emerald-700 text-xs font-bold bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-                          FREE Delivery
-                        </span>
-                      ) : activeDeliveryFee > 0 ? (
-                        <span className="text-neutral-500 text-xs font-medium">
-                          Delivery: <strong className="text-neutral-900 font-bold">{formatPrice(activeDeliveryFee)}</strong>
-                        </span>
-                      ) : null}
                     </div>
                   </div>
                 )}
