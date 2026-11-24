@@ -81,8 +81,7 @@ export const ProductDetailPage = () => {
     { id: 'details', label: 'Story & Taste Profile' },
     { id: 'ingredients', label: 'Ingredients & Spices' },
     { id: 'storage', label: 'Storage & Shelf Life' },
-    { id: 'reviews', label: `Customer Reviews (${reviews.length})` },
-  ], [reviews.length]);
+  ], []);
 
   const scrollTabNavIntoView = useCallback((tabId) => {
     const btn = document.getElementById(`detail-tab-btn-${tabId}`);
@@ -815,7 +814,9 @@ export const ProductDetailPage = () => {
                 
                 {/* Ratings */}
                 <div className="flex items-center gap-3 mb-2.5">
-                  <StarRating rating={product.rating || 4.9} reviewCount={product.numReviews} size="md" />
+                  <a href="#customer-reviews-section" className="cursor-pointer hover:opacity-85 transition-opacity" title="View Customer Reviews">
+                    <StarRating rating={product.rating || 4.9} reviewCount={product.numReviews} size="md" />
+                  </a>
                 </div>
 
                 {/* Name */}
@@ -1286,110 +1287,131 @@ export const ProductDetailPage = () => {
                 </div>
               </div>
             )}
-
-            {/* Tab 4: Customer Reviews */}
-            {activeTab === 'reviews' && (
-              <div className="space-y-8 select-text">
-                {/* Existing Reviews */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {reviews.map((rev, idx) => (
-                    <div key={idx} className="p-5 rounded-2xl bg-cream-50 border border-cream-200 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1 text-mustard">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className={`w-3.5 h-3.5 ${i < rev.rating ? 'fill-mustard' : 'text-gray-300'}`} />
-                          ))}
-                        </div>
-                        <span className="text-[11px] text-earth-brown">{rev.date || 'Verified Buyer'}</span>
-                      </div>
-                      <h5 className="text-xs sm:text-sm font-bold text-charcoal font-serif">
-                        "{rev.title}"
-                      </h5>
-                      <p className="text-xs text-earth-brown leading-relaxed italic">
-                        "{rev.comment}"
-                      </p>
-                      <div className="text-[11px] font-bold text-charcoal pt-1">
-                        {rev.reviewerName} <span className="text-earth-brown font-normal">({rev.location || 'India'})</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Review Submission Form */}
-                <div className="pt-6 border-t border-cream-200 max-w-xl">
-                  <h4 className="text-base font-bold text-charcoal font-serif mb-4">
-                    Write a Customer Review
-                  </h4>
-
-                  {reviewSubmitted ? (
-                    <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
-                      Thank you! Your review has been submitted and shared with the Singodia Foods team.
-                    </div>
-                  ) : (
-                    <form onSubmit={handleReviewSubmit} className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-xs font-bold text-charcoal block mb-1">Your Name</label>
-                          <input
-                            type="text"
-                            required
-                            value={newReviewerName}
-                            onChange={(e) => setNewReviewerName(e.target.value)}
-                            placeholder="e.g. Anjali Gupta"
-                            className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-bold text-charcoal block mb-1">Rating</label>
-                          <select
-                            value={newRating}
-                            onChange={(e) => setNewRating(e.target.value)}
-                            className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
-                          >
-                            <option value="5">⭐⭐⭐⭐⭐ 5 Stars (Outstanding)</option>
-                            <option value="4">⭐⭐⭐⭐ 4 Stars (Very Good)</option>
-                            <option value="3">⭐⭐⭐ 3 Stars (Good)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-xs font-bold text-charcoal block mb-1">Review Title</label>
-                        <input
-                          type="text"
-                          value={newTitle}
-                          onChange={(e) => setNewTitle(e.target.value)}
-                          placeholder="e.g. Real dadi ke haath ka swad!"
-                          className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-xs font-bold text-charcoal block mb-1">Your Review</label>
-                        <textarea
-                          required
-                          rows="3"
-                          value={newComment}
-                          onChange={(e) => setNewComment(e.target.value)}
-                          placeholder="Tell others about the aroma, spice level, and pairing with meals..."
-                          className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        className="bg-brand-green hover:bg-brand-green-light text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <span>Submit Review</span>
-                        <Send className="w-3.5 h-3.5" />
-                      </button>
-                    </form>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
 
+        </div>
+
+        {/* Customer Reviews Dedicated Section (Separate Section Below Product Info Tabs) */}
+        <div id="customer-reviews-section" className="bg-white rounded-3xl p-6 sm:p-10 border border-cream-200 shadow-card mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-cream-200 mb-8">
+            <div>
+              <h3 className="text-xl sm:text-2xl font-bold text-charcoal font-serif">
+                Customer Reviews ({reviews.length})
+              </h3>
+              <p className="text-xs sm:text-sm text-earth-brown mt-1">
+                Verified buyers sharing their authentic experience
+              </p>
+            </div>
+
+            {/* Overall Rating badge */}
+            <div className="flex items-center gap-3 bg-cream-50 px-4 py-2 rounded-2xl border border-cream-200 self-start sm:self-auto">
+              <div className="flex items-center gap-1 text-mustard">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-mustard" />
+                ))}
+              </div>
+              <span className="text-sm font-bold text-charcoal font-serif">
+                {product?.rating || '4.9'} / 5.0
+              </span>
+            </div>
+          </div>
+
+          {/* Existing Reviews */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 select-text">
+            {reviews.map((rev, idx) => (
+              <div key={idx} className="p-5 rounded-2xl bg-cream-50 border border-cream-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1 text-mustard">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`w-3.5 h-3.5 ${i < rev.rating ? 'fill-mustard' : 'text-gray-300'}`} />
+                    ))}
+                  </div>
+                  <span className="text-[11px] text-earth-brown">{rev.date || 'Verified Buyer'}</span>
+                </div>
+                <h5 className="text-xs sm:text-sm font-bold text-charcoal font-serif">
+                  "{rev.title}"
+                </h5>
+                <p className="text-xs text-earth-brown leading-relaxed italic">
+                  "{rev.comment}"
+                </p>
+                <div className="text-[11px] font-bold text-charcoal pt-1">
+                  {rev.reviewerName} <span className="text-earth-brown font-normal">({rev.location || 'India'})</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Review Submission Form */}
+          <div className="pt-6 border-t border-cream-200 max-w-xl">
+            <h4 className="text-base font-bold text-charcoal font-serif mb-4">
+              Write a Customer Review
+            </h4>
+
+            {reviewSubmitted ? (
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+                Thank you! Your review has been submitted and shared with the Singodia Foods team.
+              </div>
+            ) : (
+              <form onSubmit={handleReviewSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-charcoal block mb-1">Your Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={newReviewerName}
+                      onChange={(e) => setNewReviewerName(e.target.value)}
+                      placeholder="e.g. Anjali Gupta"
+                      className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-charcoal block mb-1">Rating</label>
+                    <select
+                      value={newRating}
+                      onChange={(e) => setNewRating(e.target.value)}
+                      className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
+                    >
+                      <option value="5">⭐⭐⭐⭐⭐ 5 Stars (Outstanding)</option>
+                      <option value="4">⭐⭐⭐⭐ 4 Stars (Very Good)</option>
+                      <option value="3">⭐⭐⭐ 3 Stars (Good)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-charcoal block mb-1">Review Title</label>
+                  <input
+                    type="text"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    placeholder="e.g. Real dadi ke haath ka swad!"
+                    className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-charcoal block mb-1">Your Review</label>
+                  <textarea
+                    required
+                    rows="3"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Tell others about the aroma, spice level, and pairing with meals..."
+                    className="w-full px-3 py-2 text-xs bg-cream-50 border border-cream-300 rounded-lg focus:outline-none focus:border-brand-green"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="bg-brand-green hover:bg-brand-green-light text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>Submit Review</span>
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </form>
+            )}
+          </div>
         </div>
 
         {/* Related Products */}
