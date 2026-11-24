@@ -59,6 +59,7 @@ export const ProductDetailPage = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [randomProducts, setRandomProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -401,6 +402,92 @@ export const ProductDetailPage = () => {
     };
     fetchProductData();
   }, [slug]);
+
+  // In-between random products slider state & interaction controls
+  const sliderRef = useRef(null);
+  const [isSliderHovered, setIsSliderHovered] = useState(false);
+  const isSliderInteractingRef = useRef(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchRandomList = async () => {
+      try {
+        const res = await productAPI.getProducts({ limit: 40 });
+        if (!isMounted) return;
+        const list = res?.products || [];
+        const currentId = product?._id;
+        const currentSlug = product?.slug;
+        const candidates = list.filter(
+          p => p && p.isActive !== false && p._id !== currentId && p.slug !== currentSlug
+        );
+        // Shuffle randomly
+        const shuffled = [...candidates].sort(() => Math.random() - 0.5);
+        if (shuffled.length > 0) {
+          setRandomProducts(shuffled.slice(0, 10));
+        } else if (relatedProducts?.length > 0) {
+          setRandomProducts(relatedProducts);
+        }
+      } catch {
+        if (!isMounted) return;
+        if (relatedProducts?.length > 0) {
+          setRandomProducts(relatedProducts);
+        }
+      }
+    };
+
+    fetchRandomList();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [product?._id, product?.slug, relatedProducts]);
+
+  const scrollSliderNext = useCallback(() => {
+    if (!sliderRef.current) return;
+    const el = sliderRef.current;
+    const card = el.firstElementChild;
+    const step = card ? card.offsetWidth + 12 : el.clientWidth / 2;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    if (el.scrollLeft + step >= maxScroll - 5) {
+      el.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      el.scrollBy({ left: step, behavior: 'smooth' });
+    }
+  }, []);
+
+  const scrollSliderPrev = useCallback(() => {
+    if (!sliderRef.current) return;
+    const el = sliderRef.current;
+    const card = el.firstElementChild;
+    const step = card ? card.offsetWidth + 12 : el.clientWidth / 2;
+    if (el.scrollLeft <= 5) {
+      el.scrollTo({ left: el.scrollWidth, behavior: 'smooth' });
+    } else {
+      el.scrollBy({ left: -step, behavior: 'smooth' });
+    }
+  }, []);
+
+  // Automatic slide effect (3.6s interval)
+  useEffect(() => {
+    if (randomProducts.length <= 2) return;
+    const interval = setInterval(() => {
+      if (!isSliderHovered && !isSliderInteractingRef.current) {
+        scrollSliderNext();
+      }
+    }, 3600);
+
+    return () => clearInterval(interval);
+  }, [isSliderHovered, scrollSliderNext, randomProducts.length]);
+
+  const handleSliderTouchStart = () => {
+    isSliderInteractingRef.current = true;
+  };
+
+  const handleSliderTouchEnd = () => {
+    setTimeout(() => {
+      isSliderInteractingRef.current = false;
+    }, 3500);
+  };
 
   const imagesList = (product?.images && product.images.length > 0) ? product.images : ['/hero-banner.png'];
   const totalImages = imagesList.length;
@@ -1013,6 +1100,64 @@ export const ProductDetailPage = () => {
 
           </div>
         </div>
+
+        {/* In-Between Random Products Slider (1 row: exactly 2 cards on mobile, 4-5 on PC, auto-slides & user-scrollable) */}
+        {randomProducts.length > 0 && (
+          <div className="mb-8 sm:mb-12">
+            <div className="flex items-center justify-between mb-3 sm:mb-4 px-1">
+              <div>
+                <h3 className="text-base sm:text-xl font-bold text-charcoal font-serif flex items-center gap-2">
+                  <span>Explore More Flavours</span>
+                  <span className="text-xs sm:text-sm font-sans font-medium text-earth-brown">
+                    (और भी स्वादिष्ट आचार)
+                  </span>
+                </h3>
+              </div>
+
+              {/* Navigation Controls on Tablet & Desktop */}
+              <div className="hidden sm:flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={scrollSliderPrev}
+                  className="w-8 h-8 rounded-full bg-white border border-cream-300 hover:border-brand-green hover:bg-cream-50 text-charcoal flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                  aria-label="Previous products"
+                  title="Previous products"
+                >
+                  <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
+                </button>
+                <button
+                  type="button"
+                  onClick={scrollSliderNext}
+                  className="w-8 h-8 rounded-full bg-white border border-cream-300 hover:border-brand-green hover:bg-cream-50 text-charcoal flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                  aria-label="Next products"
+                  title="Next products"
+                >
+                  <ChevronRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
+              </div>
+            </div>
+
+            {/* 1 Row Carousel: exactly 2 cards on mobile, 4 on tablet/laptop, 5 on desktop */}
+            <div
+              ref={sliderRef}
+              onMouseEnter={() => setIsSliderHovered(true)}
+              onMouseLeave={() => setIsSliderHovered(false)}
+              onTouchStart={handleSliderTouchStart}
+              onTouchEnd={handleSliderTouchEnd}
+              className="flex flex-row flex-nowrap gap-3 sm:gap-3.5 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-none py-1 select-none"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {randomProducts.map((p) => (
+                <div
+                  key={p._id || p.slug}
+                  className="w-[calc(50%-6px)] min-w-[calc(50%-6px)] max-w-[calc(50%-6px)] sm:w-[calc(33.333%-8px)] sm:min-w-[calc(33.333%-8px)] sm:max-w-[calc(33.333%-8px)] md:w-[calc(25%-9px)] md:min-w-[calc(25%-9px)] md:max-w-[calc(25%-9px)] lg:w-[calc(20%-9.6px)] lg:min-w-[calc(20%-9.6px)] lg:max-w-[calc(20%-9.6px)] shrink-0 snap-start flex flex-col"
+                >
+                  <ProductCard product={p} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Detailed Information Tabs */}
         <div className="bg-white rounded-3xl p-6 sm:p-10 border border-cream-200 shadow-card mb-12">

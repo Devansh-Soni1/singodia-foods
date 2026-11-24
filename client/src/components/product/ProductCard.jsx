@@ -69,7 +69,7 @@ export const ProductCard = ({ product, onQuickView }) => {
     : 'from-amber-100/90 via-yellow-50/50 to-white';
 
   return (
-    <div className="group bg-white rounded-2xl sm:rounded-3xl border border-gray-200/90 shadow-2xs hover:shadow-xl hover:border-amber-300 transition-all duration-300 p-2 sm:p-4 flex flex-col justify-between overflow-hidden relative">
+    <div className="group bg-white rounded-2xl sm:rounded-3xl border border-gray-200/90 shadow-2xs hover:shadow-xl hover:border-amber-300 transition-all duration-300 p-2 sm:p-4 flex flex-col justify-between overflow-hidden relative h-full">
       
       {/* Top Image Container with Splash Backdrop & Badges */}
       <div className={`relative rounded-xl sm:rounded-2xl overflow-hidden aspect-square flex items-center justify-center bg-gradient-to-b ${backdropGradient} mb-1.5 sm:mb-2`}>
