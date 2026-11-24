@@ -9,6 +9,7 @@ import { productAPI, reviewAPI, shippingAPI } from '../services/api';
 import { formatPrice, calculateDiscount } from '../utils/formatCurrency';
 import { StarRating } from '../components/common/StarRating';
 import { ProductCard } from '../components/product/ProductCard';
+import { MiniProductCard } from '../components/product/MiniProductCard';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
@@ -1152,7 +1153,7 @@ export const ProductDetailPage = () => {
                   key={p._id || p.slug}
                   className="w-[calc(50%-6px)] min-w-[calc(50%-6px)] max-w-[calc(50%-6px)] sm:w-[calc(33.333%-8px)] sm:min-w-[calc(33.333%-8px)] sm:max-w-[calc(33.333%-8px)] md:w-[calc(25%-9px)] md:min-w-[calc(25%-9px)] md:max-w-[calc(25%-9px)] lg:w-[calc(20%-9.6px)] lg:min-w-[calc(20%-9.6px)] lg:max-w-[calc(20%-9.6px)] shrink-0 snap-start flex flex-col"
                 >
-                  <ProductCard product={p} />
+                  <MiniProductCard product={p} />
                 </div>
               ))}
             </div>
