@@ -809,26 +809,17 @@ export const AccountPage = () => {
                           फोन: +91 {addr.phone}
                         </p>
 
-                        <div className="pt-2 border-t border-cream-100 flex items-center justify-between">
-                          <button
-                            type="button"
-                            onClick={() => handleStartEdit(addr)}
-                            className="text-[11px] text-brand-green hover:underline font-bold flex items-center gap-1 cursor-pointer"
-                          >
-                            <Edit2 className="w-3 h-3" />
-                            <span>संपादित करें (Edit)</span>
-                          </button>
-
-                          {!addr.isDefault && setDefaultAddress && (
+                        {!addr.isDefault && setDefaultAddress && (
+                          <div className="pt-2 border-t border-cream-100 flex justify-end">
                             <button
                               type="button"
                               onClick={() => handleSetDefaultAddress(addr._id)}
-                              className="text-[11px] text-earth-brown hover:text-brand-green hover:underline font-medium cursor-pointer"
+                              className="text-[11px] text-brand-green hover:underline font-bold cursor-pointer"
                             >
                               मुख्य पता बनाएं (Set as Default)
                             </button>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

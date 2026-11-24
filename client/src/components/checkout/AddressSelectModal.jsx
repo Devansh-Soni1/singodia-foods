@@ -393,29 +393,18 @@ export const AddressSelectModal = ({
                             ✓ यह पता चुनें (Deliver Here)
                           </button>
 
-                          <div className="flex items-center gap-3">
+                          {!addr.isDefault && onSetDefault && (
                             <button
                               type="button"
-                              onClick={(e) => handleStartEdit(e, addr)}
-                              className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-green hover:underline cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSetDefault(addr._id);
+                              }}
+                              className="text-[11px] text-gray-500 hover:text-charcoal cursor-pointer"
                             >
-                              <Edit2 className="w-3.5 h-3.5" />
-                              <span>संपादित करें / Edit</span>
+                              मुख्य पता बनाएं (Set Default)
                             </button>
-
-                            {!addr.isDefault && onSetDefault && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onSetDefault(addr._id);
-                                }}
-                                className="text-[11px] text-gray-500 hover:text-charcoal cursor-pointer"
-                              >
-                                मुख्य पता बनाएं (Set Default)
-                              </button>
-                            )}
-                          </div>
+                          )}
                         </div>
                       </div>
                     );
