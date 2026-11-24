@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   Heart, ShoppingBag, Truck, ShieldCheck, Check, Sparkles, 
   RotateCcw, Star, Sun, Info, ChevronRight, ChevronLeft, Play, Send, AlertCircle,
-  MapPin, Clock, CheckCircle2, Loader2
+  MapPin, Clock, CheckCircle2, Loader2, ChevronDown
 } from 'lucide-react';
 import { productAPI, reviewAPI, shippingAPI } from '../services/api';
 import { formatPrice, calculateDiscount } from '../utils/formatCurrency';
@@ -62,6 +62,7 @@ export const ProductDetailPage = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [randomProducts, setRandomProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [showAllReviews, setShowAllReviews] = useState(false);
   const [loading, setLoading] = useState(true);
   
   // Selected variant & quantity
@@ -1316,30 +1317,68 @@ export const ProductDetailPage = () => {
             </div>
           </div>
 
-          {/* Existing Reviews */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 select-text">
-            {reviews.map((rev, idx) => (
-              <div key={idx} className="p-5 rounded-2xl bg-cream-50 border border-cream-200 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-mustard">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-3.5 h-3.5 ${i < rev.rating ? 'fill-mustard' : 'text-gray-300'}`} />
-                    ))}
+          {/* Existing Reviews: 1 row with 2 columns, low height compact design */}
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-4 mb-4 select-text">
+            {(showAllReviews ? reviews : reviews.slice(0, 2)).map((rev, idx) => (
+              <div
+                key={idx}
+                className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-cream-50/80 border border-cream-200 flex flex-col justify-between hover:border-amber-300 transition-colors"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <div className="flex items-center gap-0.5 text-mustard">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-3 h-3 ${i < rev.rating ? 'fill-mustard' : 'text-gray-300'}`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-[10px] text-earth-brown truncate">
+                      {rev.date || 'Verified'}
+                    </span>
                   </div>
-                  <span className="text-[11px] text-earth-brown">{rev.date || 'Verified Buyer'}</span>
+
+                  <h5 className="text-xs sm:text-sm font-bold text-charcoal font-serif line-clamp-1 leading-snug">
+                    "{rev.title}"
+                  </h5>
+
+                  <p className="text-[11px] sm:text-xs text-earth-brown leading-snug italic line-clamp-2 mt-1">
+                    "{rev.comment}"
+                  </p>
                 </div>
-                <h5 className="text-xs sm:text-sm font-bold text-charcoal font-serif">
-                  "{rev.title}"
-                </h5>
-                <p className="text-xs text-earth-brown leading-relaxed italic">
-                  "{rev.comment}"
-                </p>
-                <div className="text-[11px] font-bold text-charcoal pt-1">
-                  {rev.reviewerName} <span className="text-earth-brown font-normal">({rev.location || 'India'})</span>
+
+                <div className="text-[10px] sm:text-[11px] font-bold text-charcoal pt-1.5 mt-1 border-t border-cream-200/60 flex items-center justify-between truncate">
+                  <span className="truncate">{rev.reviewerName}</span>
+                  <span className="text-earth-brown font-normal text-[9.5px] sm:text-[10.5px] shrink-0 ml-1">
+                    {rev.location ? `(${rev.location})` : ''}
+                  </span>
                 </div>
               </div>
             ))}
           </div>
+
+          {/* See All Reviews Button */}
+          {reviews.length > 2 && (
+            <div className="flex justify-center mb-8">
+              <button
+                type="button"
+                onClick={() => setShowAllReviews(!showAllReviews)}
+                className="px-4 sm:px-6 py-2 rounded-xl border border-cream-300 hover:border-brand-green bg-white hover:bg-cream-50 text-charcoal text-xs sm:text-sm font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>
+                  {showAllReviews
+                    ? 'Show Less (कम देखें)'
+                    : `See All Reviews (${reviews.length})`}
+                </span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 ${
+                    showAllReviews ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+            </div>
+          )}
 
           {/* Review Submission Form */}
           <div className="pt-6 border-t border-cream-200 max-w-xl">
