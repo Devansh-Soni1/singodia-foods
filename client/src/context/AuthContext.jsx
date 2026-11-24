@@ -198,6 +198,14 @@ export const AuthProvider = ({ children }) => {
     return res;
   };
 
+  const updateAddress = async (addrId, addrData) => {
+    const res = await authAPI.updateAddress(addrId, addrData);
+    if (res.addresses) {
+      setUser(prev => ({ ...prev, addresses: res.addresses }));
+    }
+    return res;
+  };
+
   const deleteAddress = async (addrId) => {
     const res = await authAPI.deleteAddress(addrId);
     if (res.addresses) {
@@ -228,6 +236,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     updateProfile,
     addAddress,
+    updateAddress,
     deleteAddress,
     setDefaultAddress
   };

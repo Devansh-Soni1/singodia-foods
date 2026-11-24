@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { 
-  User, Package, MapPin, Heart, LogOut, Plus, Trash2, 
+  User, Package, MapPin, Heart, LogOut, Plus, Trash2, Edit2,
   CheckCircle, Clock, Truck, ShieldAlert, ArrowRight, Eye,
   Loader2, Check
 } from 'lucide-react';
@@ -14,7 +14,7 @@ import { ProductCard } from '../components/product/ProductCard';
 import { OrderTrackingModal } from '../components/common/OrderTrackingModal';
 
 export const AccountPage = () => {
-  const { user, isAuthenticated, logout, updateProfile, addAddress, deleteAddress, setDefaultAddress } = useAuth();
+  const { user, isAuthenticated, logout, updateProfile, addAddress, updateAddress, deleteAddress, setDefaultAddress } = useAuth();
   const { wishlist } = useWishlist();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -38,6 +38,7 @@ export const AccountPage = () => {
 
   // Address form state
   const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState(null);
   const [savingAddress, setSavingAddress] = useState(false);
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [pincodeStatus, setPincodeStatus] = useState('');
@@ -135,6 +136,28 @@ export const AccountPage = () => {
     }
   };
 
+  const handleStartEdit = (addr) => {
+    const parts = splitName(addr.fullName || '');
+    setEditingAddressId(addr._id);
+    setNewAddress({
+      firstName: parts.firstName || '',
+      lastName: parts.lastName || '',
+      fullName: addr.fullName || '',
+      phone: String(addr.phone || '').replace(/^(\+91|91|0)/, '').replace(/\D/g, '').slice(-10),
+      addressLine1: addr.addressLine1 || '',
+      addressLine2: addr.addressLine2 || '',
+      landmark: addr.landmark || '',
+      city: addr.city || '',
+      district: addr.district || addr.city || '',
+      state: addr.state || 'Rajasthan',
+      pincode: addr.pincode || '',
+      isDefault: !!addr.isDefault
+    });
+    setAddressError('');
+    setPincodeStatus('');
+    setShowAddressForm(true);
+  };
+
   const handleAddAddress = async (e) => {
     e.preventDefault();
     setAddressError('');
@@ -198,16 +221,25 @@ export const AccountPage = () => {
 
     setSavingAddress(true);
     try {
-      await addAddress({
+      const payload = {
         ...newAddress,
         fullName: combinedName,
         landmark: (newAddress.landmark || '').trim(),
         phone: cleanPhone,
         district: newAddress.district.trim(),
         isDefault: newAddress.isDefault || (!user?.addresses || user.addresses.length === 0)
-      });
-      toast.success('पता सफलतापूर्वक सहेजा गया!');
+      };
+
+      if (editingAddressId && updateAddress) {
+        await updateAddress(editingAddressId, payload);
+        toast.success('पता सफलतापूर्वक अपडेट किया गया!');
+      } else {
+        await addAddress(payload);
+        toast.success('पता सफलतापूर्वक सहेजा गया!');
+      }
+
       setShowAddressForm(false);
+      setEditingAddressId(null);
       setPincodeStatus('');
       const resetParts = splitName(user?.name || '');
       setNewAddress({
@@ -436,6 +468,22 @@ export const AccountPage = () => {
                   {!showAddressForm && (
                     <button
                       onClick={() => {
+                        setEditingAddressId(null);
+                        const resetParts = splitName(user?.name || '');
+                        setNewAddress({
+                          firstName: resetParts.firstName,
+                          lastName: resetParts.lastName,
+                          fullName: user?.name || '',
+                          phone: user?.phone || '',
+                          addressLine1: '',
+                          addressLine2: '',
+                          landmark: '',
+                          city: '',
+                          district: '',
+                          state: 'Rajasthan',
+                          pincode: '',
+                          isDefault: false
+                        });
                         setShowAddressForm(true);
                         setAddressError('');
                         setPincodeStatus('');
@@ -453,12 +501,13 @@ export const AccountPage = () => {
                     <div className="flex items-center justify-between pb-3 border-b border-cream-100">
                       <h3 className="text-sm font-bold text-charcoal font-serif flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-brand-green" />
-                        <span>नया डिलीवरी पता जोड़ें (Add Delivery Address)</span>
+                        <span>{editingAddressId ? 'पता संपादित करें (Edit Delivery Address)' : 'नया डिलीवरी पता जोड़ें (Add Delivery Address)'}</span>
                       </h3>
                       <button
                         type="button"
                         onClick={() => {
                           setShowAddressForm(false);
+                          setEditingAddressId(null);
                           setAddressError('');
                           setPincodeStatus('');
                         }}
@@ -678,19 +727,20 @@ export const AccountPage = () => {
                       <button
                         type="submit"
                         disabled={savingAddress}
-                        className="px-5 py-2.5 bg-brand-green hover:bg-brand-green-dark text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-2 disabled:opacity-60"
+                        className="px-5 py-2.5 bg-brand-green hover:bg-brand-green-dark text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-2 disabled:opacity-60 cursor-pointer"
                       >
                         <Check className="w-4 h-4" />
-                        <span>{savingAddress ? 'सहेज रहे हैं...' : 'पता सहेजें (Save Address)'}</span>
+                        <span>{savingAddress ? 'सहेज रहे हैं...' : editingAddressId ? 'पता अपडेट करें (Update Address)' : 'पता सहेजें (Save Address)'}</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => {
                           setShowAddressForm(false);
+                          setEditingAddressId(null);
                           setAddressError('');
                           setPincodeStatus('');
                         }}
-                        className="px-4 py-2.5 border border-cream-300 hover:bg-cream-100 text-charcoal text-xs font-bold rounded-xl transition-colors"
+                        className="px-4 py-2.5 border border-cream-300 hover:bg-cream-100 text-charcoal text-xs font-bold rounded-xl transition-colors cursor-pointer"
                       >
                         रद्द करें (Cancel)
                       </button>
@@ -723,13 +773,24 @@ export const AccountPage = () => {
                               </span>
                             )}
                           </div>
-                          <button
-                            onClick={() => handleDeleteAddress(addr._id)}
-                            className="text-gray-400 hover:text-chilli p-1 transition-colors"
-                            title="Delete address"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleStartEdit(addr)}
+                              className="w-7 h-7 rounded-lg bg-cream-100 hover:bg-cream-200 text-charcoal hover:text-brand-green flex items-center justify-center transition-all cursor-pointer border border-cream-300"
+                              title="पता संपादित करें (Edit Address)"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteAddress(addr._id)}
+                              className="w-7 h-7 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 flex items-center justify-center transition-all cursor-pointer border border-red-200"
+                              title="पता हटाएं (Delete Address)"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
 
                         <p className="text-charcoal font-medium">{addr.addressLine1}</p>
@@ -748,17 +809,26 @@ export const AccountPage = () => {
                           फोन: +91 {addr.phone}
                         </p>
 
-                        {!addr.isDefault && setDefaultAddress && (
-                          <div className="pt-2 border-t border-cream-100 flex justify-end">
+                        <div className="pt-2 border-t border-cream-100 flex items-center justify-between">
+                          <button
+                            type="button"
+                            onClick={() => handleStartEdit(addr)}
+                            className="text-[11px] text-brand-green hover:underline font-bold flex items-center gap-1 cursor-pointer"
+                          >
+                            <Edit2 className="w-3 h-3" />
+                            <span>संपादित करें (Edit)</span>
+                          </button>
+
+                          {!addr.isDefault && setDefaultAddress && (
                             <button
                               type="button"
                               onClick={() => handleSetDefaultAddress(addr._id)}
-                              className="text-[11px] text-brand-green hover:underline font-bold"
+                              className="text-[11px] text-earth-brown hover:text-brand-green hover:underline font-medium cursor-pointer"
                             >
                               मुख्य पता बनाएं (Set as Default)
                             </button>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

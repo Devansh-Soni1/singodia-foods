@@ -512,6 +512,48 @@ export const deleteAddress = async (req, res, next) => {
   }
 };
 
+export const updateAddress = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const { addressId } = req.params;
+    const addr = user.addresses.find(a => a._id.toString() === addressId);
+    if (!addr) {
+      return res.status(404).json({ success: false, message: 'Address not found' });
+    }
+
+    const { fullName, phone, addressLine1, addressLine2, landmark, city, district, state, pincode, isDefault } = req.body;
+
+    if (isDefault) {
+      user.addresses.forEach(a => { a.isDefault = false; });
+      addr.isDefault = true;
+    }
+
+    if (fullName !== undefined) addr.fullName = fullName;
+    if (phone !== undefined) addr.phone = phone;
+    if (addressLine1 !== undefined) addr.addressLine1 = addressLine1;
+    if (addressLine2 !== undefined) addr.addressLine2 = addressLine2;
+    if (landmark !== undefined) addr.landmark = landmark;
+    if (city !== undefined) addr.city = city;
+    if (district !== undefined) addr.district = district;
+    if (state !== undefined) addr.state = state;
+    if (pincode !== undefined) addr.pincode = pincode;
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Address updated successfully',
+      addresses: user.addresses
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const setDefaultAddress = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);

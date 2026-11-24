@@ -88,6 +88,14 @@ export const authAPI = {
       throw err.response?.data || err;
     }
   },
+  updateAddress: async (addressId, addressData) => {
+    try {
+      const res = await api.put(`/auth/address/${addressId}`, addressData);
+      return res.data;
+    } catch (err) {
+      throw err.response?.data || err;
+    }
+  },
   deleteAddress: async (addressId) => {
     try {
       const res = await api.delete(`/auth/address/${addressId}`);

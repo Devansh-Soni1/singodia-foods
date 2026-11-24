@@ -102,7 +102,7 @@ export const CheckoutPage = () => {
     freeShippingThreshold,
     freeShippingEnabled
   } = useCart();
-  const { user, isAuthenticated, addAddress, setDefaultAddress, deleteAddress } = useAuth();
+  const { user, isAuthenticated, addAddress, updateAddress, setDefaultAddress, deleteAddress } = useAuth();
   const navigate = useNavigate();
 
   // Address selection modal state
@@ -310,6 +310,20 @@ export const CheckoutPage = () => {
         ...newAddrPayload,
         _id: 'temp-' + Date.now()
       });
+    }
+  };
+
+  // Handle updating address inside modal
+  const handleUpdateAddressFromModal = async (addressId, updatedPayload) => {
+    if (updateAddress) {
+      await updateAddress(addressId, updatedPayload);
+      toast.success('पता सफलतापूर्वक अपडेट किया गया!');
+      if (selectedAddressId === addressId) {
+        handleSelectAddressFromModal({
+          ...updatedPayload,
+          _id: addressId
+        });
+      }
     }
   };
 
@@ -1262,6 +1276,7 @@ export const CheckoutPage = () => {
         selectedAddressId={selectedAddressId}
         onSelectAddress={handleSelectAddressFromModal}
         onSaveNewAddress={handleSaveNewAddressFromModal}
+        onUpdateAddress={handleUpdateAddressFromModal}
         onSetDefault={handleSetDefaultInsideModal}
         onDeleteAddress={handleDeleteAddressFromModal}
       />

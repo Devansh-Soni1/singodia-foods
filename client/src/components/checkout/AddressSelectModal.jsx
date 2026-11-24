@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   X, MapPin, Check, Plus, ShieldCheck, 
-  Home, Building2, Phone, User, CheckCircle2, Loader2, Sparkles, Trash2
+  Home, Building2, Phone, User, CheckCircle2, Loader2, Sparkles, Trash2, Edit2
 } from 'lucide-react';
 import { shippingAPI } from '../../services/api';
 
@@ -12,10 +12,12 @@ export const AddressSelectModal = ({
   selectedAddressId,
   onSelectAddress,
   onSaveNewAddress,
+  onUpdateAddress,
   onSetDefault,
   onDeleteAddress
 }) => {
   const [isAddingNew, setIsAddingNew] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState(null);
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [pincodeMessage, setPincodeMessage] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -47,6 +49,59 @@ export const AddressSelectModal = ({
         setDeletingId(null);
       }
     }
+  };
+
+  const handleStartEdit = (e, addr) => {
+    e.stopPropagation();
+    const parts = (addr.fullName || '').trim().split(/\s+/);
+    const firstName = parts[0] || '';
+    const lastName = parts.slice(1).join(' ') || '';
+    setEditingAddressId(addr._id);
+    setNewAddr({
+      firstName,
+      lastName,
+      fullName: addr.fullName || '',
+      phone: String(addr.phone || '').replace(/^(\+91|91|0)/, '').replace(/\D/g, '').slice(-10),
+      addressLine1: addr.addressLine1 || '',
+      addressLine2: addr.addressLine2 || '',
+      landmark: addr.landmark || '',
+      city: addr.city || '',
+      district: addr.district || addr.city || '',
+      pincode: addr.pincode || '',
+      state: addr.state || 'Rajasthan',
+      isDefault: !!addr.isDefault
+    });
+    setErrorMsg('');
+    setPincodeMessage('');
+    setIsAddingNew(true);
+  };
+
+  const handleOpenAddNew = () => {
+    setEditingAddressId(null);
+    setNewAddr({
+      firstName: '',
+      lastName: '',
+      fullName: '',
+      phone: '',
+      addressLine1: '',
+      addressLine2: '',
+      landmark: '',
+      city: '',
+      district: '',
+      pincode: '',
+      state: 'Rajasthan',
+      isDefault: false
+    });
+    setErrorMsg('');
+    setPincodeMessage('');
+    setIsAddingNew(true);
+  };
+
+  const handleCancelForm = () => {
+    setIsAddingNew(false);
+    setEditingAddressId(null);
+    setErrorMsg('');
+    setPincodeMessage('');
   };
 
   // New address form state
@@ -168,8 +223,13 @@ export const AddressSelectModal = ({
         district: newAddr.district.trim(),
         isDefault: newAddr.isDefault || addresses.length === 0
       };
-      await onSaveNewAddress(payload);
+      if (editingAddressId && onUpdateAddress) {
+        await onUpdateAddress(editingAddressId, payload);
+      } else {
+        await onSaveNewAddress(payload);
+      }
       setIsAddingNew(false);
+      setEditingAddressId(null);
       setNewAddr({
         firstName: '',
         lastName: '',
@@ -206,10 +266,10 @@ export const AddressSelectModal = ({
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-bold text-charcoal font-serif">
-                {isAddingNew ? 'नया पता जोड़ें (Add Address)' : 'डिलीवरी पता चुनें (Select Address)'}
+                {editingAddressId ? 'पता संपादित करें (Edit Address)' : isAddingNew ? 'नया पता जोड़ें (Add Address)' : 'डिलीवरी पता चुनें (Select Address)'}
               </h3>
               <p className="text-[11px] text-earth-brown">
-                {isAddingNew ? 'डिलीवरी और कूरियर हेतु सभी विवरण भरें' : 'सहेजे गए पतों में से चुनें या नया पता जोड़ें'}
+                {editingAddressId ? 'डिलीवरी पते की जानकारी अपडेट करें' : isAddingNew ? 'डिलीवरी और कूरियर हेतु सभी विवरण भरें' : 'सहेजे गए पतों में से चुनें या नया पता जोड़ें'}
               </p>
             </div>
           </div>
@@ -291,23 +351,34 @@ export const AddressSelectModal = ({
                             </div>
                           </div>
 
-                          {/* Delete Icon Button on each address */}
-                          {onDeleteAddress && (
+                          {/* Action Buttons: Edit & Delete (Single Delete Button as Upper Icon) */}
+                          <div className="flex items-center gap-1.5 shrink-0">
                             <button
                               type="button"
-                              onClick={(e) => handleDeleteAddress(e, addr._id)}
-                              disabled={deletingId === addr._id}
-                              className="w-8 h-8 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 flex items-center justify-center transition-all shrink-0 cursor-pointer border border-red-200/80 hover:scale-105"
-                              title="यह पता हटाएं (Delete Address)"
-                              aria-label="Delete address"
+                              onClick={(e) => handleStartEdit(e, addr)}
+                              className="w-8 h-8 rounded-xl bg-cream-100 hover:bg-cream-200 text-charcoal hover:text-brand-green flex items-center justify-center transition-all cursor-pointer border border-cream-300 hover:scale-105"
+                              title="यह पता संपादित करें (Edit Address)"
+                              aria-label="Edit address"
                             >
-                              {deletingId === addr._id ? (
-                                <Loader2 className="w-4 h-4 animate-spin text-red-600" />
-                              ) : (
-                                <Trash2 className="w-4 h-4" />
-                              )}
+                              <Edit2 className="w-3.5 h-3.5" />
                             </button>
-                          )}
+                            {onDeleteAddress && (
+                              <button
+                                type="button"
+                                onClick={(e) => handleDeleteAddress(e, addr._id)}
+                                disabled={deletingId === addr._id}
+                                className="w-8 h-8 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 flex items-center justify-center transition-all cursor-pointer border border-red-200/80 hover:scale-105"
+                                title="यह पता हटाएं (Delete Address)"
+                                aria-label="Delete address"
+                              >
+                                {deletingId === addr._id ? (
+                                  <Loader2 className="w-4 h-4 animate-spin text-red-600" />
+                                ) : (
+                                  <Trash2 className="w-4 h-4" />
+                                )}
+                              </button>
+                            )}
+                          </div>
                         </div>
 
                         <div className="mt-3 pt-2.5 border-t border-cream-200/60 flex items-center justify-between text-xs flex-wrap gap-2">
@@ -323,28 +394,25 @@ export const AddressSelectModal = ({
                           </button>
 
                           <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={(e) => handleStartEdit(e, addr)}
+                              className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-green hover:underline cursor-pointer"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                              <span>संपादित करें / Edit</span>
+                            </button>
+
                             {!addr.isDefault && onSetDefault && (
                               <button
                                 type="button"
                                 onClick={(e) => {
-                                 e.stopPropagation();
+                                  e.stopPropagation();
                                   onSetDefault(addr._id);
                                 }}
                                 className="text-[11px] text-gray-500 hover:text-charcoal cursor-pointer"
                               >
                                 मुख्य पता बनाएं (Set Default)
-                              </button>
-                            )}
-
-                            {onDeleteAddress && (
-                              <button
-                                type="button"
-                                onClick={(e) => handleDeleteAddress(e, addr._id)}
-                                disabled={deletingId === addr._id}
-                                className="inline-flex items-center gap-1 text-[11px] font-bold text-red-600 hover:text-red-700 hover:underline cursor-pointer"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                                <span>हटाएं</span>
                               </button>
                             )}
                           </div>
@@ -358,7 +426,7 @@ export const AddressSelectModal = ({
               {/* Add New Address Button */}
               <button
                 type="button"
-                onClick={() => setIsAddingNew(true)}
+                onClick={handleOpenAddNew}
                 className="w-full py-3.5 px-4 rounded-2xl bg-cream-100 hover:bg-cream-200/80 border-2 border-dashed border-brand-green/40 text-brand-green font-bold text-xs flex items-center justify-center gap-2 transition-all mt-4"
               >
                 <Plus className="w-4 h-4" />
@@ -571,7 +639,7 @@ export const AddressSelectModal = ({
               <div className="flex items-center gap-2.5 pt-3 border-t border-cream-200">
                 <button
                   type="button"
-                  onClick={() => setIsAddingNew(false)}
+                  onClick={handleCancelForm}
                   className="flex-1 py-3 px-4 rounded-xl border border-cream-300 text-charcoal font-bold text-xs hover:bg-cream-100 transition-colors"
                 >
                   रद्द करें (Back)
@@ -581,7 +649,7 @@ export const AddressSelectModal = ({
                   className="flex-1 py-3 px-4 rounded-xl bg-brand-green hover:bg-brand-green-dark text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
                 >
                   <Check className="w-4 h-4" />
-                  <span>सहेजें और चुनें (Save & Select)</span>
+                  <span>{editingAddressId ? 'पता अपडेट करें (Update Address)' : 'सहेजें और चुनें (Save & Select)'}</span>
                 </button>
               </div>
 
