@@ -285,7 +285,7 @@ export const createOrder = async (req, res, next) => {
           order.shipping = {
             carrier: shipRes.courierName || 'Express Courier Service',
             trackingNumber: shipRes.waybill,
-            trackingUrl: `https://my.ithinklogistics.com/track/${shipRes.waybill}`,
+            trackingUrl: shipRes.trackingUrl || `https://www.ithinklogistics.co.in/postship/tracking/${shipRes.waybill}`,
             dispatchedAt: new Date()
           };
           if (mongoose.connection.readyState === 1 && typeof order.save === 'function') {
@@ -425,7 +425,7 @@ export const verifyPayment = async (req, res, next) => {
             order.shipping = {
               carrier: shipRes.courierName || 'Express Courier Service',
               trackingNumber: shipRes.waybill,
-              trackingUrl: `https://my.ithinklogistics.com/track/${shipRes.waybill}`,
+              trackingUrl: shipRes.trackingUrl || `https://www.ithinklogistics.co.in/postship/tracking/${shipRes.waybill}`,
               dispatchedAt: new Date()
             };
           }

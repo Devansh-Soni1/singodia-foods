@@ -67,7 +67,7 @@ router.post('/generate-awb/:orderId', protect, adminOnly, async (req, res) => {
       order.shipping = {
         carrier: shipmentResult.courierName || 'Express Courier Service',
         trackingNumber: shipmentResult.waybill,
-        trackingUrl: `https://my.ithinklogistics.com/track/${shipmentResult.waybill}`,
+        trackingUrl: shipmentResult.trackingUrl || `https://www.ithinklogistics.co.in/postship/tracking/${shipmentResult.waybill}`,
         dispatchedAt: new Date()
       };
       await order.save();

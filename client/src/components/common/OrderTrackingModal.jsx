@@ -122,9 +122,9 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
     { title: 'Delivered', subtitle: 'सफलतापूर्वक डिलीवर', icon: CheckCircle2 }
   ];
 
-  const officialTrackingUrl = waybill
-    ? `https://my.ithinklogistics.com/track/${waybill}`
-    : 'https://my.ithinklogistics.com/';
+  const officialTrackingUrl = order?.shipping?.trackingUrl || trackingData?.trackingUrl || (waybill
+    ? `https://www.ithinklogistics.co.in/postship/tracking/${waybill}`
+    : 'https://www.ithinklogistics.co.in/');
 
   return (
     <div 
