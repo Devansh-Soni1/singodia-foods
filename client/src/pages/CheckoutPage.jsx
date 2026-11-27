@@ -148,10 +148,16 @@ export const CheckoutPage = () => {
   const [shippingRateInfo, setShippingRateInfo] = useState(null);
   const [dynamicShippingFee, setDynamicShippingFee] = useState(null);
 
-  // Calculate total cart weight in Kg
+  // Calculate total gross cart weight in Kg (Pickle Net Weight + 180g Jar & Packaging tare per item)
   const totalCartWeightKg = useMemo(() => {
-    return cartItems.reduce((acc, item) => {
+    let netWeight = 0;
+    let totalContainers = 0;
+
+    cartItems.forEach(item => {
       const wStr = String(item.weight || '').toLowerCase();
+      const qty = Number(item.quantity) || 1;
+      totalContainers += qty;
+
       let itemWeightKg = 0.5;
       if (wStr.includes('kg')) {
         const num = parseFloat(wStr);
@@ -160,8 +166,13 @@ export const CheckoutPage = () => {
         const num = parseFloat(wStr);
         itemWeightKg = isNaN(num) ? 0.5 : num / 1000;
       }
-      return acc + (itemWeightKg * (item.quantity || 1));
-    }, 0);
+      netWeight += (itemWeightKg * qty);
+    });
+
+    if (totalContainers === 0) return 0.5;
+    // Packaging allowance: 180g per container + 100g outer box
+    const packagingWeight = (totalContainers * 0.18) + 0.10;
+    return Number((netWeight + packagingWeight).toFixed(2));
   }, [cartItems]);
 
   // Official iThink Logistics zone rates based on destination pincode and weight

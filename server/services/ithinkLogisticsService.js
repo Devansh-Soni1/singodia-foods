@@ -172,6 +172,64 @@ export const calculateShippingRate = async ({
 };
 
 /**
+ * Calculate accurate Gross Weight & Box Dimensions for Pickle Jars
+ * Accounts for Glass/PET Jar tare (180g-200g) + bubble wrap & outer box (100g)
+ */
+export const calculateOrderGrossWeightAndDimensions = (items = []) => {
+  let totalNetWeightKg = 0;
+  let totalContainers = 0;
+
+  items.forEach(item => {
+    const wStr = String(item.weight || '').toLowerCase();
+    const qty = Number(item.quantity) || 1;
+    totalContainers += qty;
+
+    let itemKg = 0.5;
+    if (wStr.includes('kg')) {
+      const val = parseFloat(wStr);
+      itemKg = isNaN(val) ? 1.0 : val;
+    } else if (wStr.includes('g') || wStr.includes('gm')) {
+      const val = parseFloat(wStr);
+      itemKg = isNaN(val) ? 0.5 : val / 1000;
+    }
+    totalNetWeightKg += (itemKg * qty);
+  });
+
+  // Packaging allowance: 180g per container + 100g outer box
+  const packagingWeightKg = (Math.max(1, totalContainers) * 0.18) + 0.10;
+  const totalGrossWeightKg = Math.max(0.45, Number((totalNetWeightKg + packagingWeightKg).toFixed(2)));
+
+  // Dynamic box dimensions based on container count (cm)
+  let length = 15;
+  let width = 12;
+  let height = 12;
+
+  if (totalContainers === 2) {
+    length = 24;
+    width = 15;
+    height = 12;
+  } else if (totalContainers >= 3 && totalContainers <= 4) {
+    length = 28;
+    width = 24;
+    height = 15;
+  } else if (totalContainers > 4) {
+    length = 32;
+    width = 28;
+    height = 20;
+  }
+
+  return {
+    netWeightKg: Number(totalNetWeightKg.toFixed(2)),
+    grossWeightKg: totalGrossWeightKg,
+    weightStr: String(totalGrossWeightKg),
+    length: String(length),
+    width: String(width),
+    height: String(height),
+    containersCount: totalContainers
+  };
+};
+
+/**
  * Create Order / Generate AWB with iThink Logistics
  * @param {Object} order - Local Order document
  */
@@ -196,6 +254,9 @@ export const createShipmentOrder = async (order) => {
   const customerPhone = Number(rawPhone) || 7597966707;
   const customerEmail = order.customer?.email || order.user?.email || 'premsingodiya861@gmail.com';
   const customerPincode = Number(address.pincode || address.postalCode || 331507) || 331507;
+
+  // Calculate gross shipment weight and dynamic carton dimensions
+  const pkgDetails = calculateOrderGrossWeightAndDimensions(order.items || []);
 
   const now = new Date();
   const rawDate = order.createdAt ? new Date(order.createdAt) : now;
@@ -259,10 +320,10 @@ export const createShipmentOrder = async (order) => {
               product_discount: '0'
             }
           ],
-          shipment_length: '15',
-          shipment_width: '15',
-          shipment_height: '15',
-          weight: '0.5',
+          shipment_length: pkgDetails.length,
+          shipment_width: pkgDetails.width,
+          shipment_height: pkgDetails.height,
+          weight: pkgDetails.weightStr,
           shipping_charges: '0',
           giftwrap_charges: '0',
           transaction_charges: '0',
