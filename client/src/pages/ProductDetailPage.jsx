@@ -151,10 +151,20 @@ export const ProductDetailPage = () => {
     return isNaN(val) || val <= 0 ? 0.5 : (val > 10 ? val / 1000 : val);
   };
 
-  // Dynamic calculated weight for currently selected variant & quantity
+  // Dynamic calculated gross weight for currently selected variant & quantity (Net Weight + Packaging)
+  // 200g net -> +50g packing | 400g net -> +75g packing | 900g net -> +95g packing
   const currentWeightKg = useMemo(() => {
-    const singleWeight = parseWeightToKg(variant?.weight);
-    return Math.max(0.25, singleWeight * (quantity || 1));
+    const singleNetWeight = parseWeightToKg(variant?.weight);
+    let packingKg = 0.075;
+    if (singleNetWeight <= 0.28) {
+      packingKg = 0.050;
+    } else if (singleNetWeight <= 0.60) {
+      packingKg = 0.075;
+    } else {
+      packingKg = 0.095;
+    }
+    const singleGrossWeight = singleNetWeight + packingKg;
+    return Math.max(0.25, Number((singleGrossWeight * (quantity || 1)).toFixed(3)));
   }, [variant?.weight, quantity]);
 
   // Product Schema for Google Search Rich Cards

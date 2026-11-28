@@ -148,45 +148,38 @@ export const CheckoutPage = () => {
   const [shippingRateInfo, setShippingRateInfo] = useState(null);
   const [dynamicShippingFee, setDynamicShippingFee] = useState(null);
 
-  // Calculate total gross cart weight in Kg based on packaging tare specs:
-  // - 200g jar: ~50g packaging
-  // - 400g jar: ~75g packaging
-  // - 900g jar: ~95g packaging
-  // - Outer carton + protective wrap: ~50g
+  // Calculate total gross cart weight in Kg (Pickle Net Weight + Exact Plastic Packaging tare)
+  // 200g net -> +50g packing | 400g net -> +75g packing | 900g net -> +95g packing (box included)
   const totalCartWeightKg = useMemo(() => {
-    let netWeight = 0;
-    let packagingWeight = 0;
-    let totalContainers = 0;
+    let grossWeight = 0;
 
     cartItems.forEach(item => {
       const wStr = String(item.weight || '').toLowerCase();
       const qty = Number(item.quantity) || 1;
-      totalContainers += qty;
 
-      let itemWeightKg = 0.4;
-      let pkgKg = 0.075; // 75g for 400g
+      let itemNetKg = 0.5;
       if (wStr.includes('kg')) {
         const num = parseFloat(wStr);
-        itemWeightKg = isNaN(num) ? 0.9 : num;
-        pkgKg = 0.095; // 95g for 900g-1kg
+        itemNetKg = isNaN(num) ? 1.0 : num;
       } else if (wStr.includes('g') || wStr.includes('gm')) {
         const num = parseFloat(wStr);
-        itemWeightKg = isNaN(num) ? 0.4 : num / 1000;
-        if (itemWeightKg <= 0.25) {
-          pkgKg = 0.050; // 50g for 200g-250g
-        } else if (itemWeightKg <= 0.6) {
-          pkgKg = 0.075; // 75g for 400g-500g
-        } else {
-          pkgKg = 0.095; // 95g for 900g+
-        }
+        itemNetKg = isNaN(num) ? 0.5 : num / 1000;
       }
-      netWeight += (itemWeightKg * qty);
-      packagingWeight += (pkgKg * qty);
+
+      // Exact plastic container tare: 200g -> 50g | 400g -> 75g | 900g -> 95g
+      let packingKg = 0.075;
+      if (itemNetKg <= 0.28) {
+        packingKg = 0.050;
+      } else if (itemNetKg <= 0.60) {
+        packingKg = 0.075;
+      } else {
+        packingKg = 0.095;
+      }
+
+      grossWeight += ((itemNetKg + packingKg) * qty);
     });
 
-    if (totalContainers === 0) return 0.5;
-    const outerBoxTare = totalContainers <= 2 ? 0.05 : 0.08;
-    return Number((netWeight + packagingWeight + outerBoxTare).toFixed(2));
+    return Math.max(0.25, Number(grossWeight.toFixed(3)));
   }, [cartItems]);
 
   // Official iThink Logistics zone rates based on destination pincode and weight

@@ -172,16 +172,28 @@ export const calculateShippingRate = async ({
 };
 
 /**
- * Calculate accurate Gross Weight & Box Dimensions for Pickle Jars
- * Exact Tare Weights provided:
- * - 200g - 250g Jar: ~50g packaging
- * - 400g - 500g Jar: ~75g packaging
- * - 900g - 1kg Jar:  ~95g packaging
- * Plus ~40g-60g outer carton box & protective packing
+ * Exact Packaging Tare Allowance as per Singodia Foods Plastic Box Specifications:
+ * - 200g pickle net -> 50g packaging (0.050 kg)
+ * - 400g pickle net -> 75g packaging (0.075 kg)
+ * - 900g pickle net -> 95g packaging (0.095 kg)
+ * Total Parcel Weight = Net Weight + Packaging Weight (box included)
  */
+export const getItemPackagingWeightKg = (netKg) => {
+  if (netKg <= 0.28) {
+    return 0.050; // 50g for 200g
+  }
+  if (netKg <= 0.60) {
+    return 0.075; // 75g for 400g
+  }
+  if (netKg <= 1.10) {
+    return 0.095; // 95g for 900g / 1kg
+  }
+  return Number((netKg * 0.10).toFixed(3));
+};
+
 export const calculateOrderGrossWeightAndDimensions = (items = []) => {
   let totalNetWeightKg = 0;
-  let totalPackagingWeightKg = 0;
+  let totalGrossWeightKg = 0;
   let totalContainers = 0;
 
   items.forEach(item => {
@@ -189,55 +201,49 @@ export const calculateOrderGrossWeightAndDimensions = (items = []) => {
     const qty = Number(item.quantity) || 1;
     totalContainers += qty;
 
-    let itemKg = 0.4;
-    let pkgKg = 0.075; // default 75g for 400g jar
-
+    let itemNetKg = 0.5;
     if (wStr.includes('kg')) {
       const val = parseFloat(wStr);
-      itemKg = isNaN(val) ? 0.9 : val;
-      pkgKg = 0.095; // 95g packaging for 900g-1kg
+      itemNetKg = isNaN(val) ? 1.0 : val;
     } else if (wStr.includes('g') || wStr.includes('gm')) {
       const val = parseFloat(wStr);
-      itemKg = isNaN(val) ? 0.4 : val / 1000;
-      if (itemKg <= 0.25) {
-        pkgKg = 0.050; // 50g packaging for 200g-250g
-      } else if (itemKg <= 0.6) {
-        pkgKg = 0.075; // 75g packaging for 400g-500g
-      } else {
-        pkgKg = 0.095; // 95g packaging for 900g+
-      }
+      itemNetKg = isNaN(val) ? 0.5 : val / 1000;
     }
-    totalNetWeightKg += (itemKg * qty);
-    totalPackagingWeightKg += (pkgKg * qty);
+
+    const itemPackagingKg = getItemPackagingWeightKg(itemNetKg);
+    const itemGrossKg = (itemNetKg + itemPackagingKg) * qty;
+
+    totalNetWeightKg += (itemNetKg * qty);
+    totalGrossWeightKg += itemGrossKg;
   });
 
-  // Outer master carton box + bubble wrap + tape tare weight (~40g-60g)
-  const outerBoxTareKg = totalContainers <= 2 ? 0.05 : 0.08;
-  const totalGrossWeightKg = Math.max(0.25, Number((totalNetWeightKg + totalPackagingWeightKg + outerBoxTareKg).toFixed(2)));
+  const finalGrossWeightKg = Math.max(0.25, Number(totalGrossWeightKg.toFixed(3)));
 
-  // Dynamic box dimensions based on container count (cm)
+  // Dynamic carton dimensions (cm) tailored for plastic pickle boxes
   let length = 15;
   let width = 12;
-  let height = 12;
+  let height = 10;
 
-  if (totalContainers === 2) {
-    length = 24;
-    width = 15;
-    height = 12;
+  if (totalContainers === 1) {
+    if (finalGrossWeightKg <= 0.30) {
+      length = 12; width = 10; height = 10;
+    } else if (finalGrossWeightKg <= 0.55) {
+      length = 15; width = 12; height = 10;
+    } else {
+      length = 16; width = 14; height = 12;
+    }
+  } else if (totalContainers === 2) {
+    length = 22; width = 15; height = 12;
   } else if (totalContainers >= 3 && totalContainers <= 4) {
-    length = 28;
-    width = 24;
-    height = 15;
-  } else if (totalContainers > 4) {
-    length = 32;
-    width = 28;
-    height = 20;
+    length = 26; width = 22; height = 14;
+  } else {
+    length = 30; width = 26; height = 18;
   }
 
   return {
-    netWeightKg: Number(totalNetWeightKg.toFixed(2)),
-    grossWeightKg: totalGrossWeightKg,
-    weightStr: String(totalGrossWeightKg),
+    netWeightKg: Number(totalNetWeightKg.toFixed(3)),
+    grossWeightKg: finalGrossWeightKg,
+    weightStr: String(finalGrossWeightKg),
     length: String(length),
     width: String(width),
     height: String(height),
