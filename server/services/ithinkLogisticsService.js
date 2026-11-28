@@ -172,28 +172,11 @@ export const calculateShippingRate = async ({
 };
 
 /**
- * Exact Packaging Tare Allowance as per Singodia Foods Plastic Box Specifications:
- * - 200g pickle net -> 50g packaging (0.050 kg)
- * - 400g pickle net -> 75g packaging (0.075 kg)
- * - 900g pickle net -> 95g packaging (0.095 kg)
- * Total Parcel Weight = Net Weight + Packaging Weight (box included)
+ * Calculate accurate Gross Weight & Box Dimensions for Pickle Jars
+ * Accounts for Glass/PET Jar tare (180g-200g) + bubble wrap & outer box (100g)
  */
-export const getItemPackagingWeightKg = (netKg) => {
-  if (netKg <= 0.28) {
-    return 0.050; // 50g for 200g
-  }
-  if (netKg <= 0.60) {
-    return 0.075; // 75g for 400g
-  }
-  if (netKg <= 1.10) {
-    return 0.095; // 95g for 900g / 1kg
-  }
-  return Number((netKg * 0.10).toFixed(3));
-};
-
 export const calculateOrderGrossWeightAndDimensions = (items = []) => {
   let totalNetWeightKg = 0;
-  let totalGrossWeightKg = 0;
   let totalContainers = 0;
 
   items.forEach(item => {
@@ -201,49 +184,44 @@ export const calculateOrderGrossWeightAndDimensions = (items = []) => {
     const qty = Number(item.quantity) || 1;
     totalContainers += qty;
 
-    let itemNetKg = 0.5;
+    let itemKg = 0.5;
     if (wStr.includes('kg')) {
       const val = parseFloat(wStr);
-      itemNetKg = isNaN(val) ? 1.0 : val;
+      itemKg = isNaN(val) ? 1.0 : val;
     } else if (wStr.includes('g') || wStr.includes('gm')) {
       const val = parseFloat(wStr);
-      itemNetKg = isNaN(val) ? 0.5 : val / 1000;
+      itemKg = isNaN(val) ? 0.5 : val / 1000;
     }
-
-    const itemPackagingKg = getItemPackagingWeightKg(itemNetKg);
-    const itemGrossKg = (itemNetKg + itemPackagingKg) * qty;
-
-    totalNetWeightKg += (itemNetKg * qty);
-    totalGrossWeightKg += itemGrossKg;
+    totalNetWeightKg += (itemKg * qty);
   });
 
-  const finalGrossWeightKg = Math.max(0.25, Number(totalGrossWeightKg.toFixed(3)));
+  // Packaging allowance: 180g per container + 100g outer box
+  const packagingWeightKg = (Math.max(1, totalContainers) * 0.18) + 0.10;
+  const totalGrossWeightKg = Math.max(0.45, Number((totalNetWeightKg + packagingWeightKg).toFixed(2)));
 
-  // Dynamic carton dimensions (cm) tailored for plastic pickle boxes
+  // Dynamic box dimensions based on container count (cm)
   let length = 15;
   let width = 12;
-  let height = 10;
+  let height = 12;
 
-  if (totalContainers === 1) {
-    if (finalGrossWeightKg <= 0.30) {
-      length = 12; width = 10; height = 10;
-    } else if (finalGrossWeightKg <= 0.55) {
-      length = 15; width = 12; height = 10;
-    } else {
-      length = 16; width = 14; height = 12;
-    }
-  } else if (totalContainers === 2) {
-    length = 22; width = 15; height = 12;
+  if (totalContainers === 2) {
+    length = 24;
+    width = 15;
+    height = 12;
   } else if (totalContainers >= 3 && totalContainers <= 4) {
-    length = 26; width = 22; height = 14;
-  } else {
-    length = 30; width = 26; height = 18;
+    length = 28;
+    width = 24;
+    height = 15;
+  } else if (totalContainers > 4) {
+    length = 32;
+    width = 28;
+    height = 20;
   }
 
   return {
-    netWeightKg: Number(totalNetWeightKg.toFixed(3)),
-    grossWeightKg: finalGrossWeightKg,
-    weightStr: String(finalGrossWeightKg),
+    netWeightKg: Number(totalNetWeightKg.toFixed(2)),
+    grossWeightKg: totalGrossWeightKg,
+    weightStr: String(totalGrossWeightKg),
     length: String(length),
     width: String(width),
     height: String(height),
