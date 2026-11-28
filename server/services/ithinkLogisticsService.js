@@ -450,15 +450,10 @@ export const trackShipment = async (waybill) => {
         remark: s.remark || ''
       }));
 
-      const itemStatus = trackItem.current_status || 'In Transit';
-      const isCancelled = String(itemStatus).toLowerCase().includes('cancel') || 
-                          String(itemStatus).toLowerCase().includes('rto');
-
       return {
         success: true,
         waybill: cleanWaybill,
-        currentStatus: isCancelled ? 'Cancelled' : itemStatus,
-        isCancelled,
+        currentStatus: trackItem.current_status || 'In Transit',
         courierName: trackItem.logistic || 'Delhivery',
         lastLocation: trackItem.last_scan_details?.scan_location || 'Regional Hub',
         lastRemark: trackItem.last_scan_details?.remark || '',
@@ -471,45 +466,11 @@ export const trackShipment = async (waybill) => {
       };
     }
 
-    // If iThink returned empty/no scans, verify if the order was cancelled from iThink panel
-    if (!cleanWaybill.startsWith('ITL')) {
-      try {
-        const cancelCheck = await axios.post(`${getBaseUrl()}/api_v3/order/cancel.json`, {
-          data: {
-            access_token,
-            secret_key,
-            awb_numbers: cleanWaybill
-          }
-        }, { timeout: 6000 });
-
-        const msg = cancelCheck.data?.html_message || cancelCheck.data?.message || '';
-        if (typeof msg === 'string' && msg.toLowerCase().includes('cancel')) {
-          return {
-            success: true,
-            waybill: cleanWaybill,
-            currentStatus: 'Cancelled',
-            isCancelled: true,
-            courierName: 'Delhivery',
-            lastLocation: 'Singodia Foods Kitchen, Sujangarh (331507)',
-            expectedDeliveryDate: '',
-            trackingUrl: `https://www.ithinklogistics.co.in/postship/tracking/${cleanWaybill}`,
-            events: [
-              { status: 'Order Cancelled', location: 'iThink Logistics Panel', timestamp: 'Cancelled by Seller' }
-            ],
-            isSimulated: false
-          };
-        }
-      } catch (cCheckErr) {
-        // Continue to fresh manifest state
-      }
-    }
-
-    // Default clean initial manifest state if order newly booked
+    // Freshly manifested order awaiting courier pickup
     return {
       success: true,
       waybill: cleanWaybill,
       currentStatus: 'Manifested',
-      isCancelled: false,
       courierName: 'Delhivery',
       lastLocation: 'Singodia Foods Kitchen, Sujangarh (331507)',
       expectedDeliveryDate: '2 - 4 Business Days',

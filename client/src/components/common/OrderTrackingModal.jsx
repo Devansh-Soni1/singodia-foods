@@ -114,21 +114,22 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
   // Live status directly from iThink Logistics API, with fallback to order status
   const rawStatus = trackingData?.currentStatus || order?.orderStatus || 'Placed';
   const liveStatusLower = String(rawStatus).toLowerCase();
+  const isOrderCancelled = String(order?.orderStatus).toLowerCase() === 'cancelled' ||
+                          liveStatusLower.includes('cancel') ||
+                          liveStatusLower.includes('rto');
 
   let statusTitle = rawStatus;
   let statusBadgeText = '';
   let isDelivered = false;
   let isRtoOrCancelled = false;
-
-  // Determine stage (1 to 5) matching Delhivery's 5 milestones:
-  // 1: Order Placed
-  // 2: Picked Up
-  // 3: On the Way (In Transit)
-  // 4: Out for Delivery
-  // 5: Delivered
   let currentMilestoneStep = 1;
 
-  if (liveStatusLower.includes('deliver') && !liveStatusLower.includes('out') && !liveStatusLower.includes('undeliver')) {
+  if (isOrderCancelled) {
+    statusTitle = 'Order Cancelled';
+    statusBadgeText = '⚠️ Order has been cancelled';
+    isRtoOrCancelled = true;
+    currentMilestoneStep = 0;
+  } else if (liveStatusLower.includes('deliver') && !liveStatusLower.includes('out') && !liveStatusLower.includes('undeliver')) {
     statusTitle = 'Order Delivered';
     statusBadgeText = '🎉 Successfully delivered!';
     isDelivered = true;
@@ -137,27 +138,24 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
     statusTitle = 'Out for Delivery';
     statusBadgeText = '🚚 Out for delivery today';
     currentMilestoneStep = 4;
-  } else if (liveStatusLower.includes('transit') || liveStatusLower.includes('shipped') || liveStatusLower.includes('way') || liveStatusLower.includes('reach') || liveStatusLower.includes('hub')) {
+  } else if (liveStatusLower.includes('transit') || liveStatusLower.includes('hub') || liveStatusLower.includes('reach')) {
     statusTitle = 'On the Way';
     statusBadgeText = trackingData?.expectedDeliveryDate 
       ? `🕒 Expected: ${trackingData.expectedDeliveryDate}` 
       : '🚚 In Transit to destination';
     currentMilestoneStep = 3;
-  } else if (liveStatusLower.includes('pickup') || liveStatusLower.includes('picked') || liveStatusLower.includes('manifest') || liveStatusLower.includes('pack') || liveStatusLower.includes('dispatch') || waybill) {
-    statusTitle = liveStatusLower.includes('picked') ? 'Picked Up' : 'Manifest Generated';
+  } else if (liveStatusLower.includes('picked') || liveStatusLower.includes('pickup_done')) {
+    // Only turns into Picked Up when courier actually picks it up!
+    statusTitle = 'Picked Up';
     statusBadgeText = trackingData?.expectedDeliveryDate 
       ? `🕒 Expected: ${trackingData.expectedDeliveryDate}` 
-      : '📦 Ready for courier pickup';
+      : '📦 Picked up by courier partner';
     currentMilestoneStep = 2;
-  } else if (liveStatusLower.includes('cancel') || liveStatusLower.includes('rto')) {
-    statusTitle = liveStatusLower.includes('cancel') ? 'Order Cancelled' : 'RTO Initiated';
-    statusBadgeText = '⚠️ Delivery stopped/returned';
-    isRtoOrCancelled = true;
-    currentMilestoneStep = 1;
   } else {
-    statusTitle = 'Order Placed';
-    statusBadgeText = '✨ Order confirmed';
-    currentMilestoneStep = 1;
+    // Newly placed order or manifest generated (waiting for courier pickup)
+    statusTitle = waybill ? 'Manifest Generated' : 'Order Placed';
+    statusBadgeText = waybill ? '📦 Awaiting courier pickup' : '✨ Order confirmed';
+    currentMilestoneStep = 1; // ONLY Step 1 (Order Placed) is green!
   }
 
   // Primary product summary
@@ -174,11 +172,6 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
   const liveScans = Array.isArray(trackingData?.events) ? trackingData.events : [];
 
   // Build the 5 Delhivery milestones
-  // 1: Order Placed
-  // 2: Picked Up
-  // 3: On the Way
-  // 4: Out for Delivery
-  // 5: Delivered
   const placedDateStr = formatDateTime(order.createdAt);
   
   // Look for scan events that match pickup, transit, out for delivery, and delivery
@@ -190,7 +183,7 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
   liveScans.forEach((ev) => {
     const st = String(ev.status || '').toLowerCase();
     const formatted = formatDateTime(ev.timestamp);
-    if ((st.includes('pick') || st.includes('manifest') || st.includes('dispatched')) && !pickupDateStr) {
+    if ((st.includes('picked') || st.includes('pickup_done')) && !pickupDateStr) {
       pickupDateStr = formatted;
     }
     if ((st.includes('transit') || st.includes('hub') || st.includes('reached') || st.includes('arrived')) && !transitDateStr) {
@@ -210,36 +203,38 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
       title: 'Order Placed',
       date: placedDateStr || 'Confirmed',
       subtext: 'Your order was received and verified',
-      isCompleted: true
+      isCompleted: true,
+      statusType: 'success'
     },
     {
       step: 2,
       title: 'Order Cancelled',
       date: formatDateTime(order.updatedAt) || 'Cancelled',
       subtext: 'This order has been cancelled and parcel dispatch has been halted.',
-      isCompleted: true
+      isCompleted: true,
+      statusType: 'cancelled'
     }
   ] : [
     {
       step: 1,
       title: 'Order Placed',
       date: placedDateStr || 'Confirmed',
-      subtext: 'Your order has been received and verified',
+      subtext: 'We have received your order',
       isCompleted: currentMilestoneStep >= 1
     },
     {
       step: 2,
       title: 'Picked Up',
-      date: pickupDateStr || (currentMilestoneStep >= 2 ? formatDateTime(order.shipping?.dispatchedAt || order.createdAt) : ''),
+      date: pickupDateStr || '',
       subtext: currentMilestoneStep >= 2 
-        ? `Handed over to ${carrierName} at Sujangarh (331507)` 
-        : 'Preparing parcel at Singodia Foods Kitchen',
+        ? `Picked up by ${carrierName} from Sujangarh (331507)` 
+        : `Awaiting courier pickup (${carrierName} at Sujangarh 331507)`,
       isCompleted: currentMilestoneStep >= 2
     },
     {
       step: 3,
       title: 'On the Way',
-      date: transitDateStr || (currentMilestoneStep >= 3 ? 'In Transit' : ''),
+      date: transitDateStr || '',
       subtext: currentMilestoneStep >= 3 
         ? (trackingData?.lastLocation ? `Package at ${trackingData.lastLocation}` : 'Package is in transit to destination hub')
         : (trackingData?.expectedDeliveryDate ? `Expected: ${trackingData.expectedDeliveryDate}` : ''),
@@ -248,7 +243,7 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
     {
       step: 4,
       title: 'Out for Delivery',
-      date: outForDeliveryDateStr || (currentMilestoneStep >= 4 ? 'Today' : ''),
+      date: outForDeliveryDateStr || '',
       subtext: currentMilestoneStep >= 4 
         ? 'Courier delivery agent is out to deliver your package' 
         : '',
@@ -257,7 +252,7 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
     {
       step: 5,
       title: 'Delivered',
-      date: deliveredDateStr || (currentMilestoneStep >= 5 ? 'Delivered' : ''),
+      date: deliveredDateStr || '',
       subtext: currentMilestoneStep >= 5 
         ? 'Your order has been delivered' 
         : (trackingData?.expectedDeliveryDate ? `Expected by ${trackingData.expectedDeliveryDate}` : ''),
@@ -295,7 +290,7 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
         <div className="p-4 sm:p-5 overflow-y-auto max-h-[82vh] space-y-4">
           
           {/* Green Hero Status Card (Matching Delhivery Design) */}
-          <div className={`${isRtoOrCancelled ? 'bg-amber-700' : 'bg-[#0e8a50]'} rounded-2xl p-5 text-white shadow-md relative overflow-hidden`}>
+          <div className={`${isRtoOrCancelled ? 'bg-red-700' : 'bg-[#0e8a50]'} rounded-2xl p-5 text-white shadow-md relative overflow-hidden`}>
             {/* Status Title + Icon */}
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -396,21 +391,34 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
                 <div className="space-y-6">
                   {/* Vertical connecting line container */}
                   <div className="relative pl-6 space-y-6">
-                    {/* Vertical line behind dots */}
-                    <div className="absolute top-2.5 bottom-2.5 left-[8px] w-[2px] bg-emerald-600" />
-
-                    {milestones.map((ms) => {
-                      const isPastOrCurrent = ms.isCompleted;
+                    {milestones.map((ms, idx) => {
+                      const isCompleted = ms.isCompleted;
+                      const isCancelledStep = ms.statusType === 'cancelled';
                       const isDeliveredStep = ms.step === 5 && isDelivered;
+                      const isLast = idx === milestones.length - 1;
+                      const nextItemCompleted = !isLast && milestones[idx + 1]?.isCompleted;
 
                       return (
-                        <div key={ms.step} className="relative flex items-start gap-3">
+                        <div key={ms.step || idx} className="relative flex items-start gap-3">
+                          {/* Segment line going down to the next step */}
+                          {!isLast && (
+                            <div 
+                              className={`absolute -left-[16px] top-3.5 bottom-[-24px] w-[2px] transition-colors ${
+                                nextItemCompleted 
+                                  ? (isCancelledStep || milestones[idx + 1]?.statusType === 'cancelled' ? 'bg-red-400' : 'bg-emerald-600') 
+                                  : 'bg-gray-200'
+                              }`} 
+                            />
+                          )}
+
                           {/* Dot on line */}
                           <div 
                             className={`absolute -left-[20px] top-1 w-2.5 h-2.5 rounded-full transition-all z-10 ${
-                              isPastOrCurrent 
-                                ? 'bg-emerald-600 ring-4 ring-emerald-100' 
-                                : 'bg-gray-300'
+                              isCancelledStep
+                                ? 'bg-red-600 ring-4 ring-red-100'
+                                : isCompleted 
+                                  ? 'bg-emerald-600 ring-4 ring-emerald-100' 
+                                  : 'bg-gray-300'
                             }`} 
                           />
 
@@ -418,7 +426,11 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-wrap items-baseline gap-1.5">
                               <span className={`text-sm font-bold ${
-                                isPastOrCurrent ? 'text-gray-900' : 'text-gray-400'
+                                isCancelledStep
+                                  ? 'text-red-700'
+                                  : isCompleted 
+                                    ? 'text-gray-900' 
+                                    : 'text-gray-400'
                               }`}>
                                 {ms.title}
                               </span>
@@ -426,12 +438,19 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
                               {isDeliveredStep && (
                                 <CheckCircle2 className="w-3.5 h-3.5 fill-[#0e8a50] text-white inline-block -mt-0.5" />
                               )}
+                              {isCancelledStep && (
+                                <AlertCircle className="w-3.5 h-3.5 text-red-600 inline-block -mt-0.5" />
+                              )}
 
                               {ms.date && (
                                 <>
                                   <span className="text-xs text-gray-400">|</span>
                                   <span className={`text-xs ${
-                                    isPastOrCurrent ? 'text-gray-500 font-normal' : 'text-gray-400'
+                                    isCancelledStep
+                                      ? 'text-red-600 font-medium'
+                                      : isCompleted 
+                                        ? 'text-gray-500 font-normal' 
+                                        : 'text-gray-400'
                                   }`}>
                                     {ms.date}
                                   </span>
@@ -441,7 +460,11 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
 
                             {ms.subtext && (
                               <p className={`text-xs mt-0.5 leading-relaxed ${
-                                isPastOrCurrent ? 'text-gray-500' : 'text-gray-400'
+                                isCancelledStep
+                                  ? 'text-red-600'
+                                  : isCompleted 
+                                    ? 'text-gray-500' 
+                                    : 'text-gray-400'
                               }`}>
                                 {ms.subtext}
                               </p>
