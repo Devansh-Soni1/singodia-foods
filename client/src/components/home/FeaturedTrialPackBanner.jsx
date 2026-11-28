@@ -539,7 +539,7 @@ export const FeaturedTrialPackBanner = () => {
                   </div>
                   <div className="flex items-center gap-1 text-amber-900">
                     <Zap className="w-3.5 h-3.5 text-amber-600" />
-                    <span>100% Online Secured via Razorpay</span>
+                    <span>100% Secure UPI / Online Payment</span>
                   </div>
                 </div>
               </div>

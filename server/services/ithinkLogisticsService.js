@@ -450,10 +450,15 @@ export const trackShipment = async (waybill) => {
         remark: s.remark || ''
       }));
 
+      const itemStatus = trackItem.current_status || 'In Transit';
+      const isCancelled = String(itemStatus).toLowerCase().includes('cancel') || 
+                          String(itemStatus).toLowerCase().includes('rto');
+
       return {
         success: true,
         waybill: cleanWaybill,
-        currentStatus: trackItem.current_status || 'In Transit',
+        currentStatus: isCancelled ? 'Cancelled' : itemStatus,
+        isCancelled,
         courierName: trackItem.logistic || 'Delhivery',
         lastLocation: trackItem.last_scan_details?.scan_location || 'Regional Hub',
         lastRemark: trackItem.last_scan_details?.remark || '',
@@ -466,21 +471,53 @@ export const trackShipment = async (waybill) => {
       };
     }
 
-    // Fallback if iThink returns empty or pending tracking
-    const isActuallySimulated = cleanWaybill.startsWith('ITL');
+    // If iThink returned empty/no scans, verify if the order was cancelled from iThink panel
+    if (!cleanWaybill.startsWith('ITL')) {
+      try {
+        const cancelCheck = await axios.post(`${getBaseUrl()}/api_v3/order/cancel.json`, {
+          data: {
+            access_token,
+            secret_key,
+            awb_numbers: cleanWaybill
+          }
+        }, { timeout: 6000 });
+
+        const msg = cancelCheck.data?.html_message || cancelCheck.data?.message || '';
+        if (typeof msg === 'string' && msg.toLowerCase().includes('cancel')) {
+          return {
+            success: true,
+            waybill: cleanWaybill,
+            currentStatus: 'Cancelled',
+            isCancelled: true,
+            courierName: 'Delhivery',
+            lastLocation: 'Singodia Foods Kitchen, Sujangarh (331507)',
+            expectedDeliveryDate: '',
+            trackingUrl: `https://www.ithinklogistics.co.in/postship/tracking/${cleanWaybill}`,
+            events: [
+              { status: 'Order Cancelled', location: 'iThink Logistics Panel', timestamp: 'Cancelled by Seller' }
+            ],
+            isSimulated: false
+          };
+        }
+      } catch (cCheckErr) {
+        // Continue to fresh manifest state
+      }
+    }
+
+    // Default clean initial manifest state if order newly booked
     return {
       success: true,
       waybill: cleanWaybill,
-      currentStatus: 'Dispatched',
-      courierName: 'Delhivery / Express Courier',
+      currentStatus: 'Manifested',
+      isCancelled: false,
+      courierName: 'Delhivery',
       lastLocation: 'Singodia Foods Kitchen, Sujangarh (331507)',
       expectedDeliveryDate: '2 - 4 Business Days',
       trackingUrl: `https://www.ithinklogistics.co.in/postship/tracking/${cleanWaybill}`,
       events: [
-        { status: 'Order Manifested & Packed', location: 'Singodia Foods Kitchen, Sujangarh (331507)', timestamp: 'Dispatched' },
-        { status: 'Handed over to Logistics Partner', location: 'Sujangarh Sorting Center', timestamp: 'In Transit' }
+        { status: 'Order Manifest Generated', location: 'Singodia Foods Kitchen, Sujangarh (331507)', timestamp: 'Ready for Courier Pickup' }
       ],
-      isSimulated: isActuallySimulated
+      isSimulated: cleanWaybill.startsWith('ITL')
     };
   } catch (err) {
     console.error('iThink track error:', err.response?.data || err.message);

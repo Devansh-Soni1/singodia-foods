@@ -4,7 +4,7 @@ import Razorpay from 'razorpay';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
-import { createShipmentOrder, cancelShipment } from '../services/ithinkLogisticsService.js';
+import { createShipmentOrder, cancelShipment, trackShipment } from '../services/ithinkLogisticsService.js';
 import { sendOrderConfirmationEmail, sendOrderDeliveredEmail } from '../services/emailService.js';
 import { notifyNewOrder } from '../services/telegramService.js';
 
@@ -700,14 +700,72 @@ export const getUserOrders = async (req, res, next) => {
         }
       }
 
-      // ONLY show successfully completed paid orders in user profile history
+      // Match orders by User ID, email, or verified phone
+      const userConditions = [
+        { user: req.user._id }
+      ];
+      if (req.user.email) {
+        userConditions.push({ 'customer.email': req.user.email.toLowerCase().trim() });
+      }
+      if (req.user.phone) {
+        const cleanUserPhone = String(req.user.phone).trim().replace(/^(\+91|91|0)/, '').replace(/\D/g, '');
+        if (cleanUserPhone) {
+          userConditions.push({ 'customer.phone': cleanUserPhone });
+        }
+      }
+
       orders = await Order.find({ 
-        $or: [
-          { user: req.user._id },
-          { 'customer.email': req.user.email?.toLowerCase().trim() }
-        ],
-        paymentStatus: 'completed'
+        $or: userConditions,
+        paymentStatus: { $in: ['completed', 'refunded'] }
       }).sort({ createdAt: -1 });
+
+      // Live 2-way sync with iThink Logistics:
+      // If seller cancelled or updated order on iThink panel, automatically sync to user profile
+      for (const ord of orders) {
+        const waybill = ord.trackingNumber || ord.shipping?.trackingNumber;
+        if (waybill && ord.orderStatus !== 'Cancelled' && ord.orderStatus !== 'Delivered') {
+          try {
+            const liveTrack = await trackShipment(waybill);
+            if (liveTrack && liveTrack.currentStatus) {
+              const liveStatusLower = String(liveTrack.currentStatus).toLowerCase();
+              if (liveTrack.isCancelled || liveStatusLower.includes('cancel') || liveStatusLower.includes('rto')) {
+                ord.orderStatus = 'Cancelled';
+                await ord.save();
+
+                // Revert stock on cancellation
+                if (Array.isArray(ord.items)) {
+                  for (const it of ord.items) {
+                    if (it.product && mongoose.Types.ObjectId.isValid(it.product)) {
+                      try {
+                        const dbProd = await Product.findById(it.product);
+                        if (dbProd && Array.isArray(dbProd.variants)) {
+                          const variant = dbProd.variants.find(v => v.weight === it.weight) || dbProd.variants[0];
+                          if (variant) {
+                            variant.stockCount = (variant.stockCount || 0) + (it.quantity || 1);
+                            if (variant.stockCount > 0) variant.inStock = true;
+                            await dbProd.save();
+                          }
+                        }
+                      } catch {}
+                    }
+                  }
+                }
+              } else if (liveStatusLower.includes('deliver') && !liveStatusLower.includes('out')) {
+                ord.orderStatus = 'Delivered';
+                await ord.save();
+              } else if (liveStatusLower.includes('out')) {
+                ord.orderStatus = 'Out for Delivery';
+                await ord.save();
+              } else if ((liveStatusLower.includes('transit') || liveStatusLower.includes('shipped')) && ord.orderStatus === 'Placed') {
+                ord.orderStatus = 'Shipped';
+                await ord.save();
+              }
+            }
+          } catch (syncErr) {
+            // Non-blocking sync
+          }
+        }
+      }
     } else {
       orders = memoryOrders.filter(o => 
         (o.user?.toString() === req.user._id.toString() || o.customer?.email === req.user.email) &&

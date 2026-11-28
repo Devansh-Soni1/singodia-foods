@@ -429,7 +429,7 @@ export const CartDrawer = () => {
 
               {/* Footer Subtext */}
               <div className="flex items-center justify-center gap-2 text-gray-400 text-[10.5px] pt-0.5">
-                <span>🔒 100% Secure Checkout via Razorpay</span>
+                <span>🔒 100% Secure UPI & Online Payment</span>
                 <span>•</span>
                 <span>Pan-India Safe Delivery</span>
               </div>

@@ -204,7 +204,22 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
     }
   });
 
-  const milestones = [
+  const milestones = isRtoOrCancelled ? [
+    {
+      step: 1,
+      title: 'Order Placed',
+      date: placedDateStr || 'Confirmed',
+      subtext: 'Your order was received and verified',
+      isCompleted: true
+    },
+    {
+      step: 2,
+      title: 'Order Cancelled',
+      date: formatDateTime(order.updatedAt) || 'Cancelled',
+      subtext: 'This order has been cancelled and parcel dispatch has been halted.',
+      isCompleted: true
+    }
+  ] : [
     {
       step: 1,
       title: 'Order Placed',
@@ -374,7 +389,7 @@ export const OrderTrackingModal = ({ order, isOpen, onClose }) => {
                 <div className="py-12 text-center space-y-2">
                   <Loader2 className="w-6 h-6 animate-spin text-[#0e8a50] mx-auto" />
                   <p className="text-xs text-gray-500 font-medium">
-                    iThink Logistics से लाइव स्टेटस लोड हो रहा है...
+                    लाइव कूरियर स्टेटस लोड हो रहा है...
                   </p>
                 </div>
               ) : (

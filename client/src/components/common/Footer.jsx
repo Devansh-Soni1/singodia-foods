@@ -226,9 +226,8 @@ export const Footer = () => {
         {/* Dedicated 100% Secure Payment Logos Strip */}
         <div className="pt-6 pb-4 border-t border-white/10 mt-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold text-cream-200/80 uppercase tracking-wider flex items-center gap-1.5">
-              <span>🔒 100% Secure Payments Powered by</span>
-              <span className="text-white font-extrabold tracking-normal">Razorpay</span>
+            <span className="text-[11px] font-bold text-cream-200/90 tracking-wide flex items-center gap-1.5">
+              <span>🔒 100% सुरक्षित ऑनलाइन भुगतान (UPI, Debit/Credit Card, NetBanking)</span>
             </span>
           </div>
 

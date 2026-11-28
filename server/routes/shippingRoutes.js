@@ -170,5 +170,56 @@ router.post('/cancel/:waybill', protect, adminOnly, async (req, res) => {
   }
 });
 
+// POST /api/shipping/webhook & POST /api/shipping/ithink-webhook - Real-time tracking updates from iThink Logistics
+const handleIThinkWebhook = async (req, res) => {
+  try {
+    const payload = req.body || {};
+    const waybill = payload.awb_number || payload.awb_numbers || payload.waybill || payload.tracking_number || payload.awb;
+    const rawStatus = payload.current_status || payload.status || payload.order_status || '';
+    const orderNo = payload.order_number || payload.order_id || payload.order_no;
+
+    console.log('[iThink Logistics Webhook Received]:', { waybill, rawStatus, orderNo });
+
+    if (waybill || orderNo) {
+      const orConditions = [];
+      if (waybill) {
+        orConditions.push({ trackingNumber: String(waybill).trim() });
+        orConditions.push({ 'shipping.trackingNumber': String(waybill).trim() });
+      }
+      if (orderNo) {
+        orConditions.push({ orderNumber: String(orderNo).trim() });
+      }
+
+      const order = await Order.findOne({ $or: orConditions });
+      if (order) {
+        const stLower = String(rawStatus).toLowerCase();
+        if (stLower.includes('cancel') || stLower.includes('rto')) {
+          order.orderStatus = 'Cancelled';
+          await order.save();
+        } else if (stLower.includes('deliver') && !stLower.includes('out')) {
+          order.orderStatus = 'Delivered';
+          await order.save();
+        } else if (stLower.includes('out')) {
+          order.orderStatus = 'Out for Delivery';
+          await order.save();
+        } else if (stLower.includes('transit') || stLower.includes('shipped') || stLower.includes('dispatch')) {
+          if (order.orderStatus === 'Placed') {
+            order.orderStatus = 'Shipped';
+            await order.save();
+          }
+        }
+      }
+    }
+
+    res.json({ status: 'success', message: 'Webhook processed' });
+  } catch (err) {
+    console.error('iThink Webhook error:', err.message);
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+};
+
+router.post('/webhook', handleIThinkWebhook);
+router.post('/ithink-webhook', handleIThinkWebhook);
+
 export default router;
 
