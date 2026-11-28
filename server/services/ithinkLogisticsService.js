@@ -173,10 +173,15 @@ export const calculateShippingRate = async ({
 
 /**
  * Calculate accurate Gross Weight & Box Dimensions for Pickle Jars
- * Accounts for Glass/PET Jar tare (180g-200g) + bubble wrap & outer box (100g)
+ * Exact Tare Weights provided:
+ * - 200g - 250g Jar: ~50g packaging
+ * - 400g - 500g Jar: ~75g packaging
+ * - 900g - 1kg Jar:  ~95g packaging
+ * Plus ~40g-60g outer carton box & protective packing
  */
 export const calculateOrderGrossWeightAndDimensions = (items = []) => {
   let totalNetWeightKg = 0;
+  let totalPackagingWeightKg = 0;
   let totalContainers = 0;
 
   items.forEach(item => {
@@ -184,20 +189,31 @@ export const calculateOrderGrossWeightAndDimensions = (items = []) => {
     const qty = Number(item.quantity) || 1;
     totalContainers += qty;
 
-    let itemKg = 0.5;
+    let itemKg = 0.4;
+    let pkgKg = 0.075; // default 75g for 400g jar
+
     if (wStr.includes('kg')) {
       const val = parseFloat(wStr);
-      itemKg = isNaN(val) ? 1.0 : val;
+      itemKg = isNaN(val) ? 0.9 : val;
+      pkgKg = 0.095; // 95g packaging for 900g-1kg
     } else if (wStr.includes('g') || wStr.includes('gm')) {
       const val = parseFloat(wStr);
-      itemKg = isNaN(val) ? 0.5 : val / 1000;
+      itemKg = isNaN(val) ? 0.4 : val / 1000;
+      if (itemKg <= 0.25) {
+        pkgKg = 0.050; // 50g packaging for 200g-250g
+      } else if (itemKg <= 0.6) {
+        pkgKg = 0.075; // 75g packaging for 400g-500g
+      } else {
+        pkgKg = 0.095; // 95g packaging for 900g+
+      }
     }
     totalNetWeightKg += (itemKg * qty);
+    totalPackagingWeightKg += (pkgKg * qty);
   });
 
-  // Packaging allowance: 180g per container + 100g outer box
-  const packagingWeightKg = (Math.max(1, totalContainers) * 0.18) + 0.10;
-  const totalGrossWeightKg = Math.max(0.45, Number((totalNetWeightKg + packagingWeightKg).toFixed(2)));
+  // Outer master carton box + bubble wrap + tape tare weight (~40g-60g)
+  const outerBoxTareKg = totalContainers <= 2 ? 0.05 : 0.08;
+  const totalGrossWeightKg = Math.max(0.25, Number((totalNetWeightKg + totalPackagingWeightKg + outerBoxTareKg).toFixed(2)));
 
   // Dynamic box dimensions based on container count (cm)
   let length = 15;

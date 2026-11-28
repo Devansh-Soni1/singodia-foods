@@ -148,9 +148,14 @@ export const CheckoutPage = () => {
   const [shippingRateInfo, setShippingRateInfo] = useState(null);
   const [dynamicShippingFee, setDynamicShippingFee] = useState(null);
 
-  // Calculate total gross cart weight in Kg (Pickle Net Weight + 180g Jar & Packaging tare per item)
+  // Calculate total gross cart weight in Kg based on packaging tare specs:
+  // - 200g jar: ~50g packaging
+  // - 400g jar: ~75g packaging
+  // - 900g jar: ~95g packaging
+  // - Outer carton + protective wrap: ~50g
   const totalCartWeightKg = useMemo(() => {
     let netWeight = 0;
+    let packagingWeight = 0;
     let totalContainers = 0;
 
     cartItems.forEach(item => {
@@ -158,21 +163,30 @@ export const CheckoutPage = () => {
       const qty = Number(item.quantity) || 1;
       totalContainers += qty;
 
-      let itemWeightKg = 0.5;
+      let itemWeightKg = 0.4;
+      let pkgKg = 0.075; // 75g for 400g
       if (wStr.includes('kg')) {
         const num = parseFloat(wStr);
-        itemWeightKg = isNaN(num) ? 1.0 : num;
+        itemWeightKg = isNaN(num) ? 0.9 : num;
+        pkgKg = 0.095; // 95g for 900g-1kg
       } else if (wStr.includes('g') || wStr.includes('gm')) {
         const num = parseFloat(wStr);
-        itemWeightKg = isNaN(num) ? 0.5 : num / 1000;
+        itemWeightKg = isNaN(num) ? 0.4 : num / 1000;
+        if (itemWeightKg <= 0.25) {
+          pkgKg = 0.050; // 50g for 200g-250g
+        } else if (itemWeightKg <= 0.6) {
+          pkgKg = 0.075; // 75g for 400g-500g
+        } else {
+          pkgKg = 0.095; // 95g for 900g+
+        }
       }
       netWeight += (itemWeightKg * qty);
+      packagingWeight += (pkgKg * qty);
     });
 
     if (totalContainers === 0) return 0.5;
-    // Packaging allowance: 180g per container + 100g outer box
-    const packagingWeight = (totalContainers * 0.18) + 0.10;
-    return Number((netWeight + packagingWeight).toFixed(2));
+    const outerBoxTare = totalContainers <= 2 ? 0.05 : 0.08;
+    return Number((netWeight + packagingWeight + outerBoxTare).toFixed(2));
   }, [cartItems]);
 
   // Official iThink Logistics zone rates based on destination pincode and weight
