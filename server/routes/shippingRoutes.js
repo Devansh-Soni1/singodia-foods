@@ -91,6 +91,37 @@ router.post('/generate-awb/:orderId', protect, adminOnly, async (req, res) => {
 router.get('/track/:waybill', async (req, res) => {
   try {
     const trackingInfo = await trackShipment(req.params.waybill);
+
+    // Sync order status in database if live status changed
+    if (trackingInfo && trackingInfo.currentStatus) {
+      try {
+        const waybill = req.params.waybill;
+        const order = await Order.findOne({
+          $or: [
+            { trackingNumber: waybill },
+            { 'shipping.trackingNumber': waybill }
+          ]
+        });
+
+        if (order) {
+          const liveStatus = String(trackingInfo.currentStatus).toLowerCase();
+          if (liveStatus.includes('deliver') && !liveStatus.includes('out') && order.orderStatus !== 'Delivered') {
+            order.orderStatus = 'Delivered';
+            await order.save();
+          } else if (liveStatus.includes('out') && order.orderStatus !== 'Out for Delivery') {
+            order.orderStatus = 'Out for Delivery';
+            await order.save();
+          } else if ((liveStatus.includes('transit') || liveStatus.includes('shipped') || liveStatus.includes('dispatch')) && order.orderStatus === 'Placed') {
+            order.orderStatus = 'Shipped';
+            await order.save();
+          }
+        }
+      } catch (syncErr) {
+        // Non-blocking sync notice
+        console.warn('Live order status sync notice:', syncErr.message);
+      }
+    }
+
     res.json(trackingInfo);
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
