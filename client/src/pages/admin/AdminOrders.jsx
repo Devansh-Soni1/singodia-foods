@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { ShoppingBag, Eye, Truck, CheckCircle2, Clock, X, Search, ExternalLink, Loader2, PackageCheck } from 'lucide-react';
+import { 
+  ShoppingBag, Eye, Truck, CheckCircle2, Clock, X, Search, 
+  ExternalLink, Loader2, PackageCheck, XCircle, AlertCircle 
+} from 'lucide-react';
 import { orderAPI, shippingAPI } from '../../services/api';
 import { formatPrice } from '../../utils/formatCurrency';
 
@@ -75,11 +78,17 @@ export const AdminOrders = () => {
     if (!selectedOrder) return;
 
     try {
-      await orderAPI.updateOrderStatus(selectedOrder._id, {
+      const res = await orderAPI.updateOrderStatus(selectedOrder._id, {
         orderStatus: newStatus,
         trackingNumber,
         courierPartner
       });
+
+      if (newStatus === 'Cancelled') {
+        toast.success(res.message || 'Order & shipment cancelled successfully!');
+      } else {
+        toast.success(res.message || 'Order updated successfully');
+      }
 
       setOrders(orders.map(o => 
         (o._id === selectedOrder._id || o.orderNumber === selectedOrder.orderNumber)
@@ -88,12 +97,37 @@ export const AdminOrders = () => {
       ));
       setSelectedOrder(null);
     } catch (err) {
-      setOrders(orders.map(o => 
-        (o._id === selectedOrder._id || o.orderNumber === selectedOrder.orderNumber)
-          ? { ...o, orderStatus: newStatus, trackingNumber, courierPartner }
-          : o
-      ));
+      toast.error(err.message || 'Error updating order status');
+    }
+  };
+
+  const handleCancelIThinkShipment = async (ord) => {
+    if (!ord) return;
+    const waybill = ord.trackingNumber || ord.shipping?.trackingNumber;
+    const confirmMsg = waybill 
+      ? `क्या आप सच में Order #${ord.orderNumber} और iThink Logistics AWB #${waybill} को कैंसिल करना चाहते हैं?`
+      : `क्या आप सच में Order #${ord.orderNumber} को कैंसिल करना चाहते हैं?`;
+
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      setDispatchingOrderId(ord._id);
+      const res = await orderAPI.updateOrderStatus(ord._id, {
+        orderStatus: 'Cancelled',
+        trackingNumber: ord.trackingNumber,
+        courierPartner: ord.courierPartner
+      });
+
+      toast.success(res.message || 'Order and shipment cancelled successfully!');
+      setOrders(prev => prev.map(o => (o._id === ord._id || o.orderNumber === ord.orderNumber) ? {
+        ...o,
+        orderStatus: 'Cancelled'
+      } : o));
       setSelectedOrder(null);
+    } catch (err) {
+      toast.error('Cancellation error: ' + (err.message || 'Server error'));
+    } finally {
+      setDispatchingOrderId(null);
     }
   };
 
@@ -180,15 +214,27 @@ export const AdminOrders = () => {
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
                         ord.orderStatus === 'Delivered' 
                           ? 'bg-emerald-100 text-emerald-800' 
-                          : ord.orderStatus === 'Shipped'
+                          : ord.orderStatus === 'Shipped' || ord.orderStatus === 'Dispatched'
                           ? 'bg-blue-100 text-blue-800'
+                          : ord.orderStatus === 'Cancelled'
+                          ? 'bg-red-100 text-red-800'
                           : 'bg-amber-100 text-amber-800'
                       }`}>
-                        {ord.orderStatus}
+                        {ord.orderStatus === 'Cancelled' ? 'Cancelled (रद्द)' : ord.orderStatus}
                       </span>
                     </td>
                     <td className="p-4 text-right">
-                      {ord.trackingNumber ? (
+                      {ord.orderStatus === 'Cancelled' ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <span className="text-[11px] text-red-600 font-bold">रद्द किया गया</span>
+                          <button
+                            onClick={() => openStatusModal(ord)}
+                            className="px-2.5 py-1 rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-700 text-[11px] font-semibold cursor-pointer"
+                          >
+                            View
+                          </button>
+                        </div>
+                      ) : ord.trackingNumber ? (
                         <div className="flex flex-col items-end gap-1">
                           <a
                             href={`https://my.ithinklogistics.com/track/${ord.trackingNumber}`}
@@ -201,12 +247,22 @@ export const AdminOrders = () => {
                             <span>AWB: {ord.trackingNumber}</span>
                             <ExternalLink className="w-2.5 h-2.5 text-gray-500" />
                           </a>
-                          <button
-                            onClick={() => openStatusModal(ord)}
-                            className="text-[10px] text-gray-400 hover:text-brand-green font-semibold underline cursor-pointer"
-                          >
-                            Edit Status
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => openStatusModal(ord)}
+                              className="text-[10px] text-gray-500 hover:text-brand-green font-semibold underline cursor-pointer"
+                            >
+                              Edit Status
+                            </button>
+                            <span className="text-[10px] text-gray-300">•</span>
+                            <button
+                              onClick={() => handleCancelIThinkShipment(ord)}
+                              className="text-[10px] text-red-600 hover:text-red-800 font-bold hover:underline cursor-pointer"
+                              title="Cancel this order and its iThink Logistics shipment"
+                            >
+                              Cancel Order
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <div className="flex items-center justify-end gap-1.5">
@@ -228,6 +284,13 @@ export const AdminOrders = () => {
                             className="px-2.5 py-1.5 rounded-xl border border-gray-200 hover:bg-gray-100 text-gray-700 font-semibold text-[11px] cursor-pointer"
                           >
                             Manual
+                          </button>
+                          <button
+                            onClick={() => handleCancelIThinkShipment(ord)}
+                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                            title="Cancel Order"
+                          >
+                            <XCircle className="w-4 h-4" />
                           </button>
                         </div>
                       )}
@@ -275,31 +338,62 @@ export const AdminOrders = () => {
                 </select>
               </div>
 
-              {/* Quick Auto-AWB via iThink Logistics button */}
-              <div className="bg-blue-50/70 p-3 rounded-2xl border border-blue-200/80">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-bold text-gray-900 text-xs flex items-center gap-1.5">
-                    <Truck className="w-4 h-4 text-[#002E6E]" /> iThink Logistics Auto-Shipment
-                  </span>
-                  <span className="text-[10px] text-blue-700 font-bold bg-blue-100 px-2 py-0.5 rounded-full">
-                    Recommended
-                  </span>
+              {/* iThink Logistics Actions */}
+              {selectedOrder.trackingNumber && selectedOrder.orderStatus !== 'Cancelled' ? (
+                <div className="bg-red-50 p-3 rounded-2xl border border-red-200">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-red-900 text-xs flex items-center gap-1.5">
+                      <Truck className="w-4 h-4 text-red-600" /> Active iThink AWB #{selectedOrder.trackingNumber}
+                    </span>
+                    <span className="text-[10px] text-red-700 font-bold bg-red-100 px-2 py-0.5 rounded-full">
+                      Active
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-red-700 mb-2.5">
+                    यदि आप इस ऑर्डर को कैंसिल करना चाहते हैं, तो iThink Logistics से भी यह AWB तुरंत रद्द हो जाएगी।
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => handleCancelIThinkShipment(selectedOrder)}
+                    className="w-full py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    <span>Cancel Shipment on iThink Logistics</span>
+                  </button>
                 </div>
-                <p className="text-[11px] text-gray-600 mb-2.5">
-                  1-click me iThink Logistics API se real AWB number aur courier generate karein.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleShipWithIThink(selectedOrder);
-                    setSelectedOrder(null);
-                  }}
-                  className="w-full py-2 bg-[#002E6E] hover:bg-[#001D47] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-                >
-                  <PackageCheck className="w-4 h-4 text-amber-400" />
-                  <span>Generate AWB with iThink Logistics</span>
-                </button>
-              </div>
+              ) : !selectedOrder.trackingNumber && selectedOrder.orderStatus !== 'Cancelled' ? (
+                <div className="bg-blue-50/70 p-3 rounded-2xl border border-blue-200/80">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="font-bold text-gray-900 text-xs flex items-center gap-1.5">
+                      <Truck className="w-4 h-4 text-[#002E6E]" /> iThink Logistics Auto-Shipment
+                    </span>
+                    <span className="text-[10px] text-blue-700 font-bold bg-blue-100 px-2 py-0.5 rounded-full">
+                      Recommended
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-gray-600 mb-2.5">
+                    1-click me iThink Logistics API se real AWB number aur courier generate karein.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleShipWithIThink(selectedOrder);
+                      setSelectedOrder(null);
+                    }}
+                    className="w-full py-2 bg-[#002E6E] hover:bg-[#001D47] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  >
+                    <PackageCheck className="w-4 h-4 text-amber-400" />
+                    <span>Generate AWB with iThink Logistics</span>
+                  </button>
+                </div>
+              ) : null}
+
+              {newStatus === 'Cancelled' && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-[11px] font-medium flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>ऑर्डर रद्द करने पर iThink Logistics पर भी AWB कैंसिल हो जाएगा और स्टॉक वापस रीस्टोर हो जाएगा।</span>
+                </div>
+              )}
 
               <div>
                 <label className="font-bold block mb-1">Manual Courier Partner</label>
@@ -327,13 +421,13 @@ export const AdminOrders = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedOrder(null)}
-                  className="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 font-bold"
+                  className="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 font-bold hover:bg-gray-50 cursor-pointer"
                 >
-                  Cancel
+                  Close (बंद करें)
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-brand-green text-white font-bold"
+                  className="px-5 py-2 rounded-xl bg-brand-green hover:bg-brand-green/90 text-white font-bold cursor-pointer"
                 >
                   Save Status
                 </button>

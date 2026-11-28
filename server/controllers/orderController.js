@@ -4,7 +4,7 @@ import Razorpay from 'razorpay';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
-import { createShipmentOrder } from '../services/ithinkLogisticsService.js';
+import { createShipmentOrder, cancelShipment } from '../services/ithinkLogisticsService.js';
 import { sendOrderConfirmationEmail, sendOrderDeliveredEmail } from '../services/emailService.js';
 import { notifyNewOrder } from '../services/telegramService.js';
 
@@ -826,14 +826,57 @@ export const updateOrderStatus = async (req, res, next) => {
     const { orderStatus, trackingNumber, courierPartner } = req.body;
 
     let order = null;
+    let ithinkCancelNotice = '';
+
     if (mongoose.connection.readyState === 1) {
-      order = await Order.findById(id);
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        order = await Order.findById(id);
+      }
+      if (!order) {
+        order = await Order.findOne({ orderNumber: id });
+      }
+
       if (order) {
         const previousStatus = order.orderStatus;
         if (orderStatus) order.orderStatus = orderStatus;
         if (trackingNumber !== undefined) order.trackingNumber = trackingNumber;
         if (courierPartner !== undefined) order.courierPartner = courierPartner;
-        await order.save();
+
+        // Auto-cancel on iThink Logistics if marked as Cancelled
+        if (orderStatus && orderStatus.toLowerCase() === 'cancelled' && previousStatus?.toLowerCase() !== 'cancelled') {
+          const waybill = order.trackingNumber || order.shipping?.trackingNumber;
+          if (waybill) {
+            try {
+              const cancelRes = await cancelShipment(waybill);
+              console.log(`[iThink Logistics] Cancel shipment for order ${order.orderNumber} (AWB: ${waybill}):`, cancelRes);
+              ithinkCancelNotice = cancelRes.message || 'Cancelled on iThink';
+            } catch (cErr) {
+              console.warn('[iThink Logistics] Cancel notice:', cErr.message);
+              ithinkCancelNotice = cErr.message;
+            }
+          }
+
+          // Restore product inventory stock
+          if (Array.isArray(order.items)) {
+            for (const item of order.items) {
+              if (item.product && mongoose.Types.ObjectId.isValid(item.product)) {
+                try {
+                  const dbProduct = await Product.findById(item.product);
+                  if (dbProduct && Array.isArray(dbProduct.variants)) {
+                    const variant = dbProduct.variants.find(v => v.weight === item.weight) || dbProduct.variants[0];
+                    if (variant) {
+                      variant.stockCount = (variant.stockCount || 0) + (item.quantity || 1);
+                      if (variant.stockCount > 0) variant.inStock = true;
+                      await dbProduct.save();
+                    }
+                  }
+                } catch (e) {
+                  console.warn('Revert stock error:', e.message);
+                }
+              }
+            }
+          }
+        }
 
         // If newly marked as Delivered, send Order Delivered Email
         if (orderStatus && orderStatus.toLowerCase() === 'delivered' && previousStatus?.toLowerCase() !== 'delivered') {
@@ -841,6 +884,8 @@ export const updateOrderStatus = async (req, res, next) => {
             console.warn('[UpdateOrderStatus] Delivered email notice:', emailErr.message);
           });
         }
+
+        await order.save();
       }
     } else {
       order = memoryOrders.find(o => o._id?.toString() === id || o.orderNumber === id);
@@ -849,6 +894,13 @@ export const updateOrderStatus = async (req, res, next) => {
         if (orderStatus) order.orderStatus = orderStatus;
         if (trackingNumber !== undefined) order.trackingNumber = trackingNumber;
         if (courierPartner !== undefined) order.courierPartner = courierPartner;
+
+        if (orderStatus && orderStatus.toLowerCase() === 'cancelled' && previousStatus?.toLowerCase() !== 'cancelled') {
+          const waybill = order.trackingNumber || order.shipping?.trackingNumber;
+          if (waybill) {
+            cancelShipment(waybill).catch(() => {});
+          }
+        }
 
         if (orderStatus && orderStatus.toLowerCase() === 'delivered' && previousStatus?.toLowerCase() !== 'delivered') {
           sendOrderDeliveredEmail(order).catch(() => {});
@@ -862,7 +914,9 @@ export const updateOrderStatus = async (req, res, next) => {
 
     res.json({
       success: true,
-      message: 'Order updated successfully',
+      message: ithinkCancelNotice 
+        ? `Order cancelled successfully. iThink Logistics notice: ${ithinkCancelNotice}` 
+        : 'Order updated successfully',
       order
     });
   } catch (error) {

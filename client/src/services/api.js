@@ -540,6 +540,10 @@ export const shippingAPI = {
   trackShipment: async (waybill) => {
     const res = await api.get(`/shipping/track/${waybill}`);
     return res.data;
+  },
+  cancelShipment: async (waybill) => {
+    const res = await api.post(`/shipping/cancel/${waybill}`);
+    return res.data;
   }
 };
 

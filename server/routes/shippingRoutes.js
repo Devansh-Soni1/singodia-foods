@@ -90,34 +90,51 @@ router.post('/generate-awb/:orderId', protect, adminOnly, async (req, res) => {
 // GET /api/shipping/track/:waybill - Real-time tracking
 router.get('/track/:waybill', async (req, res) => {
   try {
-    const trackingInfo = await trackShipment(req.params.waybill);
+    const waybill = req.params.waybill;
+    const order = await Order.findOne({
+      $or: [
+        { trackingNumber: waybill },
+        { 'shipping.trackingNumber': waybill }
+      ]
+    });
+
+    // If order was cancelled by seller/admin, immediately return clean Cancelled state
+    if (order && order.orderStatus === 'Cancelled') {
+      return res.json({
+        success: true,
+        waybill,
+        currentStatus: 'Cancelled',
+        courierName: order.courierPartner || order.carrier || 'Delhivery',
+        lastLocation: 'Singodia Foods Kitchen, Sujangarh (331507)',
+        expectedDeliveryDate: '',
+        events: [
+          { status: 'Order Placed', timestamp: order.createdAt },
+          { status: 'Order Cancelled', timestamp: order.updatedAt, remark: 'Order has been cancelled by seller' }
+        ],
+        isSimulated: false
+      });
+    }
+
+    const trackingInfo = await trackShipment(waybill);
 
     // Sync order status in database if live status changed
-    if (trackingInfo && trackingInfo.currentStatus) {
+    if (trackingInfo && trackingInfo.currentStatus && order && order.orderStatus !== 'Cancelled') {
       try {
-        const waybill = req.params.waybill;
-        const order = await Order.findOne({
-          $or: [
-            { trackingNumber: waybill },
-            { 'shipping.trackingNumber': waybill }
-          ]
-        });
-
-        if (order) {
-          const liveStatus = String(trackingInfo.currentStatus).toLowerCase();
-          if (liveStatus.includes('deliver') && !liveStatus.includes('out') && order.orderStatus !== 'Delivered') {
-            order.orderStatus = 'Delivered';
-            await order.save();
-          } else if (liveStatus.includes('out') && order.orderStatus !== 'Out for Delivery') {
-            order.orderStatus = 'Out for Delivery';
-            await order.save();
-          } else if ((liveStatus.includes('transit') || liveStatus.includes('shipped') || liveStatus.includes('dispatch')) && order.orderStatus === 'Placed') {
-            order.orderStatus = 'Shipped';
-            await order.save();
-          }
+        const liveStatus = String(trackingInfo.currentStatus).toLowerCase();
+        if (liveStatus.includes('deliver') && !liveStatus.includes('out') && order.orderStatus !== 'Delivered') {
+          order.orderStatus = 'Delivered';
+          await order.save();
+        } else if (liveStatus.includes('out') && order.orderStatus !== 'Out for Delivery') {
+          order.orderStatus = 'Out for Delivery';
+          await order.save();
+        } else if ((liveStatus.includes('transit') || liveStatus.includes('shipped') || liveStatus.includes('dispatch')) && order.orderStatus === 'Placed') {
+          order.orderStatus = 'Shipped';
+          await order.save();
+        } else if (liveStatus.includes('cancel')) {
+          order.orderStatus = 'Cancelled';
+          await order.save();
         }
       } catch (syncErr) {
-        // Non-blocking sync notice
         console.warn('Live order status sync notice:', syncErr.message);
       }
     }
@@ -131,7 +148,22 @@ router.get('/track/:waybill', async (req, res) => {
 // POST /api/shipping/cancel/:waybill - Cancel shipment (Protected Admin)
 router.post('/cancel/:waybill', protect, adminOnly, async (req, res) => {
   try {
-    const result = await cancelShipment(req.params.waybill);
+    const waybill = req.params.waybill;
+    const result = await cancelShipment(waybill);
+
+    // Sync order status in DB to Cancelled
+    const order = await Order.findOne({
+      $or: [
+        { trackingNumber: waybill },
+        { 'shipping.trackingNumber': waybill }
+      ]
+    });
+
+    if (order && order.orderStatus !== 'Cancelled') {
+      order.orderStatus = 'Cancelled';
+      await order.save();
+    }
+
     res.json(result);
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

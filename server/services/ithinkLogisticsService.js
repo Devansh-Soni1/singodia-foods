@@ -504,34 +504,59 @@ export const trackShipment = async (waybill) => {
  * @param {String} waybill
  */
 export const cancelShipment = async (waybill) => {
-  if (!isConfigured() || String(waybill).startsWith('ITL')) {
+  const cleanWaybill = String(waybill || '').trim();
+  if (!isConfigured() || cleanWaybill.startsWith('ITL') || !cleanWaybill) {
     return { success: true, message: 'Shipment cancelled successfully (simulated)' };
   }
 
   const { access_token, secret_key } = getCredentials();
 
-  try {
-    const res = await axios.post(`${getBaseUrl()}/api_v3/order/cancel.json`, {
-      data: {
-        access_token,
-        secret_key,
-        awb_numbers: String(waybill)
-      }
-    });
+  // Try standard iThink cancellation endpoints
+  const endpoints = [
+    `${getBaseUrl()}/api_v3/order/cancel.json`,
+    'https://my.ithinklogistics.com/api_v3/order/cancel.json',
+    'https://my.ithinklogistics.com/api/order/cancel.json'
+  ];
 
-    const isOk = res.data?.status === 'success' || res.data?.data?.[0]?.status === 'success';
-    return {
-      success: isOk,
-      data: res.data,
-      message: res.data?.data?.[0]?.remark || res.data?.message || 'Cancellation processed'
-    };
-  } catch (err) {
-    console.error('iThink cancel error:', err.response?.data || err.message);
-    return {
-      success: false,
-      message: err.response?.data?.error_message || err.response?.data?.message || err.message
-    };
+  let lastErrorMsg = '';
+
+  for (const url of endpoints) {
+    try {
+      const res = await axios.post(url, {
+        data: {
+          access_token,
+          secret_key,
+          awb_numbers: cleanWaybill
+        }
+      }, { timeout: 10000 });
+
+      const resData = res.data;
+      const isAlreadyCancelled = typeof resData?.html_message === 'string' && 
+                                resData.html_message.toLowerCase().includes('cancel');
+      const isSuccess = resData?.status === 'success' || 
+                        resData?.status_code === 200 || 
+                        resData?.data?.[0]?.status === 'success' ||
+                        isAlreadyCancelled;
+
+      if (isSuccess) {
+        return {
+          success: true,
+          data: resData,
+          message: resData?.html_message || resData?.data?.[0]?.remark || resData?.message || 'Shipment cancelled successfully on iThink Logistics'
+        };
+      } else {
+        lastErrorMsg = resData?.html_message || resData?.message || resData?.data?.[0]?.remark || 'Cancellation failed';
+      }
+    } catch (err) {
+      lastErrorMsg = err.response?.data?.html_message || err.response?.data?.message || err.message;
+      console.warn(`[iThink Logistics] Cancel attempt notice on ${url}:`, lastErrorMsg);
+    }
   }
+
+  return {
+    success: false,
+    message: lastErrorMsg || 'Unable to cancel shipment on iThink Logistics'
+  };
 };
 
 export default {
